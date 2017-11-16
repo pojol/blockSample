@@ -1,0 +1,4 @@
+ADD_SUBDIRECTORY(client)
+ADD_SUBDIRECTORY(distributed_gate)
+ADD_SUBDIRECTORY(distributed_login)
+ADD_SUBDIRECTORY(distributed_root)

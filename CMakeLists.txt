@@ -16,11 +16,12 @@ endif()
 
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
-SET(GSF_PATH E:/github/gsf CACHE INTERNAL "gsf path")
+SET(GSF_PATH C:/github/gsf CACHE INTERNAL "gsf path")
 
 
 
-ADD_SUBDIRECTORY(distributed_login)
-ADD_SUBDIRECTORY(distributed_root)
-ADD_SUBDIRECTORY(distributed_gate)
-ADD_SUBDIRECTORY(client)
+ADD_SUBDIRECTORY(distributed)
+ADD_SUBDIRECTORY(timer)
+ADD_SUBDIRECTORY(echo_client)
+ADD_SUBDIRECTORY(echo_server)
+ADD_SUBDIRECTORY(dbproxy)
