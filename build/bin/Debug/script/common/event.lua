@@ -35,6 +35,10 @@ function dump ( t )
     print()
 end
 
-function listen(self_id, event_id, func)
-	event:llisten(module_id, self_id, event_id, func)
+function dispatch(target, eventID, args, func)
+    event:ldispatch(module_id, target, eventID, args, func)
+end
+
+function listen(target, eventID, func)
+	event:llisten(module_id, target, eventID, func)
 end

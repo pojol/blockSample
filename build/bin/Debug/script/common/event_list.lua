@@ -1,7 +1,7 @@
 
 eid = {
 	app_id = 1,
-	get_module = 101,
+	get_module = 3,
 	new_dynamic_module = 102,
 	delete_dynamic_module = 103,
 	
@@ -32,10 +32,11 @@ eid = {
 	},
 	
 	timer = {
-		delay_milliseconds = 3001,
-		delay_day = 3002,
-		delay_week = 3003,
-		remove_timer = 3005,
-		timer_arrive = 3006,
+		delay_milliseconds = 4000,
+		delay_day = 4001,
+		delay_week = 4002,
+		delay_month = 4003,
+		remove_timer = 4004,
+		timer_arrive = 4005,
 	},
 }

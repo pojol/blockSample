@@ -1,38 +1,3 @@
-
-function dump ( t )  
-    local print_r_cache={}
-    local function sub_print_r(t,indent)
-        if (print_r_cache[tostring(t)]) then
-            print(indent.."*"..tostring(t))
-        else
-            print_r_cache[tostring(t)]=true
-            if (type(t)=="table") then
-                for pos,val in pairs(t) do
-                    if (type(val)=="table") then
-                        print(indent.."["..pos.."] => "..tostring(t).." {")
-                        sub_print_r(val,indent..string.rep(" ",string.len(pos)+8))
-                        print(indent..string.rep(" ",string.len(pos)+6).."}")
-                    elseif (type(val)=="string") then
-                        print(indent.."["..pos..'] => "'..val..'"')
-                    else
-                        print(indent.."["..pos.."] => "..tostring(val))
-                    end
-                end
-            else
-                print(indent..tostring(t))
-            end
-        end
-    end
-    if (type(t)=="table") then
-        print(tostring(t).." {")
-        sub_print_r(t,"  ")
-        print("}")
-    else
-        sub_print_r(t,"  ")
-    end
-    print()
-end
-
 module = {
     before_init = function(dir) end,
 	init = function() end,
@@ -52,16 +17,16 @@ module.before_init = function(dir)
 	table.insert(package_path, dir .. "/protobuf/?.lua")
     package.path = table.concat(package_path, ';')
 
-    --require "event"
+    require "event"
     require "event_list"
 	
-	event:ldispatch(module_id, eid.app_id, 3, {"LogModule"}, function(args) 
+	dispatch(eid.app_id, eid.get_module, {"LogModule"}, function(args) 
     	log_m_ = args[1]
 		print("log " .. log_m_)
 	end)
-
-	event:ldispatch(module_id, eid.app_id, 3, {"TimerModule"}, function(args)
-		timer_m_ = args[1]
+	
+	dispatch(eid.app_id, eid.get_module, {"TimerModule"}, function(args) 
+    	timer_m_ = args[1]
 		print("timer " .. timer_m_)
 	end)
 
@@ -69,13 +34,13 @@ end
 
 module.init = function()
 	print("init")
-	event:llisten(module_id, module_id, 4005, onTimer)
-	
-	event:ldispatch(module_id, timer_m_, 4000, {module_id, 20}, function(args) 
+
+	listen(module_id, eid.timer.timer_arrive, onTimer)
+
+	dispatch(timer_m_, eid.timer.delay_milliseconds, {module_id, 20}, function(args)
 		millisecond_timer_id = args[1]
 		print("create timer id = " .. millisecond_timer_id)
 	end)
-	
 end
 
 module.execute = function()
@@ -93,7 +58,7 @@ function onTimer(args, callback)
 	if timer_id == millisecond_timer_id then
 		print("on timer")
 
-		event:ldispatch(module_id, timer_m_, 4000, {module_id, 20}, function(args)
+		dispatch(timer_m_, eid.timer.delay_milliseconds, {module_id, 20}, function(args)
 			millisecond_timer_id = args[1]
 		end)
 	end
