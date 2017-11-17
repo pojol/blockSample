@@ -1,32 +1,38 @@
 
 
 
-function dispatch(...)
-	arg = { ... }
-	
-	local _len = #arg
-	local _args = Args.new()
-	
-    for k,v in pairs(arg) do
-		
-		if k > 2 then
-			if type(v) == "number" then
-				_args:push_i32(v)
-			end
-			if type(v) == "string" then
-				_args:push_string(v)
-			end
-		end
-
-	end
-
-	if not arg[1] then
-		print_warning("warning", "target id = nil")
-	end
-	if not arg[2] then
-		print_warning("warning", "event id = nil")
-	end
-	event:ldispatch(module_id, arg[1], arg[2], _args, arg[_len])
+function dump ( t )  
+    local print_r_cache={}
+    local function sub_print_r(t,indent)
+        if (print_r_cache[tostring(t)]) then
+            print(indent.."*"..tostring(t))
+        else
+            print_r_cache[tostring(t)]=true
+            if (type(t)=="table") then
+                for pos,val in pairs(t) do
+                    if (type(val)=="table") then
+                        print(indent.."["..pos.."] => "..tostring(t).." {")
+                        sub_print_r(val,indent..string.rep(" ",string.len(pos)+8))
+                        print(indent..string.rep(" ",string.len(pos)+6).."}")
+                    elseif (type(val)=="string") then
+                        print(indent.."["..pos..'] => "'..val..'"')
+                    else
+                        print(indent.."["..pos.."] => "..tostring(val))
+                    end
+                end
+            else
+                print(indent..tostring(t))
+            end
+        end
+    end
+    if (type(t)=="table") then
+        print(tostring(t).." {")
+        sub_print_r(t,"  ")
+        print("}")
+    else
+        sub_print_r(t,"  ")
+    end
+    print()
 end
 
 function listen(self_id, event_id, func)
