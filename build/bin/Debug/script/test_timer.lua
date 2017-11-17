@@ -1,5 +1,5 @@
 module = {
-    before_init = function(dir) end,
+	before_init = function(dir) end,
 	init = function() end,
 	execute = function() end,
 	shut = function() end,
@@ -13,20 +13,20 @@ millisecond_timer_id = 0
 module.before_init = function(dir)
 	print("before init")
 	local package_path = {}
-    table.insert(package_path, dir .. "/common/?.lua")
+	table.insert(package_path, dir .. "/common/?.lua")
 	table.insert(package_path, dir .. "/protobuf/?.lua")
-    package.path = table.concat(package_path, ';')
+	package.path = table.concat(package_path, ';')
 
-    require "event"
-    require "event_list"
+	require "event"
+	require "event_list"
 	
 	dispatch(eid.app_id, eid.get_module, {"LogModule"}, function(args) 
-    	log_m_ = args[1]
+		log_m_ = args[1]
 		print("log " .. log_m_)
 	end)
 	
 	dispatch(eid.app_id, eid.get_module, {"TimerModule"}, function(args) 
-    	timer_m_ = args[1]
+		timer_m_ = args[1]
 		print("timer " .. timer_m_)
 	end)
 
