@@ -3,41 +3,41 @@ PROJECT(test_dbproxy)
 #引用头文件目录
 if(WIN32)
 	INCLUDE_DIRECTORIES(
-			${GSF_SOURCE_DIR}/3rd/protobuf-3.2.0/src
-			${GSF_SOURCE_DIR}/3rd/libevent-2.0.22-stable/include
-			${GSF_SOURCE_DIR}/
-			${GSF_SOURCE_DIR}/modules
+			${GSF_PATH}/3rd/protobuf-3.2.0/src
+			${GSF_PATH}/3rd/libevent-2.0.22-stable/include
+			${GSF_PATH}/
+			${GSF_PATH}/modules
 	)
 endif()
 if(UNIX)
 	INCLUDE_DIRECTORIES(
-			${GSF_SOURCE_DIR}/lib/libevent/include
-			${GSF_SOURCE_DIR}/
-			${GSF_SOURCE_DIR}/modules
-			${GSF_SOURCE_DIR}/lib/protobuf/include
-			${GSF_SOURCE_DIR}/lib/glog/include	
+			${GSF_PATH}/lib/libevent/include
+			${GSF_PATH}/
+			${GSF_PATH}/modules
+			${GSF_PATH}/lib/protobuf/include
+			${GSF_PATH}/lib/glog/include	
 		)
 endif()
 if(APPLE)
     INCLUDE_DIRECTORIES(
-            ${GSF_SOURCE_DIR}/3rd/libevent-2.0.22-stable/include
-            ${GSF_SOURCE_DIR}/
-			${GSF_SOURCE_DIR}/modules
+            ${GSF_PATH}/3rd/libevent-2.0.22-stable/include
+            ${GSF_PATH}/
+			${GSF_PATH}/modules
 	)
 endif()
 
 #引用库目录
 if(WIN32)
 	LINK_DIRECTORIES(
-			${GSF_SOURCE_DIR}/lib/win/Debug
+			${GSF_PATH}/lib/win/Debug
 	)
 endif()
 if(UNIX)
 	LINK_DIRECTORIES(
-			${GSF_SOURCE_DIR}/lib
-			${GSF_SOURCE_DIR}/lib/libevent/lib
-			${GSF_SOURCE_DIR}/lib/glog/lib
-			${GSF_SOURCE_DIR}/lib/protobuf/lib
+			${GSF_PATH}/lib
+			${GSF_PATH}/lib/libevent/lib
+			${GSF_PATH}/lib/glog/lib
+			${GSF_PATH}/lib/protobuf/lib
 	)
 endif()
 if(APPLE)
@@ -69,7 +69,7 @@ if(UNIX)
 		target_link_libraries(test_dbproxy Threads::Threads)
 	endif()
 	
-	target_link_libraries(test_dbproxy libgsf_core.a libnetwork.a libevent.a libevent_core.a libevent_extra.a libtimer.a libprotobuf.a liblog.a libglog.a)
+	target_link_libraries(test_dbproxy -lpthread libgsf_core.a libnetwork.a libevent.a libevent_core.a libevent_extra.a libtimer.a libprotobuf.a liblog.a libglog.a)
 
 endif()
 if(APPLE)

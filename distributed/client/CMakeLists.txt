@@ -1,32 +1,30 @@
 PROJECT(client)
 
-#引用头文件目录
 if(WIN32)
 	INCLUDE_DIRECTORIES(
-			${GSF_PATH}/3rd/protobuf-3.2.0/src
-			${GSF_PATH}/3rd/libevent-2.0.22-stable/include
-			${GSF_PATH}/
-			${GSF_PATH}/modules
+		${GSF_PATH}/3rd/protobuf-3.2.0/src
+		${GSF_PATH}/3rd/libevent-2.0.22-stable/include
+		${GSF_PATH}/
+		${GSF_PATH}/modules
 	)
 endif()
 if(UNIX)
 	INCLUDE_DIRECTORIES(
-			${GSF_PATH}/
-			${GSF_PATH}/modules
-			${GSF_PATH}/lib/linux/libevent/include
-			${GSF_PATH}/3rd/lua53/lua-5.3.4/src
-			${GSF_PATH}/3rd/sol2
-		)
+		${GSF_PATH}/
+		${GSF_PATH}/modules
+		${GSF_PATH}/lib/libevent/include
+		${GSF_PATH}/3rd/lua53/lua-5.3.4/src
+		${GSF_PATH}/3rd/sol2
+	)
 endif()
 if(APPLE)
     INCLUDE_DIRECTORIES(
-            ${GSF_PATH}/3rd/libevent-2.0.22-stable/include
-            ${GSF_PATH}/
-			${GSF_PATH}/modules
+		${GSF_PATH}/3rd/libevent-2.0.22-stable/include
+        	${GSF_PATH}/
+		${GSF_PATH}/modules
 	)
 endif()
 
-#引用库目录
 if(WIN32)
 	LINK_DIRECTORIES(
 			${GSF_PATH}/lib/win/Debug
@@ -35,9 +33,9 @@ endif()
 if(UNIX)
 	find_package(Threads)
 	LINK_DIRECTORIES(
-			${GSF_PATH}/lib/linux
-			${GSF_PATH}/lib/linux/libevent/lib
-			${GSF_PATH}/lib/linux/glog/lib
+			${GSF_PATH}/lib/
+			${GSF_PATH}/lib/libevent/lib
+			${GSF_PATH}/lib/glog/lib
 	)
 endif()
 if(APPLE)

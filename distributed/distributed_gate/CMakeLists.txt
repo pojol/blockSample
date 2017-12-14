@@ -1,6 +1,5 @@
 PROJECT(distributed_gate)
 
-#引用头文件目录
 if(WIN32)
 	INCLUDE_DIRECTORIES(
 			${GSF_PATH}/3rd/protobuf-3.2.0/src
@@ -15,8 +14,8 @@ if(UNIX)
 	INCLUDE_DIRECTORIES(
 			${GSF_PATH}/
 			${GSF_PATH}/modules
-			${GSF_PATH}/lib/linux/libevent/include
-			${GSF_PATH}/3rd/lua53/lua-5.3.4/src
+			${GSF_PATH}/lib/libevent/include
+			${GSF_PATH}/lib/lua
 			${GSF_PATH}/3rd/sol2
 		)
 endif()
@@ -28,7 +27,6 @@ if(APPLE)
 	)
 endif()
 
-#引用库目录
 if(WIN32)
 	LINK_DIRECTORIES(
 			${GSF_PATH}/lib/win/Debug
@@ -37,9 +35,10 @@ endif()
 if(UNIX)
 	find_package(Threads)
 	LINK_DIRECTORIES(
-			${GSF_PATH}/lib/linux
-			${GSF_PATH}/lib/linux/libevent/lib
-			${GSF_PATH}/lib/linux/glog/lib
+			${GSF_PATH}/lib
+			${GSF_PATH}/lib/lua
+			${GSF_PATH}/lib/libevent/lib
+			${GSF_PATH}/lib/glog/lib
 	)
 endif()
 if(APPLE)
@@ -63,9 +62,10 @@ if(MSVC)
 
         TARGET_LINK_LIBRARIES(distributed_gate libevent.lib libevent_core.lib libevent_extras.lib network.lib gsf_core.lib ws2_32.lib libprotocd.lib libprotobufd.lib glog.lib log.lib distributed.lib lua53.lib lua_proxy.lib timer.lib)
 endif()
-if(UNIX)
-		TARGET_LINK_LIBRARIES(distributed_gate  ${CMAKE_THREAD_LIBS_INIT} libnetwork.a libevent.a libevent_core.a libevent_extra.a libtimer.a libgsf_core.a liblog.a libglog.a liblua_proxy.a)
-endif()
-if(APPLE)
 
+if(UNIX)
+	TARGET_LINK_LIBRARIES(distributed_gate  ${CMAKE_THREAD_LIBS_INIT} libnetwork.a libevent.a libevent_core.a libevent_extra.a libtimer.a libgsf_core.a liblua.a liblog.a libglog.a liblua_proxy.a)
+endif()
+
+if(APPLE)
 endif()
