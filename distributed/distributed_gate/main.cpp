@@ -29,14 +29,14 @@
 #include <log/log.h>
 
 
-class GateLoginModule
+class GateModule
 	: public gsf::Module
 	, public gsf::IEvent
 {
 public:
 
-	GateLoginModule()
-		: Module("GateLoginModule")
+	GateModule()
+		: Module("GateModule")
 	{}
 
 	void before_init() override
@@ -111,21 +111,16 @@ public:
 
 		listen(this, eid::distributed::node_create_succ, [&](const gsf::ArgsPtr &args, gsf::CallbackFunc callback) {
 			std::cout << "create_node_succ" << std::endl;
-
 			dispatch(acceptor_m_, eid::network::make_acceptor, gsf::make_args(get_module_id(), acceptor_ip_, acceptor_port_));
 		});
 
 		listen(this, eid::network::dis_connect, [&](const gsf::ArgsPtr &args, gsf::CallbackFunc callback) {
-
 			std::cout << "dis connect fd = " << args->pop_fd() << std::endl;
-
 			rpc("CoodinatorModule", eid::distributed::coordinat_adjust_weight, gsf::make_args(node_id_, "GateLoginModule", 0, -1));
 		});
 
 		listen(this, eid::network::new_connect, [&](const gsf::ArgsPtr &args, gsf::CallbackFunc callback) {
-
 			std::cout << "new connect fd = " << args->pop_fd() << std::endl;
-
 			rpc("CoodinatorModule", eid::distributed::coordinat_adjust_weight, gsf::make_args(node_id_, "GateLoginModule",0 , 1));
 		});
 	}
@@ -252,7 +247,7 @@ int main()
 	app.regist_module(new PathModule);
 	app.regist_module(new CfgModule);
 
-	app.regist_module(new GateLoginModule);
+	app.regist_module(new GateModule);
 
 	app.run();
 

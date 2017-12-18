@@ -26,34 +26,34 @@
 #include <log/log.h>
 
 
-class ClientConnector
+class LoginConnectorModule
 	: public gsf::network::ConnectorModule
 {
 public:
-	ClientConnector()
-		: gsf::network::ConnectorModule("ClientConnector")
+	LoginConnectorModule()
+		: gsf::network::ConnectorModule("LoginConnectorModule")
 	{}
 };
 
-class ClientGateConnector
+class GateConnectorModule
 	: public gsf::network::ConnectorModule
 {
 public:
-	ClientGateConnector()
-		: gsf::network::ConnectorModule("ClientGateConnector")
+	GateConnectorModule()
+		: gsf::network::ConnectorModule("GateConnectorModule")
 	{}
 };
 
 
-class Client
+class ClientModule
 	: public gsf::Module
 	, public gsf::IEvent
 {
 
 public:
 
-	Client()
-		: Module("Client")
+	ClientModule()
+		: Module("ClientModule")
 	{}
 
 	
@@ -63,24 +63,23 @@ public:
 			log_m_ = args->pop_moduleid();
 		});
 
-		dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("ClientConnector"), [&](const gsf::ArgsPtr &args) {
-			client_connector_m_ = args->pop_moduleid();
+		dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("LoginConnectorModule"), [&](const gsf::ArgsPtr &args) {
+			login_connector_m_ = args->pop_moduleid();
 		});
 
-		dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("ClientGateConnector"), [&](const gsf::ArgsPtr &args) {
-			gate_m_ = args->pop_moduleid();
+		dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("GateConnectorModule"), [&](const gsf::ArgsPtr &args) {
+			gate_connector_m_ = args->pop_moduleid();
 		});
 	}
 
 	void init() override
 	{
-		dispatch(client_connector_m_, eid::network::make_connector, gsf::make_args(get_module_id(), "127.0.0.1", 8001));
+		dispatch(login_connector_m_, eid::network::make_connector, gsf::make_args(get_module_id(), "127.0.0.1", 8001));
 
 		listen(this, eid::network::new_connect, [&](const gsf::ArgsPtr &args, gsf::CallbackFunc callback) {
 			auto _fd = args->pop_fd();
 
-
-			dispatch(client_connector_m_, eid::network::send, gsf::make_args(10001, "login"));
+			dispatch(login_connector_m_, eid::network::send, gsf::make_args(10001, "login"));
 		});
 
 		listen(this, eid::network::recv, [&](const gsf::ArgsPtr &args, gsf::CallbackFunc callback) {
@@ -93,7 +92,7 @@ public:
 				auto iport = std::atoi(_port.c_str());
 				gate_port_ = iport;
 
-				dispatch(eid::base::app_id, eid::base::delete_module, gsf::make_args(client_connector_m_));
+				dispatch(eid::base::app_id, eid::base::delete_module, gsf::make_args(gate_connector_m_));
 				std::cout << "relogin gate! " << iport << std::endl;
 			}
 
@@ -102,16 +101,16 @@ public:
 		listen(this, eid::module_shut_succ, [&](const gsf::ArgsPtr &args, gsf::CallbackFunc callback) {
 			auto _module_id = args->pop_moduleid();
 
-			if (_module_id == client_connector_m_) {	// connect 2 gate!
-				dispatch(gate_m_, eid::network::make_connector, gsf::make_args(get_module_id(), "127.0.0.1", gate_port_));
+			if (_module_id == login_connector_m_) {	// connect 2 gate!
+				dispatch(gate_connector_m_, eid::network::make_connector, gsf::make_args(get_module_id(), "127.0.0.1", gate_port_));
 			}
 		});
 	}
 
 private:
 	gsf::ModuleID log_m_ = gsf::ModuleNil;
-	gsf::ModuleID client_connector_m_ = gsf::ModuleNil;
-	gsf::ModuleID gate_m_ = gsf::ModuleNil;
+	gsf::ModuleID login_connector_m_ = gsf::ModuleNil;
+	gsf::ModuleID gate_connector_m_ = gsf::ModuleNil;
 
 	uint32_t gate_port_ = 0;
 };
@@ -130,11 +129,10 @@ int main()
 	app.init_cfg(cfg);
 
 	app.regist_module(new gsf::modules::LogModule);
-	app.regist_module(new ClientConnector);
-	app.regist_module(new ClientGateConnector);
+	app.regist_module(new LoginConnectorModule);
+	app.regist_module(new GateConnectorModule);
 
-	app.regist_module(new Client);
-
+	app.regist_module(new ClientModule);
 
 	app.run();
 

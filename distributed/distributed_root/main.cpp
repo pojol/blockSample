@@ -28,14 +28,14 @@
 
 #include <log/log.h>
 
-class RootServer1
+class RootModule
 	: public gsf::Module
 	, public gsf::IEvent
 {
 public:
 
-	RootServer1()
-		: Module("RootServer1")
+	RootModule()
+		: Module("RootModule")
 	{}
 
 	void before_init() override
@@ -133,7 +133,7 @@ int main()
 	app.regist_module(new gsf::network::AcceptorModule);
 	app.regist_module(new gsf::modules::CoodinatorModule);
 
-	app.regist_module(new RootServer1);
+	app.regist_module(new RootModule);
 	
 
 	app.run();

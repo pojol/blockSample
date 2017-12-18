@@ -25,12 +25,12 @@
 
 #include <log/log.h>
 
-class Connect2Root
+class RootConnectorModule
 	: public gsf::network::ConnectorModule
 {
 public:
-	Connect2Root()
-		: gsf::network::ConnectorModule("Connect2Root")
+	RootConnectorModule()
+		: gsf::network::ConnectorModule("RootConnectorModule")
 	{}
 };
 
@@ -42,13 +42,13 @@ enum login_event
 };
 
 
-class Login2Root
+class RootModule
 	: public gsf::Module
 	, public gsf::IEvent
 {
 public:
-	Login2Root()
-		: Module("Login2Root")
+	RootModule()
+		: Module("RootModule")
 	{}
 
 	void before_init() override
@@ -57,32 +57,20 @@ public:
 			log_m_ = args->pop_moduleid();
 		});
 
-		dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("NodeModule"), [&](const gsf::ArgsPtr &args) {
-			node_m_ = args->pop_moduleid();
-		});
-
-		dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("Connect2Root"), [&](const gsf::ArgsPtr &args) {
-			connect2root_m_ = args->pop_moduleid();
+		dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("RootConnectorModule"), [&](const gsf::ArgsPtr &args) {
+			root_connector_m_ = args->pop_moduleid();
 		});
 
 		using namespace std::placeholders;
-		listen(this, login_event::to_root, std::bind(&Login2Root::event_rpc, this, _1, _2));
+		listen(this, login_event::to_root, std::bind(&RootModule::event_rpc, this, _1, _2));
 	}
 
 	void init() override
 	{
-		dispatch(connect2root_m_, eid::network::make_connector, gsf::make_args(get_module_id(), "127.0.0.1", 10001));
+		dispatch(root_connector_m_, eid::network::make_connector, gsf::make_args(get_module_id(), "127.0.0.1", 10001));
 
 		listen(this, eid::network::new_connect, [&](const gsf::ArgsPtr &args, gsf::CallbackFunc callback) {
-			connect2root_fd_ = args->pop_fd();
-
-			std::cout << "connect ! fd=" << connect2root_fd_ << std::endl;
-
-			//dispatch(connect2root_m_, eid::network::send, gsf::make_args(connect2root_fd_, eid::distributed::regist_node
-			//	, "Login", 8001));
-
-			//dispatch(connect2root_m_, eid::network::send, gsf::make_args(_fd, eid::distributed::login, "hello!"));
-
+			std::cout << "connect ! fd=" << args->pop_fd() << std::endl;
 		});
 
 		listen(this, eid::network::recv, [&](const gsf::ArgsPtr &args, gsf::CallbackFunc callback) {
@@ -111,30 +99,26 @@ public:
 		auto _password = args->pop_string();
 		auto _md5 = "123";
 
-		//dispatch_rpc("DBLoginAuthModule", eid::distributed::login, gsf::make_args(_account, _password, _md5));
-		// 认证完成
-
-		dispatch(connect2root_m_, eid::network::send, gsf::make_args(eid::distributed::login_select_gate, "GateLoginModule", _client_fd));
+		dispatch(root_connector_m_, eid::network::send, gsf::make_args(eid::distributed::login_select_gate, "GateLoginModule", _client_fd));
 	}
 
 private:
-	gsf::ModuleID node_m_ = gsf::ModuleNil;
 	gsf::ModuleID log_m_ = gsf::ModuleNil;
 
-	gsf::ModuleID connect2root_m_ = gsf::ModuleNil;
+	gsf::ModuleID root_connector_m_ = gsf::ModuleNil;
 	gsf::SessionID connect2root_fd_ = gsf::SessionNil;
 
 	bool is_regist_ = false;
 };
 
-class LoginServerModule
+class LoginModule
 	: public gsf::Module
 	, public gsf::IEvent
 {
 public:
 
-	LoginServerModule()
-		: Module("LoginServerModule")
+	LoginModule()
+		: Module("LoginModule")
 	{}
 
 	void before_init() override
@@ -147,12 +131,12 @@ public:
 			acceptor_m_ = args->pop_moduleid();
 		});
 
-		dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("Login2Root"), [&](const gsf::ArgsPtr &args) {
-			login2root_m_ = args->pop_moduleid();
+		dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("RootModule"), [&](const gsf::ArgsPtr &args) {
+			root_m_ = args->pop_moduleid();
 		});
 
 		using namespace std::placeholders;
-		listen(this, login_event::to_client, std::bind(&LoginServerModule::event_send, this, _1, _2));
+		listen(this, login_event::to_client, std::bind(&LoginModule::event_send, this, _1, _2));
 	}
 
 	void init() override
@@ -174,7 +158,7 @@ public:
 			if (_msgid == 10001) {	// client login
 				std::cout << "client login!" << std::endl;
 
-				dispatch(login2root_m_, login_event::to_root, gsf::make_args(_fd, "account", "password"));
+				dispatch(root_m_, login_event::to_root, gsf::make_args(_fd, "account", "password"));
 			}
 		});
 	}
@@ -190,7 +174,7 @@ public:
 private:
 	gsf::ModuleID log_m_ = gsf::ModuleNil;
 	gsf::ModuleID acceptor_m_ = gsf::ModuleNil;
-	gsf::ModuleID login2root_m_ = gsf::ModuleNil;
+	gsf::ModuleID root_m_ = gsf::ModuleNil;
 };
 
 
@@ -208,9 +192,10 @@ int main()
 
 	app.regist_module(new gsf::modules::LogModule);
 	app.regist_module(new gsf::network::AcceptorModule);
-	app.regist_module(new Connect2Root);
-	app.regist_module(new Login2Root);
-	app.regist_module(new LoginServerModule);
+	app.regist_module(new RootConnectorModule);
+
+	app.regist_module(new RootModule);
+	app.regist_module(new LoginModule);
 
 	app.run();
 
