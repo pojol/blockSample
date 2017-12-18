@@ -5,6 +5,7 @@ if(WIN32)
 	INCLUDE_DIRECTORIES(
 			${GSF_PATH}/3rd/protobuf-3.2.0/src
 			${GSF_PATH}/3rd/libevent-2.0.22-stable/include
+			${GSF_PATH}/3rd/fmt
 			${GSF_PATH}/
 			${GSF_PATH}/modules
 	)

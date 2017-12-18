@@ -55,6 +55,8 @@ public:
 		dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("CoodinatorModule"), [&](const gsf::ArgsPtr &args) {
 			coodinator_m_ = args->pop_moduleid();
 		});
+
+
 	}
 
 	void init() override

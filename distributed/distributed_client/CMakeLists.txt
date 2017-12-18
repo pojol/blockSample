@@ -1,4 +1,4 @@
-PROJECT(client)
+PROJECT(distributed_client)
 
 if(WIN32)
 	INCLUDE_DIRECTORIES(
@@ -42,7 +42,7 @@ if(APPLE)
 endif()
 
 FILE(GLOB_RECURSE SRC "*.cpp" "*.h" "*.cc")
-ADD_EXECUTABLE(client ${SRC})
+ADD_EXECUTABLE(distributed_client ${SRC})
 
 if(MSVC)
     # Use the static C library for all build types
@@ -57,10 +57,10 @@ if(MSVC)
       endif()
     endforeach()
 
-        TARGET_LINK_LIBRARIES(client libevent.lib libevent_core.lib libevent_extras.lib network.lib gsf_core.lib ws2_32.lib libprotocd.lib libprotobufd.lib glog.lib log.lib distributed.lib)
+        TARGET_LINK_LIBRARIES(distributed_client libevent.lib libevent_core.lib libevent_extras.lib network.lib gsf_core.lib ws2_32.lib libprotocd.lib libprotobufd.lib glog.lib log.lib distributed.lib)
 endif()
 if(UNIX)
-		TARGET_LINK_LIBRARIES(client  ${CMAKE_THREAD_LIBS_INIT} libnetwork.a libevent.a libevent_core.a libevent_extra.a libtimer.a libgsf_core.a liblog.a libglog.a liblua_proxy.a)
+		TARGET_LINK_LIBRARIES(distributed_client  ${CMAKE_THREAD_LIBS_INIT} libnetwork.a libevent.a libevent_core.a libevent_extra.a libtimer.a libgsf_core.a liblog.a libglog.a liblua_proxy.a)
 endif()
 if(APPLE)
 
