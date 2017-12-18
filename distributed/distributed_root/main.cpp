@@ -23,8 +23,8 @@
 #include <network/acceptor.h>
 #include <network/connector.h>
 
-#include <distributed\node.h>
-#include <distributed\coordinate.h>
+#include <distributed/node.h>
+#include <distributed/coordinate.h>
 
 #include <log/log.h>
 

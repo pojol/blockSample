@@ -2,43 +2,44 @@ PROJECT(distributed_gate)
 
 if(WIN32)
 	INCLUDE_DIRECTORIES(
-			${GSF_PATH}/3rd/protobuf-3.2.0/src
-			${GSF_PATH}/3rd/libevent-2.0.22-stable/include
-			${GSF_PATH}/3rd/sol2-2.16.0
-			${GSF_PATH}/3rd/lua-5.3.4/src
-			${GSF_PATH}/
-			${GSF_PATH}/modules
+		${GSF_PATH}/3rd/protobuf-3.2.0/src
+		${GSF_PATH}/3rd/libevent-2.0.22-stable/include
+		${GSF_PATH}/3rd/sol2-2.16.0
+		${GSF_PATH}/3rd/lua-5.3.4/src
+		${GSF_PATH}/
+		${GSF_PATH}/modules
 	)
 endif()
 if(UNIX)
 	INCLUDE_DIRECTORIES(
-			${GSF_PATH}/
-			${GSF_PATH}/modules
-			${GSF_PATH}/lib/libevent/include
-			${GSF_PATH}/lib/lua
-			${GSF_PATH}/3rd/sol2
+		${GSF_PATH}/
+		${GSF_PATH}/modules
+		${GSF_PATH}/lib/libevent/include
+		${GSF_PATH}/lib/lua
+		${GSF_PATH}/3rd/sol2
 		)
 endif()
 if(APPLE)
     INCLUDE_DIRECTORIES(
-            ${GSF_PATH}/3rd/libevent-2.0.22-stable/include
-            ${GSF_PATH}/
-			${GSF_PATH}/modules
+		${GSF_PATH}/3rd/libevent-2.0.22-stable/include
+		${GSF_PATH}/
+		${GSF_PATH}/modules
 	)
 endif()
 
 if(WIN32)
 	LINK_DIRECTORIES(
-			${GSF_PATH}/lib/win/Debug
+		${GSF_PATH}/lib/win/Debug
 	)
 endif()
 if(UNIX)
 	find_package(Threads)
 	LINK_DIRECTORIES(
-			${GSF_PATH}/lib
-			${GSF_PATH}/lib/lua
-			${GSF_PATH}/lib/libevent/lib
-			${GSF_PATH}/lib/glog/lib
+		${GSF_PATH}/lib
+		${GSF_PATH}/lib/lua
+		${GSF_PATH}/lib/fmt/lib
+		${GSF_PATH}/lib/libevent/lib
+		${GSF_PATH}/lib/glog/lib
 	)
 endif()
 if(APPLE)
@@ -64,7 +65,14 @@ if(MSVC)
 endif()
 
 if(UNIX)
-	TARGET_LINK_LIBRARIES(distributed_gate  ${CMAKE_THREAD_LIBS_INIT} libnetwork.a libevent.a libevent_core.a libevent_extra.a libtimer.a libgsf_core.a liblua.a liblog.a libglog.a liblua_proxy.a)
+	if ("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 3.1)
+   	     target_link_libraries(distributed_gate ${CMAKE_THREAD_LIBS_INIT})
+        else()
+                target_link_libraries(distributed_gate Threads::Threads)
+        endif()
+
+
+	TARGET_LINK_LIBRARIES(distributed_gate libdistributed.a libgsf_core.a libnetwork.a libevent.a libevent_core.a libevent_extra.a libtimer.a liblog.a libglog.a liblua_proxy.a libfmt.a liblua.a -ldl)
 endif()
 
 if(APPLE)
