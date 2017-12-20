@@ -36,7 +36,7 @@ function dump ( t )
 end
 
 function dispatch(target, eventID, args, func)
-    event:ldispatch(module_id, target, eventID, args, func)
+    return event:ldispatch(module_id, target, eventID, args, func)
 end
 
 function listen(target, eventID, func)

@@ -20,27 +20,18 @@ module.before_init = function(dir)
 	require "event"
 	require "event_list"
 	
-	dispatch(eid.app_id, eid.get_module, {"LogModule"}, function(args) 
-		log_m_ = args[1]
-		print("log " .. log_m_)
-	end)
-	
-	dispatch(eid.app_id, eid.get_module, {"TimerModule"}, function(args) 
-		timer_m_ = args[1]
-		print("timer " .. timer_m_)
-	end)
+	log_m_ = dispatch(eid.app_id, eid.get_module, {"LogModule"})[1]
+	timer_m_ = dispatch(eid.app_id, eid.get_module, {"TimerModule"})[1]
 
 end
 
 module.init = function()
 	print("init")
-
+	
 	listen(module_id, eid.timer.timer_arrive, onTimer)
 
-	dispatch(timer_m_, eid.timer.delay_milliseconds, {module_id, 20}, function(args)
-		millisecond_timer_id = args[1]
-		print("create timer id = " .. millisecond_timer_id)
-	end)
+	millisecond_timer_id = dispatch(timer_m_, eid.timer.delay_milliseconds, {module_id, 20})[1]
+	print(millisecond_timer_id)
 end
 
 module.execute = function()
@@ -49,18 +40,16 @@ end
 module.shut = function()
 end
 
-
 ----------
 
-
-function onTimer(args, callback)
+function onTimer(args)
 	timer_id = args[1]
+
 	if timer_id == millisecond_timer_id then
 		print("on timer")
 
-		dispatch(timer_m_, eid.timer.delay_milliseconds, {module_id, 20}, function(args)
-			millisecond_timer_id = args[1]
-		end)
+		millisecond_timer_id = dispatch(timer_m_, eid.timer.delay_milliseconds, {module_id, 20})[1]
 	end
 
+	return {}
 end

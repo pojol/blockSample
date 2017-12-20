@@ -28,9 +28,33 @@ local modules = { {"GateLoginModule", 0}, }
 
 module.before_init = function(dir)
 
-	print("cfg init", module_id)
+	print("before init begin")
+	local package_path = {}
+	table.insert(package_path, dir .. "/common/?.lua")
+	table.insert(package_path, dir .. "/protobuf/?.lua")
+	package.path = table.concat(package_path, ';')
+
+	require "event"
+	require "event_list"
 
 	-- 7002 == eid::sample::get_cfg , tmp
+	listen(module_id, 7001, function(args, callback) 
+
+		res = {
+			distributed_id,
+			acceptor_ip,
+			acceptor_port,
+			connector_list,
+			modules
+		}
+
+		print(args)
+		print(callback)
+		callback(res)
+	end)
+
+	print("before init end")
+--[[
 	event:llisten(module_id, module_id, 7001, function (args, callback) 
 		local _args = Args.new()
 		_args:push_i32(distributed_id)
@@ -58,5 +82,5 @@ module.before_init = function(dir)
 
 		callback(_args)
 	end)
-
+]]--
 end

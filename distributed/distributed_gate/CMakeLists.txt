@@ -4,7 +4,7 @@ if(WIN32)
 	INCLUDE_DIRECTORIES(
 		${GSF_PATH}/3rd/protobuf-3.2.0/src
 		${GSF_PATH}/3rd/libevent-2.0.22-stable/include
-		${GSF_PATH}/3rd/sol2-2.16.0
+		${GSF_PATH}/3rd/sol2
 		${GSF_PATH}/3rd/lua-5.3.4/src
 		${GSF_PATH}/
 		${GSF_PATH}/modules
@@ -61,7 +61,7 @@ if(MSVC)
       endif()
     endforeach()
 
-        TARGET_LINK_LIBRARIES(distributed_gate libevent.lib libevent_core.lib libevent_extras.lib network.lib gsf_core.lib ws2_32.lib libprotocd.lib libprotobufd.lib glog.lib log.lib distributed.lib lua53.lib lua_proxy.lib timer.lib)
+        TARGET_LINK_LIBRARIES(distributed_gate libevent.lib libevent_core.lib libevent_extras.lib network.lib gsf_core.lib ws2_32.lib pbc.lib libprotobufd.lib glog.lib log.lib distributed.lib lua53.lib lua_proxy.lib timer.lib fmt.lib)
 endif()
 
 if(UNIX)
