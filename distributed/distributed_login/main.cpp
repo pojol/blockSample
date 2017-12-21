@@ -71,15 +71,16 @@ public:
 		});
 
 		listen(this, eid::network::recv, [&](const gsf::ArgsPtr &args) {
+
 			auto _fd = args->pop_fd();
 			auto _msgid = args->pop_msgid();
 
 			if (_msgid == eid::distributed::login_select_gate_cb) {
 				auto _client_fd = args->pop_fd();
-				auto _port = args->pop_fd();
+				auto _port = args->pop_i32();
 				std::cout << "select gate port = " << _port << std::endl;
 
-				auto _login_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("LoginServerModule"))->pop_moduleid();
+				auto _login_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("LoginModule"))->pop_moduleid();
 				dispatch(_login_m_, login_event::to_client, gsf::make_args(_client_fd, _port));
 			}
 
@@ -94,7 +95,7 @@ public:
 		auto _password = args->pop_string();
 		auto _md5 = "123";
 
-		dispatch(root_connector_m_, eid::network::send, gsf::make_args(eid::distributed::login_select_gate, "GateLoginModule", _client_fd));
+		dispatch(root_connector_m_, eid::network::send, gsf::make_args(eid::distributed::login_select_gate, "GameModule", 0, _client_fd));
 
 		return nullptr;
 	}
@@ -159,7 +160,7 @@ public:
 	gsf::ArgsPtr event_send(const gsf::ArgsPtr &args)
 	{
 		auto _client_fd = args->pop_fd();
-		auto _port = args->pop_fd();
+		auto _port = args->pop_i32();
 
 		dispatch(acceptor_m_, eid::network::send, gsf::make_args(_client_fd, 10002, std::to_string(_port)));
 

@@ -76,7 +76,7 @@ public:
 			if (_msgid == eid::distributed::coordinat_adjust_weight) {
 
 				auto _args = gsf::ArgsPool::get_ref().get();
-				auto _len = sizeof(gsf::SessionID) + sizeof(gsf::MsgID);
+				auto _len = sizeof(gsf::SessionID) + 1 + sizeof(gsf::MsgID) + 1;
 				_args->push_block(args->pop_block(_len, args->get_pos()).c_str(), args->get_pos() - _len);
 
 				_args->pop_string(); //POP module name
@@ -86,9 +86,10 @@ public:
 
 			if (_msgid == eid::distributed::login_select_gate) {
 				auto _module_name = args->pop_string();
+				auto _module_characteristic = args->pop_i32();
 				auto _client_fd = args->pop_fd();
 				
-				auto _port = dispatch(coodinator_m_, eid::distributed::coordinat_get, gsf::make_args(_module_name))->pop_i32();
+				auto _port = dispatch(coodinator_m_, eid::distributed::coordinat_get, gsf::make_args(_module_name, _module_characteristic))->pop_i32();
 				dispatch(acceptor_m_, eid::network::send
 						, gsf::make_args(_fd, eid::distributed::login_select_gate_cb, _client_fd, _port));
 			}

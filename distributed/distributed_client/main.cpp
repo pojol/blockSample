@@ -85,7 +85,7 @@ public:
 				auto iport = std::atoi(_port.c_str());
 				gate_port_ = iport;
 
-				dispatch(eid::base::app_id, eid::base::delete_module, gsf::make_args(gate_connector_m_));
+				dispatch(eid::base::app_id, eid::base::delete_module, gsf::make_args(login_connector_m_));
 				std::cout << "relogin gate! " << iport << std::endl;
 			}
 
@@ -108,7 +108,7 @@ private:
 	gsf::ModuleID login_connector_m_ = gsf::ModuleNil;
 	gsf::ModuleID gate_connector_m_ = gsf::ModuleNil;
 
-	uint32_t gate_port_ = 0;
+	int32_t gate_port_ = 0;
 };
 
 
