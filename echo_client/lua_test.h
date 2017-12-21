@@ -65,8 +65,8 @@ public:
 
 		path_ = _path;
 
-		listen(this, eid::sample::get_proc_path, [=](const gsf::ArgsPtr &args, gsf::CallbackFunc callback) {
-			callback(gsf::make_args(path_));
+		listen(this, eid::sample::get_proc_path, [=](const gsf::ArgsPtr &args) {
+			return gsf::make_args(path_);
 		});
 	}
 
@@ -87,18 +87,9 @@ public:
 
 	void before_init()
 	{
-		dispatch(eid::app_id, eid::get_module, gsf::make_args("LuaProxyModule"), [&](const gsf::ArgsPtr &args) {
-			luaproxy_m_ = args->pop_i32();
-		});
-
-		gsf::ModuleID _path_m = 0;
-		dispatch(eid::app_id, eid::get_module, gsf::make_args("PathModule"), [&](const gsf::ArgsPtr &args) {
-			_path_m = args->pop_i32();
-		});
-
-		dispatch(_path_m, eid::sample::get_proc_path, nullptr, [&](const gsf::ArgsPtr &_args) {
-			path_ = _args->pop_string();
-		});
+		luaproxy_m_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("LuaProxyModule"))->pop_moduleid();
+		gsf::ModuleID _path_m = dispatch(eid::app_id, eid::get_module, gsf::make_args("PathModule"))->pop_moduleid();
+		path_ = dispatch(_path_m, eid::sample::get_proc_path, nullptr)->pop_moduleid();
 	}
 
 	void init()

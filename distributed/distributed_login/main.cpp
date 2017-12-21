@@ -53,27 +53,24 @@ public:
 
 	void before_init() override
 	{
-		dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("LogModule"), [&](const gsf::ArgsPtr &args) {
-			log_m_ = args->pop_moduleid();
-		});
-
-		dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("RootConnectorModule"), [&](const gsf::ArgsPtr &args) {
-			root_connector_m_ = args->pop_moduleid();
-		});
+		log_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("LogModule"))->pop_moduleid();
+		root_connector_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("RootConnectorModule"))->pop_moduleid();
 
 		using namespace std::placeholders;
-		listen(this, login_event::to_root, std::bind(&RootModule::event_rpc, this, _1, _2));
+		listen(this, login_event::to_root, std::bind(&RootModule::event_rpc, this, _1));
 	}
 
 	void init() override
 	{
 		dispatch(root_connector_m_, eid::network::make_connector, gsf::make_args(get_module_id(), "127.0.0.1", 10001));
 
-		listen(this, eid::network::new_connect, [&](const gsf::ArgsPtr &args, gsf::CallbackFunc callback) {
+		listen(this, eid::network::new_connect, [&](const gsf::ArgsPtr &args) {
 			std::cout << "connect ! fd=" << args->pop_fd() << std::endl;
+
+			return nullptr;
 		});
 
-		listen(this, eid::network::recv, [&](const gsf::ArgsPtr &args, gsf::CallbackFunc callback) {
+		listen(this, eid::network::recv, [&](const gsf::ArgsPtr &args) {
 			auto _fd = args->pop_fd();
 			auto _msgid = args->pop_msgid();
 
@@ -82,17 +79,15 @@ public:
 				auto _port = args->pop_fd();
 				std::cout << "select gate port = " << _port << std::endl;
 
-				auto _login_m_ = gsf::ModuleNil;
-				dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("LoginServerModule"), [&](const gsf::ArgsPtr &args) {
-					_login_m_ = args->pop_moduleid();
-				});
-
+				auto _login_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("LoginServerModule"))->pop_moduleid();
 				dispatch(_login_m_, login_event::to_client, gsf::make_args(_client_fd, _port));
 			}
+
+			return nullptr;
 		});
 	}
 
-	void event_rpc(const gsf::ArgsPtr &args, gsf::CallbackFunc callback)
+	gsf::ArgsPtr event_rpc(const gsf::ArgsPtr &args)
 	{
 		auto _client_fd = args->pop_fd();
 		auto _account = args->pop_string();
@@ -100,6 +95,8 @@ public:
 		auto _md5 = "123";
 
 		dispatch(root_connector_m_, eid::network::send, gsf::make_args(eid::distributed::login_select_gate, "GateLoginModule", _client_fd));
+
+		return nullptr;
 	}
 
 private:
@@ -123,35 +120,29 @@ public:
 
 	void before_init() override
 	{
-		dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("LogModule"), [&](const gsf::ArgsPtr &args) {
-			log_m_ = args->pop_moduleid();
-		});
-
-		dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("AcceptorModule"), [&](const gsf::ArgsPtr &args) {
-			acceptor_m_ = args->pop_moduleid();
-		});
-
-		dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("RootModule"), [&](const gsf::ArgsPtr &args) {
-			root_m_ = args->pop_moduleid();
-		});
+		log_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("LogModule"))->pop_moduleid();
+		acceptor_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("AcceptorModule"))->pop_moduleid();
+		root_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("RootModule"))->pop_moduleid();
 
 		using namespace std::placeholders;
-		listen(this, login_event::to_client, std::bind(&LoginModule::event_send, this, _1, _2));
+		listen(this, login_event::to_client, std::bind(&LoginModule::event_send, this, _1));
 	}
 
 	void init() override
 	{
 		dispatch(acceptor_m_, eid::network::make_acceptor, gsf::make_args(get_module_id(), "127.0.0.1", 8001));
 
-		listen(this, eid::network::dis_connect, [&](const gsf::ArgsPtr &args, gsf::CallbackFunc callback) {
+		listen(this, eid::network::dis_connect, [&](const gsf::ArgsPtr &args) {
 			std::cout << "dis connect ! fd=" << args->pop_fd() << std::endl;
+			return nullptr;
 		});
 
-		listen(this, eid::network::new_connect, [&](const gsf::ArgsPtr &args, gsf::CallbackFunc callback) {
+		listen(this, eid::network::new_connect, [&](const gsf::ArgsPtr &args) {
 			std::cout << "new connect ! fd = " << args->pop_fd() << std::endl;
+			return nullptr;
 		});
 
-		listen(this, eid::network::recv, [&](const gsf::ArgsPtr &args, gsf::CallbackFunc callback) {
+		listen(this, eid::network::recv, [&](const gsf::ArgsPtr &args) {
 			auto _fd = args->pop_fd();
 			auto _msgid = args->pop_msgid();
 
@@ -160,15 +151,19 @@ public:
 
 				dispatch(root_m_, login_event::to_root, gsf::make_args(_fd, "account", "password"));
 			}
+
+			return nullptr;
 		});
 	}
 
-	void event_send(const gsf::ArgsPtr &args, gsf::CallbackFunc callback)
+	gsf::ArgsPtr event_send(const gsf::ArgsPtr &args)
 	{
 		auto _client_fd = args->pop_fd();
 		auto _port = args->pop_fd();
 
 		dispatch(acceptor_m_, eid::network::send, gsf::make_args(_client_fd, 10002, std::to_string(_port)));
+
+		return nullptr;
 	}
 
 private:

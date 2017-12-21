@@ -61,31 +61,28 @@ public:
 
 	void before_init() override
 	{
-		dispatch(eid::app_id, eid::get_module, gsf::make_args("LogModule"), [&](const gsf::ArgsPtr &args) {
-			log_m_ = args->pop_i32();
-		});
-
-		dispatch(eid::app_id, eid::get_module, gsf::make_args("Client2LoginServer"), [&](const gsf::ArgsPtr &args) {
-			client2login_ = args->pop_i32();
-		});
+		log_m_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("LogModule"))->pop_moduleid();
+		client2login_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("Client2LoginServer"))->pop_moduleid();
 	}
 
 	void init() override
 	{
 		//test
-		listen(this, eid::network::new_connect
-			, [=](const gsf::ArgsPtr &args, gsf::CallbackFunc callback) {
+		listen(this, eid::network::new_connect, [=](const gsf::ArgsPtr &args) {
 			dispatch(log_m_, eid::log::print, gsf::log_info("test", fmt::format("new connect fd = {}", args->pop_fd())));
+
+			return nullptr;
 		});
 
-		listen(this, eid::network::dis_connect
-			, [=](const gsf::ArgsPtr &args, gsf::CallbackFunc callback) {
+		listen(this, eid::network::dis_connect, [=](const gsf::ArgsPtr &args) {
 			dispatch(log_m_, eid::log::print, gsf::log_info("test", fmt::format("dis connect fd = {}", args->pop_fd())));
+
+			return nullptr;
 		});
 
 		dispatch(client2login_, eid::network::make_acceptor, gsf::make_args(get_module_id(), "127.0.0.1", 8001));
 
-		listen(this, eid::network::recv, [&](const gsf::ArgsPtr &args, gsf::CallbackFunc callback) {
+		listen(this, eid::network::recv, [&](const gsf::ArgsPtr &args) {
 			auto _fd = args->pop_fd();
 			auto _msgid = args->pop_msgid();
 
@@ -97,6 +94,8 @@ public:
 
 				std::cout << _p.name() << " " << _p.id() << " " << _p.email() << std::endl;
 			}
+
+			return nullptr;
 		});
 	}
 

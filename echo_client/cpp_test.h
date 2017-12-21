@@ -40,20 +40,17 @@ public:
 
 	void before_init() override
 	{
-		dispatch(eid::app_id, eid::new_dynamic_module, gsf::make_args("ConnectorModule"), [&](const gsf::ArgsPtr &args) {
-			connector_id_ = args->pop_i32();
+		connector_id_ = dispatch(eid::app_id, eid::new_dynamic_module, gsf::make_args("ConnectorModule"))->pop_moduleid();
 
-			listen(connector_id_, eid::base::module_init_succ, std::bind(&Client::create_connector_succ, this, std::placeholders::_1));
-		});
-
+		listen(connector_id_, eid::base::module_init_succ, std::bind(&Client::create_connector_succ, this, std::placeholders::_1));
 	}
 
-	void create_connector_succ(const gsf::ArgsPtr &args)
+	gsf::ArgsPtr create_connector_succ(const gsf::ArgsPtr &args)
 	{
 		auto _module_id = args->pop_moduleid();
-		if (_module_id != connector_id_) { return; }
+		if (_module_id != connector_id_) { return nullptr; }
 
-		listen(this, eid::network::new_connect, [&](const gsf::ArgsPtr &args, gsf::CallbackFunc callback) {
+		listen(this, eid::network::new_connect, [&](const gsf::ArgsPtr &args) {
 			fd_ = args->pop_fd();
 
 			tutorial::Person _p;
@@ -69,9 +66,10 @@ public:
 			// 分布式rpc调用接口预定义
 			//dispatch(node_m_, eid::login::auth, gsf::make_args("account", "password", "verify_key"));
 
+			return nullptr;
 		});
 		
-		listen(this, eid::network::recv, [&](const gsf::ArgsPtr &args, gsf::CallbackFunc callback) {
+		listen(this, eid::network::recv, [&](const gsf::ArgsPtr &args) {
 			
 			auto _fd = args->pop_fd();
 			auto _msgid = args->pop_msgid();
@@ -80,10 +78,14 @@ public:
 				std::cout << "recv msg = 1002" << std::endl;
 
 			}
+
+			return nullptr;
 		});
 
 		dispatch(connector_id_, eid::network::make_connector
 			, gsf::make_args(get_module_id(), "127.0.0.1", 8001));
+
+		return nullptr;
 	}
 
 	void init() override

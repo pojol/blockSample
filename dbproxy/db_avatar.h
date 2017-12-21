@@ -23,11 +23,9 @@ public:
 
 private:
 
-	void event_update(const gsf::ArgsPtr &args, gsf::CallbackFunc callback);
-	
-	void event_remove(const gsf::ArgsPtr &args, gsf::CallbackFunc callback);
-
-	void event_load(const gsf::ArgsPtr &args, gsf::CallbackFunc callback);
+	gsf::ArgsPtr event_update(const gsf::ArgsPtr &args);
+	gsf::ArgsPtr event_remove(const gsf::ArgsPtr &args);
+	gsf::ArgsPtr event_load(const gsf::ArgsPtr &args);
 	
 
 private:

@@ -59,31 +59,24 @@ public:
 	
 	void before_init() override
 	{
-		dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("LogModule"), [&](const gsf::ArgsPtr &args) {
-			log_m_ = args->pop_moduleid();
-		});
-
-		dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("LoginConnectorModule"), [&](const gsf::ArgsPtr &args) {
-			login_connector_m_ = args->pop_moduleid();
-		});
-
-		dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("GateConnectorModule"), [&](const gsf::ArgsPtr &args) {
-			gate_connector_m_ = args->pop_moduleid();
-		});
+		log_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("LogModule"))->pop_moduleid();
+		login_connector_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("LoginConnectorModule"))->pop_moduleid();
+		gate_connector_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("GateConnectorModule"))->pop_moduleid();
 	}
 
 	void init() override
 	{
 		dispatch(login_connector_m_, eid::network::make_connector, gsf::make_args(get_module_id(), "127.0.0.1", 8001));
 
-		listen(this, eid::network::new_connect, [&](const gsf::ArgsPtr &args, gsf::CallbackFunc callback) {
+		listen(this, eid::network::new_connect, [&](const gsf::ArgsPtr &args) {
 			auto _fd = args->pop_fd();
 
 			dispatch(login_connector_m_, eid::network::send, gsf::make_args(10001, "login"));
+
+			return nullptr;
 		});
 
-		listen(this, eid::network::recv, [&](const gsf::ArgsPtr &args, gsf::CallbackFunc callback) {
-			
+		listen(this, eid::network::recv, [&](const gsf::ArgsPtr &args) {
 			auto _fd = args->pop_fd();
 			auto _msgid = args->pop_msgid();
 		
@@ -96,14 +89,17 @@ public:
 				std::cout << "relogin gate! " << iport << std::endl;
 			}
 
+			return nullptr;
 		});
 
-		listen(this, eid::module_shut_succ, [&](const gsf::ArgsPtr &args, gsf::CallbackFunc callback) {
+		listen(this, eid::module_shut_succ, [&](const gsf::ArgsPtr &args) {
 			auto _module_id = args->pop_moduleid();
 
 			if (_module_id == login_connector_m_) {	// connect 2 gate!
 				dispatch(gate_connector_m_, eid::network::make_connector, gsf::make_args(get_module_id(), "127.0.0.1", gate_port_));
 			}
+
+			return nullptr;
 		});
 	}
 

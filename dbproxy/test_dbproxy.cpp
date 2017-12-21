@@ -169,6 +169,17 @@ int main()
 
 	app.regist_module(new TestModule());
 
+	auto args1 = gsf::ArgsPool::get_ref().get();
+	auto args2 = gsf::ArgsPool::get_ref().get();
+
+	args1->push_string("hello");
+	
+	auto str = args1->pop_block(0, args1->get_pos());
+
+	args2->push_block(str.c_str(), args1->get_pos());
+
+	auto str1 = args2->pop_block(1, args2->get_pos());
+
 	app.run();
 
 	return 0;
