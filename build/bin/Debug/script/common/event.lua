@@ -69,15 +69,9 @@ function dispatch_createNode(target, nodeID, moduleID, nodeType, acceptIp, accep
     args:push_i32(nodeID)
     args:push_i32(module_id)
     args:push_string(nodeType)
+    
     args:push_string(acceptIp)
     args:push_i32(acceptPort)
-
-    args:push_i32(#connList)
-    for i = 1, #connList do
-        local cNod = connList[i]
-        args:push_string(cNod[1])
-        args:push_i32(cNod[2])
-    end
 
     args:push_string(rootIp)
     args:push_i32(rootPort)
@@ -87,6 +81,7 @@ function dispatch_createNode(target, nodeID, moduleID, nodeType, acceptIp, accep
         local mNode = modules[i]
         args:push_string(mNode[1])
         args:push_i32(mNode[2])
+        args:push_i32(mNode[3])
     end
 
     dispatch(target, 2002, args:pop_block(0, args:get_pos()))

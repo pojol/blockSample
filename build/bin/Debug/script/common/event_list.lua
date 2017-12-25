@@ -39,4 +39,8 @@ eid = {
 		remove_timer = 4004,
 		timer_arrive = 4005,
 	},
+
+	demo = {
+		create_node_succ = 10001,
+	}
 }
