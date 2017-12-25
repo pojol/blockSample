@@ -10,8 +10,10 @@ timer_m_ = 0
 
 millisecond_timer_id = 0
 
+tick_ = 0
+
+
 module.before_init = function(dir)
-	print("before init")
 	local package_path = {}
 	table.insert(package_path, dir .. "/common/?.lua")
 	table.insert(package_path, dir .. "/protobuf/?.lua")
@@ -20,9 +22,11 @@ module.before_init = function(dir)
 	require "event"
 	require "event_list"
 	
-	log_m_ = dispatch(eid.app_id, eid.get_module, {"LogModule"})[1]
-	timer_m_ = dispatch(eid.app_id, eid.get_module, {"TimerModule"})[1]
+	profiler = require "profiler"
+	profiler:start()
 
+	log_m_ = dispatch_getModule(eid.app_id, "LogModule")
+	timer_m_ = dispatch_getModule(eid.app_id, "TimerModule")
 end
 
 module.init = function()
@@ -30,8 +34,7 @@ module.init = function()
 	
 	listen(module_id, eid.timer.timer_arrive, onTimer)
 
-	millisecond_timer_id = dispatch(timer_m_, eid.timer.delay_milliseconds, {module_id, 20})[1]
-	print(millisecond_timer_id)
+	millisecond_timer_id = dispatch_delayMilliseconds(timer_m_, 20)
 end
 
 module.execute = function()
@@ -42,14 +45,21 @@ end
 
 ----------
 
-function onTimer(args)
-	timer_id = args[1]
+function onTimer(buf)
+	args = Args.new(buf)
+	timer_id = args:pop_ui64()
 
 	if timer_id == millisecond_timer_id then
-		print("on timer")
+		--print("on timer " .. tick_)
 
-		millisecond_timer_id = dispatch(timer_m_, eid.timer.delay_milliseconds, {module_id, 20})[1]
+		tick_ = tick_ + 1
+
+		if tick_ == 10000 then
+			profiler:stop()
+		else
+			millisecond_timer_id = dispatch_delayMilliseconds(timer_m_,  20)
+		end		
 	end
 
-	return {}
+	return ""
 end

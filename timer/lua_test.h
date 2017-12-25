@@ -39,7 +39,6 @@ public:
 
 #ifdef WIN32
 		GetModuleFileName(NULL, _path, 512);
-		//ȡ���ļ�·��
 		for (int i = strlen(_path); i >= 0; i--)
 		{
 			if (_path[i] == '\\')

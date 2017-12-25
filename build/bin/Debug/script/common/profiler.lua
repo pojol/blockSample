@@ -44,7 +44,7 @@ function profiler:stop()
         
     end
 
-    print_info(str)
+    print(str)
 end
 
 function profiler:_func_title(function_info)

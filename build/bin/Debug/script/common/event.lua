@@ -42,3 +42,52 @@ end
 function listen(target, eventID, func)
 	event:llisten(module_id, target, eventID, func)
 end
+
+function dispatch_getModule(target, moduleName)
+    local args = Args.new()
+    args:push_string(moduleName)
+
+    buf = event:ldispatch(module_id, target, eid.get_module, args:pop_block(0, args:get_pos()))
+    local unpack = Args.new(buf)
+    
+    return unpack:pop_i32()
+end
+
+function dispatch_delayMilliseconds(target, delay)
+    local args = Args.new()
+    args:push_i32(module_id)
+    args:push_i32(delay)
+
+    buf = event:ldispatch(module_id, target, eid.timer.delay_milliseconds, args:pop_block(0, args:get_pos()))
+    local unpack = Args.new(buf)
+
+    return unpack:pop_ui64()
+end
+
+function dispatch_createNode(target, nodeID, moduleID, nodeType, acceptIp, acceptPort, connList, rootIp, rootPort, modules)
+    local args = Args.new()
+    args:push_i32(nodeID)
+    args:push_i32(module_id)
+    args:push_string(nodeType)
+    args:push_string(acceptIp)
+    args:push_i32(acceptPort)
+
+    args:push_i32(#connList)
+    for i = 1, #connList do
+        local cNod = connList[i]
+        args:push_string(cNod[1])
+        args:push_i32(cNod[2])
+    end
+
+    args:push_string(rootIp)
+    args:push_i32(rootPort)
+
+    args:push_i32(#modules)
+    for i = 1, #modules do
+        local mNode = modules[i]
+        args:push_string(mNode[1])
+        args:push_i32(mNode[2])
+    end
+
+    dispatch(target, 2002, args:pop_block(0, args:get_pos()))
+end
