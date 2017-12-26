@@ -8,6 +8,8 @@ if(WIN32)
 			${GSF_PATH}/3rd/fmt
 			${GSF_PATH}/
 			${GSF_PATH}/modules
+			${GSF_PATH}/3rd/lua-5.3.4/src
+			${GSF_PATH}/3rd/sol2
 	)
 endif()
 if(UNIX)
@@ -66,7 +68,7 @@ if(MSVC)
       endif()
     endforeach()
 
-        TARGET_LINK_LIBRARIES(test_echo_server libevent.lib libevent_core.lib libevent_extras.lib network.lib gsf_core.lib ws2_32.lib pbc.lib libprotobufd.lib glog.lib log.lib fmt.lib)
+        TARGET_LINK_LIBRARIES(test_echo_server libevent.lib libevent_core.lib libevent_extras.lib network.lib gsf_core.lib ws2_32.lib pbc.lib lua53.lib lua_proxy.lib libprotobufd.lib glog.lib log.lib fmt.lib)
 endif()
 if(UNIX)
 	if ("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 3.1)

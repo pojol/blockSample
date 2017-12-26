@@ -45,12 +45,12 @@ end
 
 ----------
 
-function onTimer(buf)
-	args = Args.new(buf)
+function onTimer(buf, len)
+	args = Args.new(buf, len)
 	timer_id = args:pop_ui64()
 
 	if timer_id == millisecond_timer_id then
-		--print("on timer " .. tick_)
+		print("on timer " .. tick_)
 
 		tick_ = tick_ + 1
 

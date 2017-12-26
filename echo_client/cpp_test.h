@@ -52,16 +52,17 @@ public:
 
 		listen(this, eid::network::new_connect, [&](const gsf::ArgsPtr &args) {
 			fd_ = args->pop_fd();
+			/*
+				tutorial::Person _p;
+				_p.set_name("jack");
+				_p.set_id(1000);
+				_p.set_email("127.0.0.1");
+			*/
+			std::string _msg = "hello";
 
-			tutorial::Person _p;
-			_p.set_name("jack");
-			_p.set_id(1000);
-			_p.set_email("127.0.0.1");
-			std::string _msg = "";
-
-			if (_p.SerializeToString(&_msg)) {
-				dispatch(connector_id_, eid::network::send, gsf::make_args(1001, _msg));
-			}
+			//if (_p.SerializeToString(&_msg)) {
+			dispatch(connector_id_, eid::network::send, gsf::make_args(1001, _msg));
+			//}
 
 			// 分布式rpc调用接口预定义
 			//dispatch(node_m_, eid::login::auth, gsf::make_args("account", "password", "verify_key"));
@@ -74,9 +75,10 @@ public:
 			auto _fd = args->pop_fd();
 			auto _msgid = args->pop_msgid();
 			if (_msgid == 1002) {
-					
-				std::cout << "recv msg = 1002" << std::endl;
+				std::cout << args->pop_string() << std::endl;
 
+				std::string _msg = "hello";
+				dispatch(connector_id_, eid::network::send, gsf::make_args(1001, _msg));
 			}
 
 			return nullptr;

@@ -1,6 +1,4 @@
 
-
-
 function dump ( t )  
     local print_r_cache={}
     local function sub_print_r(t,indent)
@@ -48,7 +46,7 @@ function dispatch_getModule(target, moduleName)
     args:push_string(moduleName)
 
     buf = event:ldispatch(module_id, target, eid.get_module, args:pop_block(0, args:get_pos()))
-    local unpack = Args.new(buf)
+    local unpack = Args.new(buf, #buf)
     
     return unpack:pop_i32()
 end
@@ -59,7 +57,7 @@ function dispatch_delayMilliseconds(target, delay)
     args:push_i32(delay)
 
     buf = event:ldispatch(module_id, target, eid.timer.delay_milliseconds, args:pop_block(0, args:get_pos()))
-    local unpack = Args.new(buf)
+    local unpack = Args.new(buf, #buf)
 
     return unpack:pop_ui64()
 end
