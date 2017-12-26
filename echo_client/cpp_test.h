@@ -47,7 +47,11 @@ public:
 
 	gsf::ArgsPtr create_connector_succ(const gsf::ArgsPtr &args)
 	{
-		auto _module_id = args->pop_moduleid();
+		// boardcast 的消息不要把里面的内容取出来, 会影响到后续的接收者。 （这个地方以后要用机制保证下
+		auto _t = gsf::ArgsPool::get_ref().get();
+		_t->push_block(args->pop_block(0, args->get_pos()).c_str(), args->get_pos());
+
+		auto _module_id = _t->pop_moduleid();
 		if (_module_id != connector_id_) { return nullptr; }
 
 		listen(this, eid::network::new_connect, [&](const gsf::ArgsPtr &args) {

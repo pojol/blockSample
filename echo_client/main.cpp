@@ -27,6 +27,7 @@ int main()
 	gsf::Application app;
 	gsf::AppConfig cfg;
 	cfg.name = "test_echo_client";
+	//cfg.pool_args_count = 1024 * 10;
 	app.init_cfg(cfg);
 
 	app.regist_module(new gsf::modules::LogModule);
