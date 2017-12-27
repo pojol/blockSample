@@ -70,7 +70,7 @@ module.init = function()
 		pack:push_i32(acceptor_port)
 		pack:push_i32(node_id)
 
-		dispatch(game_m_, 10001, pack:pop_block(0, pack:get_pos()))
+		dispatch(game_m_, eid.sample.create_node_succ, pack:pop_block(0, pack:get_pos()))
 
 		return ""
 	end)
