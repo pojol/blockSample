@@ -21,6 +21,7 @@
 
 #include <network/acceptor.h>
 #include <network/connector.h>
+#include <timer/timer.h>
 
 #include <log/log.h>
 
@@ -41,8 +42,31 @@ public:
 	void before_init() override
 	{
 		connector_id_ = dispatch(eid::app_id, eid::new_dynamic_module, gsf::make_args("ConnectorModule"))->pop_moduleid();
+		timer_m_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("TimerModule"))->pop_moduleid();
+
+		listen(this, eid::timer::timer_arrive, std::bind(&Client::timerArrive, this, std::placeholders::_1));
 
 		listen(connector_id_, eid::base::module_init_succ, std::bind(&Client::create_connector_succ, this, std::placeholders::_1));
+	}
+
+	gsf::ArgsPtr timerArrive(const gsf::ArgsPtr &args)
+	{
+		auto _t = args->pop_timerid();
+		if (_t == timer_id_) {
+
+			std::string _msg = "hello";
+			dispatch(connector_id_, eid::network::send, gsf::make_args(1001, _msg));
+
+			timer_id_ = dispatch(timer_m_, eid::timer::delay_milliseconds, gsf::make_args(get_module_id(), 20))->pop_timerid();
+		}
+		else if (_t == tick_id_) {
+
+			std::cout << package_num << std::endl;
+			package_num = 0;
+			tick_id_ = dispatch(timer_m_, eid::timer::delay_milliseconds, gsf::make_args(get_module_id(), 1000))->pop_timerid();
+		}
+
+		return nullptr;
 	}
 
 	gsf::ArgsPtr create_connector_succ(const gsf::ArgsPtr &args)
@@ -62,6 +86,10 @@ public:
 				_p.set_id(1000);
 				_p.set_email("127.0.0.1");
 			*/
+
+			//timer_id_ = dispatch(timer_m_, eid::timer::delay_milliseconds, gsf::make_args(get_module_id(), 20))->pop_timerid();
+			//tick_id_ = dispatch(timer_m_, eid::timer::delay_milliseconds, gsf::make_args(get_module_id(), 1000))->pop_timerid();
+
 			std::string _msg = "hello";
 
 			//if (_p.SerializeToString(&_msg)) {
@@ -79,8 +107,8 @@ public:
 			auto _fd = args->pop_fd();
 			auto _msgid = args->pop_msgid();
 			if (_msgid == 1002) {
-				std::cout << args->pop_string() << std::endl;
-
+				package_num++;
+				
 				std::string _msg = "hello";
 				dispatch(connector_id_, eid::network::send, gsf::make_args(1001, _msg));
 			}
@@ -100,6 +128,12 @@ public:
 	}
 
 private:
+	int package_num = 0;
+
 	gsf::ModuleID connector_id_ = gsf::ModuleNil;
+	gsf::ModuleID timer_m_ = gsf::ModuleNil;
+
+	gsf::TimerID timer_id_ = gsf::TimerNil;
+	gsf::TimerID tick_id_ = gsf::TimerNil;
 	gsf::SessionID fd_ = gsf::SessionNil;
 };

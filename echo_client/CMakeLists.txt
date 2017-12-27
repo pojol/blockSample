@@ -65,7 +65,7 @@ if(MSVC)
       endif()
     endforeach()
 
-        TARGET_LINK_LIBRARIES(test_echo_client libevent.lib libevent_core.lib libevent_extras.lib network.lib gsf_core.lib ws2_32.lib glog.lib log.lib lua53.lib lua_proxy.lib libprotobufd.lib fmt.lib)
+        TARGET_LINK_LIBRARIES(test_echo_client libevent.lib libevent_core.lib libevent_extras.lib network.lib gsf_core.lib ws2_32.lib timer.lib glog.lib log.lib lua53.lib lua_proxy.lib libprotobufd.lib fmt.lib)
 endif()
 if(UNIX)
 	if ("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 3.1)

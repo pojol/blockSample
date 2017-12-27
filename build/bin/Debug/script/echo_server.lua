@@ -28,12 +28,14 @@ module.init = function()
 end
 
 function onRecv(buf, len)
+
 	local unpack = Args.new(buf, len)
 	fd = unpack:pop_ui16()
 	msgid = unpack:pop_i32()
 	res = unpack:pop_string()
-	print("recv : " .. res)
+	--print("recv : " .. res)
 	
+
 	local pack = Args.new()
 	pack:push_ui16(fd)
 	pack:push_i32(1002)

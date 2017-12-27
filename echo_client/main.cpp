@@ -27,11 +27,12 @@ int main()
 	gsf::Application app;
 	gsf::AppConfig cfg;
 	cfg.name = "test_echo_client";
-	//cfg.pool_args_count = 1024 * 10;
+	cfg.pool_args_count = 1024 * 100;
 	app.init_cfg(cfg);
 
 	app.regist_module(new gsf::modules::LogModule);
 	app.regist_module(new gsf::network::ConnectorModule);
+	app.regist_module(new gsf::modules::TimerModule);
 
 	case_cpp_client(app);
 	//case_lua_client(app);

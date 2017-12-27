@@ -236,8 +236,9 @@ int main()
 
 	gsf::Application app;
 	gsf::AppConfig cfg;
-	//cfg.is_watch_pref = true;
-	cfg.tick_count = 50;
+	cfg.is_watch_pref = true;
+	cfg.pool_args_count = 1024 * 100;
+	cfg.tick_count = 20;
 	cfg.name = "test_echo_server";
 
 	app.init_cfg(cfg);
