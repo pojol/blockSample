@@ -22,6 +22,7 @@ void db_avatar::shut()
 
 gsf::ArgsPtr db_avatar::event_update(const gsf::ArgsPtr &args)
 {
+	/*
 	google::protobuf::Message *msg;
 	Avatar _avatar;
 
@@ -47,7 +48,7 @@ gsf::ArgsPtr db_avatar::event_update(const gsf::ArgsPtr &args)
 
 		field->name();
 	}
-
+	*/
 	return nullptr;
 }
 
