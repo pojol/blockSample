@@ -5,6 +5,19 @@ eid = {
 	new_dynamic_module = 102,
 	delete_dynamic_module = 103,
 	
+	distributed = {
+		rpc_begin = 1001,
+		
+		node_create = 1002,
+		node_create_succ = 1003,
+		coordinat_regist = 1004,
+		coordinat_unregit = 1005,
+		coordinat_adjust_weight = 1006,
+		coordinat_get = 1007,
+
+		rpc_end = 2000,
+	}
+	
 	network = {
 		make_acceptor = 2001,
 		make_connector = 2002,

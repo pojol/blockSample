@@ -82,5 +82,5 @@ function dispatch_createNode(target, nodeID, moduleID, nodeType, acceptIp, accep
         args:push_i32(mNode[3])
     end
 
-    dispatch(target, 2002, args:pop_block(0, args:get_pos()))
+    dispatch(target, eid.distributed.node_create, args:pop_block(0, args:get_pos()))
 end
