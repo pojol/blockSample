@@ -8,6 +8,7 @@ if(WIN32)
 			${GSF_PATH}/
 			${GSF_PATH}/modules
 			${GSF_PATH}/3rd/mysql_connect/include
+			${GSF_PATH}/3rd/fmt
 	)
 endif()
 if(UNIX)
@@ -60,7 +61,7 @@ if(MSVC)
       endif()
     endforeach()
 
-        TARGET_LINK_LIBRARIES(test_dbproxy libevent.lib libevent_core.lib libevent_extras.lib network.lib gsf_core.lib ws2_32.lib pbc.lib libprotobufd.lib glog.lib log.lib libmysql.lib)
+        TARGET_LINK_LIBRARIES(test_dbproxy libevent.lib libevent_core.lib libevent_extras.lib network.lib gsf_core.lib ws2_32.lib pbc.lib libprotobufd.lib glog.lib log.lib libmysql.lib fmt.lib)
 endif()
 if(UNIX)
 	
