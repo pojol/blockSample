@@ -61,7 +61,7 @@ if(MSVC)
       endif()
     endforeach()
 
-        TARGET_LINK_LIBRARIES(test_dbproxy libevent.lib libevent_core.lib libevent_extras.lib network.lib gsf_core.lib ws2_32.lib pbc.lib libprotobufd.lib glog.lib log.lib libmysql.lib fmt.lib)
+        TARGET_LINK_LIBRARIES(test_dbproxy libevent.lib libevent_core.lib libevent_extras.lib network.lib gsf_core.lib ws2_32.lib pbc.lib libprotobufd.lib glog.lib log.lib libmysql.lib mysql_proxy.lib fmt.lib)
 endif()
 if(UNIX)
 	
