@@ -1,4 +1,4 @@
-PROJECT(test_dbproxy)
+PROJECT(test_dbproxy_client)
 
 #引用头文件目录
 if(WIN32)
@@ -46,7 +46,7 @@ if(APPLE)
 endif()
 
 FILE(GLOB_RECURSE SRC "*.cpp" "*.h" "*.cc")
-ADD_EXECUTABLE(test_dbproxy ${SRC})
+ADD_EXECUTABLE(test_dbproxy_client ${SRC})
 
 if(MSVC)
     # Use the static C library for all build types
@@ -61,17 +61,17 @@ if(MSVC)
       endif()
     endforeach()
 
-        TARGET_LINK_LIBRARIES(test_dbproxy libevent.lib libevent_core.lib libevent_extras.lib network.lib gsf_core.lib ws2_32.lib pbc.lib libprotobufd.lib glog.lib log.lib libmysql.lib mysql_proxy.lib fmt.lib)
+        TARGET_LINK_LIBRARIES(test_dbproxy_client libevent.lib libevent_core.lib libevent_extras.lib network.lib gsf_core.lib ws2_32.lib pbc.lib libprotobufd.lib glog.lib log.lib libmysql.lib mysql_proxy.lib fmt.lib)
 endif()
 if(UNIX)
 	
 	if ("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 3.1)
-		target_link_libraries(test_dbproxy ${CMAKE_THREAD_LIBS_INIT})
+		target_link_libraries(test_dbproxy_client ${CMAKE_THREAD_LIBS_INIT})
 	else()
-		target_link_libraries(test_dbproxy Threads::Threads)
+		target_link_libraries(test_dbproxy_client Threads::Threads)
 	endif()
 	
-	target_link_libraries(test_dbproxy -lpthread libgsf_core.a libnetwork.a libevent.a libevent_core.a libevent_extra.a libtimer.a libprotobuf.a liblog.a libglog.a)
+	target_link_libraries(test_dbproxy_client -lpthread libgsf_core.a libnetwork.a libevent.a libevent_core.a libevent_extra.a libtimer.a libprotobuf.a liblog.a libglog.a)
 
 endif()
 if(APPLE)
