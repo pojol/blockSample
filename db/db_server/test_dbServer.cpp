@@ -29,6 +29,43 @@
 #include <iostream>
 
 
+class DBProxyServerModule
+	: public gsf::IEvent
+	, public gsf::Module
+{
+public:
+
+	DBProxyServerModule()
+		: Module("DBProxyServerModule")
+	{}
+
+	virtual ~DBProxyServerModule() {}
+
+	void before_init() override
+	{
+		log_m_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("LogModule"))->pop_moduleid();
+		assert(log_m_ != gsf::ModuleNil);
+
+		db_p_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("MysqlProxyModule"))->pop_moduleid();
+		assert(db_p_ != gsf::ModuleNil);
+	}
+
+	void init() override
+	{
+
+	}
+
+	void shut() override
+	{
+
+	}
+
+private:
+
+	gsf::ModuleID log_m_ = gsf::ModuleNil;
+	gsf::ModuleID db_p_ = gsf::ModuleNil;
+};
+
 void init()
 {
 	auto mysqlInit = mysql_init(nullptr);
@@ -83,6 +120,8 @@ int main()
 	app.regist_module(gsf::EventModule::get_ptr());
 	app.regist_module(new gsf::modules::LogModule());
 	app.regist_module(new gsf::modules::MysqlProxyModule);
+
+	app.regist_module(new DBProxyServerModule);
 
 	app.run();
 
