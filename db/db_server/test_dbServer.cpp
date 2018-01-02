@@ -28,7 +28,6 @@
 #include <log/log.h>
 #include <iostream>
 
-
 class DBProxyServerModule
 	: public gsf::IEvent
 	, public gsf::Module
@@ -48,11 +47,14 @@ public:
 
 		db_p_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("MysqlProxyModule"))->pop_moduleid();
 		assert(db_p_ != gsf::ModuleNil);
+
+		acceptor_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("AcceptorModule"))->pop_moduleid();
+		assert(db_p_ != gsf::ModuleNil);
 	}
 
 	void init() override
 	{
-
+		dispatch(db_p_, eid::db_proxy::mysql_connect, gsf::make_args("192.168.50.130", "root", "root", "Test", 3306));
 	}
 
 	void shut() override
@@ -64,6 +66,13 @@ private:
 
 	gsf::ModuleID log_m_ = gsf::ModuleNil;
 	gsf::ModuleID db_p_ = gsf::ModuleNil;
+	gsf::ModuleID acceptor_m_ = gsf::ModuleNil;
+	gsf::ModuleID node_m_ = gsf::ModuleNil;
+
+	int32_t node_id_ = 0;
+
+	std::string acceptor_ip_ = "";
+	int32_t acceptor_port_ = 0;
 };
 
 void init()
