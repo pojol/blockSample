@@ -9,6 +9,8 @@ if(WIN32)
 			${GSF_PATH}/modules
 			${GSF_PATH}/3rd/mysql_connect/include
 			${GSF_PATH}/3rd/fmt
+			${GSF_PATH}/3rd/lua-5.3.4/src
+			${GSF_PATH}/3rd/sol2
 	)
 endif()
 if(UNIX)
@@ -61,7 +63,7 @@ if(MSVC)
       endif()
     endforeach()
 
-        TARGET_LINK_LIBRARIES(test_dbproxy_server libevent.lib libevent_core.lib libevent_extras.lib network.lib gsf_core.lib ws2_32.lib pbc.lib libprotobufd.lib glog.lib log.lib libmysql.lib mysql_proxy.lib fmt.lib)
+        TARGET_LINK_LIBRARIES(test_dbproxy_server libevent.lib libevent_core.lib libevent_extras.lib network.lib gsf_core.lib ws2_32.lib pbc.lib libprotobufd.lib glog.lib log.lib libmysql.lib mysql_proxy.lib fmt.lib lua53.lib lua_proxy.lib distributed.lib timer.lib)
 endif()
 if(UNIX)
 	

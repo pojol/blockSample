@@ -23,10 +23,103 @@
 #include <network/acceptor.h>
 #include <network/connector.h>
 
+#include <lua_proxy/lua_proxy.h>
 #include <mysql_proxy/mysql_proxy.h>
+#include <distributed/node.h>
+#include <timer/timer.h>
 
 #include <log/log.h>
 #include <iostream>
+
+class PathModule
+	: public gsf::Module
+	, public gsf::IEvent
+{
+public:
+
+	PathModule()
+		: Module("PathModule")
+	{}
+
+	virtual ~PathModule() {}
+
+	void before_init()
+	{
+		char _path[512];
+
+#ifdef WIN32
+		GetModuleFileName(NULL, _path, 512);
+		for (int i = strlen(_path); i >= 0; i--)
+		{
+			if (_path[i] == '\\')
+			{
+				_path[i] = '\0';
+				break;
+			}
+		}
+#else
+		int cnt = readlink("/proc/self/exe", _path, 512);
+		if (cnt < 0 || cnt >= 512) {
+			std::cout << "read path err" << std::endl;
+			return;
+		}
+		for (int i = cnt; i >= 0; --i)
+		{
+			if (_path[i] == '/') {
+				_path[i + 1] = '\0';
+				break;
+			}
+		}
+#endif // WIN32
+
+		path_ = _path;
+
+		listen(this, eid::sample::get_proc_path, [=](const gsf::ArgsPtr &args) {
+			return gsf::make_args(path_);
+		});
+	}
+
+private:
+	std::string path_ = "";
+};
+
+class DBNodeProxyModule
+	: public gsf::Module
+	, public gsf::IEvent
+{
+public:
+	DBNodeProxyModule()
+		: Module("DBNodeProxyModule")
+	{}
+
+	virtual ~DBNodeProxyModule() {}
+
+	void before_init() override
+	{
+		lua_m_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("LuaProxyModule"))->pop_moduleid();
+		assert(lua_m_ != gsf::ModuleNil);
+
+		auto path_m_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("PathModule"))->pop_moduleid();
+		assert(path_m_ != gsf::ModuleNil);
+
+		lua_path_ = dispatch(path_m_, eid::sample::get_proc_path, nullptr)->pop_string();
+
+	}
+
+	void init() override
+	{
+		dispatch(lua_m_, eid::lua_proxy::create, gsf::make_args(get_module_id(), lua_path_, "dbproxyNode.lua"));
+	}
+
+	void shut() override
+	{
+
+	}
+
+private:
+	gsf::ModuleID lua_m_ = gsf::ModuleNil;
+	std::string lua_path_ = "";
+};
 
 class DBProxyServerModule
 	: public gsf::IEvent
@@ -49,12 +142,32 @@ public:
 		assert(db_p_ != gsf::ModuleNil);
 
 		acceptor_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("AcceptorModule"))->pop_moduleid();
-		assert(db_p_ != gsf::ModuleNil);
+		assert(acceptor_m_ != gsf::ModuleNil);
 	}
 
 	void init() override
 	{
-		dispatch(db_p_, eid::db_proxy::mysql_connect, gsf::make_args("192.168.50.130", "root", "root", "Test", 3306));
+		listen(this, 10001, [&](const gsf::ArgsPtr &args) {
+			
+			acceptor_ip_ = args->pop_string();
+			acceptor_port_ = args->pop_i32();
+			node_id_ = args->pop_i32();
+
+			dispatch(log_m_, eid::log::print, gsf::log_info("DBProxyServerModule", "node init succ!"));
+			auto _res = dispatch(acceptor_m_, eid::network::make_acceptor, gsf::make_args(get_module_id(), acceptor_ip_, acceptor_port_))->pop_bool();
+			if (_res) {
+
+				bool _res = dispatch(db_p_, eid::db_proxy::mysql_connect, gsf::make_args("192.168.50.130", "root", "root", "Test", 3306))->pop_bool();
+				if (_res) {
+					dispatch(log_m_, eid::log::print, gsf::log_info("DBProxyServerModule", "db proxy init succ!"));
+				}
+				else {
+					dispatch(log_m_, eid::log::print, gsf::log_error("DBProxyServerModule", "mysql connector init fail!"));
+				}
+			}
+
+			return nullptr;
+		});
 	}
 
 	void shut() override
@@ -128,8 +241,14 @@ int main()
 
 	app.regist_module(gsf::EventModule::get_ptr());
 	app.regist_module(new gsf::modules::LogModule());
+	app.regist_module(new gsf::modules::NodeModule);
+	app.regist_module(new gsf::network::AcceptorModule);
 	app.regist_module(new gsf::modules::MysqlProxyModule);
+	app.regist_module(new gsf::modules::LuaProxyModule);
+	app.regist_module(new gsf::modules::TimerModule);
 
+	app.regist_module(new PathModule);
+	app.regist_module(new DBNodeProxyModule);
 	app.regist_module(new DBProxyServerModule);
 
 	app.run();

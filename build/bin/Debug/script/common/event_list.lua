@@ -16,7 +16,7 @@ eid = {
 		coordinat_get = 1007,
 
 		rpc_end = 2000,
-	}
+	},
 	
 	network = {
 		make_acceptor = 2001,

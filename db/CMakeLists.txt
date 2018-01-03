@@ -1,2 +1,3 @@
 ADD_SUBDIRECTORY(db_client)
 ADD_SUBDIRECTORY(db_server)
+ADD_SUBDIRECTORY(db_root)
