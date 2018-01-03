@@ -108,7 +108,7 @@ public:
 
 	void init() override
 	{
-		dispatch(lua_m_, eid::lua_proxy::create, gsf::make_args(get_module_id(), lua_path_, "dbproxyNode.lua"));
+		dispatch(lua_m_, eid::lua_proxy::create, gsf::make_args(get_module_id(), lua_path_, "dbServerNode.lua"));
 	}
 
 	void shut() override
@@ -165,6 +165,13 @@ public:
 					dispatch(log_m_, eid::log::print, gsf::log_error("DBProxyServerModule", "mysql connector init fail!"));
 				}
 			}
+
+			return nullptr;
+		});
+
+		listen(this, eid::distributed::db_create, [&](const gsf::ArgsPtr &args) {
+		
+			std::cout << "??" << std::endl;
 
 			return nullptr;
 		});
