@@ -31,6 +31,13 @@
 #include <log/log.h>
 #include <iostream>
 
+enum dbproxy_event
+{
+	db_update = 3000,
+	db_sql,
+	db_sqlcb,
+};
+
 class PathModule
 	: public gsf::Module
 	, public gsf::IEvent
@@ -168,10 +175,31 @@ public:
 
 			return nullptr;
 		});
-
-		listen(this, eid::distributed::db_create, [&](const gsf::ArgsPtr &args) {
 		
-			std::cout << "??" << std::endl;
+		listen(this, eid::network::new_connect, [&](const gsf::ArgsPtr &args) {
+		
+			std::cout << "new connect!" << std::endl;
+
+			return nullptr;
+		});
+
+		listen(this, eid::network::recv, [&](const gsf::ArgsPtr &args) {
+			
+			auto _fd = args->pop_fd();
+			auto _msgid = args->pop_msgid();
+
+			if (_msgid == dbproxy_event::db_update) {
+
+
+
+			}
+
+			if (_msgid == dbproxy_event::db_sql) {
+				std::string _sql = args->pop_string();
+				std::cout << "execute sql " << _sql << std::endl;
+
+				dispatch(db_p_, eid::db_proxy::mysql_query, gsf::make_args(_sql));
+			}
 
 			return nullptr;
 		});

@@ -19,7 +19,7 @@ local root_ip = "127.0.0.1"
 local root_port = 10001
 
 -- modules cfg, regist module(container) 2 coordinate
--- module_name, module_characteristic (default 0
+-- module_name, module_id, module_feature (default 0
 local modules = { {"DBProxyServerModule", 0, 0}, }
 ---------------------------
 
@@ -72,7 +72,7 @@ module.init = function()
 		return ""
 	end)
 
-	dispatch_createNode(node_m_, node_id, module_id, nodeType, root_ip, root_port, modules)
+	dispatch_createNode(node_m_, node_id, module_id, nodeType, acceptor_ip, acceptor_port, root_ip, root_port, modules)
 
 end
 

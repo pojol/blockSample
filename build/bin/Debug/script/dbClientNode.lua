@@ -66,7 +66,7 @@ module.init = function()
 		return ""
 	end)
 
-	dispatch_createNode(node_m_, node_id, module_id, nodeType, root_ip, root_port, modules)
+	dispatch_createNode(node_m_, node_id, module_id, nodeType, "", 0 , root_ip, root_port, modules)
 
 end
 

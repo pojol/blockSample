@@ -17,6 +17,11 @@ struct Entity
 	uint32_t get_hp() { return hp_; }
 	void set_hp(uint32_t hp) { hp_ = hp; dirtyList_.insert("hp"); }
 
+	Entity()
+	{
+
+	}
+
 	gsf::ArgsPtr sql_update()
 	{
 		auto args = gsf::ArgsPool::get_ref().get();
@@ -83,15 +88,18 @@ public:
 	{
 		timer_m_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("TimerModule"))->pop_moduleid();
 		assert(timer_m_ != gsf::ModuleNil);
+
+		client_m_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("DBClientModule"))->pop_moduleid();
+		assert(client_m_ != gsf::ModuleNil);
 	}
 
 	void init() override
 	{
 		listen(this, 10002, [&](const gsf::ArgsPtr &args) {
 		
-			rpc("DBProxyServerModule", eid::distributed::db_create, gsf::make_args(sql_create()), [&](const gsf::ArgsPtr &args, bool result) {
-
-			});
+			dispatch(client_m_, 10003, gsf::make_args(sql_create()));
+			//dispatch(client_m_, 10003, gsf::make_args())
+			sql_update_timer_ = dispatch(timer_m_, eid::timer::delay_milliseconds, gsf::make_args(1000))->pop_timerid();
 
 			return nullptr;
 		});
@@ -113,7 +121,7 @@ protected:
 			{
 				gsf::ArgsPtr su_args = entity.second->sql_update();
 				if (nullptr != su_args) {
-					rpc("DBProxyServerModule", eid::distributed::db_update, su_args);
+					dispatch(client_m_, 10004, su_args);
 				}
 			}
 		}
@@ -123,7 +131,7 @@ protected:
 
 	std::string sql_create()
 	{
-		std::string _create_sql = fmt::format("create table if not exists Entity({}{}{}{}{}{}{}) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=tuf8_bin;"
+		std::string _create_sql = fmt::format("create table if not exists Entity({}{}{}{}{}{}{}) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;"
 			, "id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,"
 			, "name VARCHAR(32) NOT NULL,"
 			, "hp INT NOT NULL,"
@@ -138,6 +146,7 @@ protected:
 private:
 
 	gsf::ModuleID timer_m_ = gsf::ModuleNil;
+	gsf::ModuleID client_m_ = gsf::ModuleNil;
 
 	gsf::TimerID sql_update_timer_ = gsf::TimerNil;
 
