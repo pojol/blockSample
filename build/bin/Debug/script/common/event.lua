@@ -62,11 +62,14 @@ function dispatch_delayMilliseconds(target, delay)
     return unpack:pop_ui64()
 end
 
-function dispatch_createNode(target, nodeID, moduleID, nodeType, rootIp, rootPort, modules)
+function dispatch_createNode(target, nodeID, moduleID, nodeType, acceptor_ip, acceptor_port, rootIp, rootPort, modules)
     local args = Args.new()
     args:push_i32(nodeID)
     args:push_i32(module_id)
     args:push_string(nodeType)
+
+    args:push_string(acceptor_ip)
+    args:push_i32(acceptor_port)
 
     args:push_string(rootIp)
     args:push_i32(rootPort)

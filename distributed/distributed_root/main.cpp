@@ -65,9 +65,6 @@ public:
 				auto _len = sizeof(gsf::SessionID) + 1 + sizeof(gsf::MsgID) + 1;
 				_args->push_block(args->pop_block(_len, args->get_pos()).c_str(), args->get_pos() - _len);
 
-				//std::cout << _args->toString() << std::endl;
-
-				_args->pop_string(); //POP module name
 				if (dispatch(coodinator_m_, eid::distributed::coordinat_regist, _args)->pop_bool()) {
 					dispatch(acceptor_m_, eid::network::send, gsf::make_args(_fd, eid::distributed::coordinat_regist));
 				}
@@ -79,19 +76,33 @@ public:
 				auto _len = sizeof(gsf::SessionID) + 1 + sizeof(gsf::MsgID) + 1;
 				_args->push_block(args->pop_block(_len, args->get_pos()).c_str(), args->get_pos() - _len);
 
-				_args->pop_string(); //POP module name
-
 				dispatch(coodinator_m_, eid::distributed::coordinat_adjust_weight, _args);
 			}
 
-			if (_msgid == eid::distributed::login_select_gate) {
-				auto _module_name = args->pop_string();
-				auto _module_characteristic = args->pop_i32();
-				auto _client_fd = args->pop_fd();
+			if (_msgid == eid::distributed::coordinat_select) {
+				auto _moduleName = args->pop_string();
+				auto _moduleFeature = args->pop_i32();
 				
-				auto _port = dispatch(coodinator_m_, eid::distributed::coordinat_get, gsf::make_args(_module_name, _module_characteristic))->pop_i32();
-				dispatch(acceptor_m_, eid::network::send
-						, gsf::make_args(_fd, eid::distributed::login_select_gate_cb, _client_fd, _port));
+				std::string _block = "";
+				if (args->get_tag() != 0) {
+					// string = tag + typeLen + str
+					auto _len = sizeof(gsf::SessionID) + 1 + sizeof(gsf::MsgID) + 1 + _moduleName.size() + 3 + sizeof(int32_t) + 1;
+					_block = args->pop_block(_len, args->get_pos());
+				}
+
+				auto _nodeinfo = dispatch(coodinator_m_, eid::distributed::coordinat_select, gsf::make_args(_moduleName, _moduleFeature));
+				if (nullptr != _nodeinfo) {
+					auto _args = gsf::ArgsPool::get_ref().get();
+					_args->push(_fd);
+					_args->push(eid::distributed::coordinat_select);
+					_args->push_block(_nodeinfo->pop_block(0, _nodeinfo->get_pos()).c_str(), _nodeinfo->get_pos());
+
+					if (_block != "") {
+						_args->push_block(_block.c_str(), _block.size());
+					}
+
+					dispatch(acceptor_m_, eid::network::send, _args);
+				}
 			}
 
 			return nullptr;

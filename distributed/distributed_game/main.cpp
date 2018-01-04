@@ -151,14 +151,14 @@ public:
 
 		listen(this, eid::network::dis_connect, [&](const gsf::ArgsPtr &args) {
 			std::cout << "dis connect fd = " << args->pop_fd() << std::endl;
-			rpc("CoodinatorModule", eid::distributed::coordinat_adjust_weight, gsf::make_args(node_id_, "GameModule", 0, -1));
+			rpc(eid::distributed::coordinat_adjust_weight, gsf::make_args(node_id_, "GameModule", 0, -1));
 
 			return nullptr;
 		});
 
 		listen(this, eid::network::new_connect, [&](const gsf::ArgsPtr &args) {
 			std::cout << "new connect fd = " << args->pop_fd() << std::endl;
-			rpc("CoodinatorModule", eid::distributed::coordinat_adjust_weight, gsf::make_args(node_id_, "GameModule", 0, 1));
+			rpc(eid::distributed::coordinat_adjust_weight, gsf::make_args(node_id_, "GameModule", 0, 1));
 
 			return nullptr;
 		});

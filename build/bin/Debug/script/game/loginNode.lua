@@ -7,20 +7,20 @@ module = {
 
 
 -- the id of the proc in the cluster
-local node_id = 7001
-local nodeType = "gameNode"
+local node_id = 8001
+local nodeType = "loginNode"
 
 -- acceptor cfg
 local acceptor_ip = "127.0.0.1"
-local acceptor_port = 7001
+local acceptor_port = 8001
 
 -- root cfg
 local root_ip = "127.0.0.1"
 local root_port = 10001
 
 -- modules cfg, regist module(container) 2 coordinate
--- module_name, module_characteristic (default 0
-local modules = { {"GameModule", 0, 0}, }
+-- module_name, module_id, module_feature (default 0
+local modules = { {"LoginModule", 0, 0}, }
 ---------------------------
 
 local log_m_
@@ -43,8 +43,8 @@ module.before_init = function(dir)
 	node_m_ = dispatch_getModule(eid.app_id, "NodeModule")
 	print("node : " .. node_m_)
 
-	game_m_ = dispatch_getModule(eid.app_id, "GameModule")
-	print("game : " .. game_m_)
+	login_m_ = dispatch_getModule(eid.app_id, "LoginModule")
+	print("game : " .. login_m_)
 
 	-- init modules id
 	for i = 1, #modules do
@@ -67,7 +67,7 @@ module.init = function()
 		pack:push_i32(acceptor_port)
 		pack:push_i32(node_id)
 
-		dispatch(game_m_, eid.sample.create_node_succ, pack:pop_block(0, pack:get_pos()))
+		dispatch(login_m_, eid.sample.create_node_succ, pack:pop_block(0, pack:get_pos()))
 
 		return ""
 	end)
