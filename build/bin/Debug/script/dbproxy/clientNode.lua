@@ -19,9 +19,9 @@ local root_port = 10001
 local modules = { }
 ---------------------------
 
-local log_m_
-local node_m_
+log_m_ = 0
 
+local node_m_
 local client_m_
 
 module.before_init = function(dir)
@@ -34,19 +34,19 @@ module.before_init = function(dir)
 	require "event_list"
 
 	log_m_ = dispatch_getModule(eid.app_id, "LogModule")
-	print("log : " .. log_m_)
+	logInfo("clientNode", "log : " .. log_m_)
 
 	node_m_ = dispatch_getModule(eid.app_id, "NodeModule")
-	print("node : " .. node_m_)
+	logInfo("clientNode", "node : " .. node_m_)
 
 	client_m_ = dispatch_getModule(eid.app_id, "DBClientModule")
-	print("client : " .. client_m_)
+	logInfo("clientNode", "client : " .. client_m_)
 
 	-- init modules id
 	for i = 1, #modules do
 		local _name = modules[i][1]
 		local _moduleid = dispatch_getModule(eid.app_id, _name)
-		print("dbproxy modules id : " .. _moduleid)
+		logInfo("clientNode", "dbproxy modules id : " .. _moduleid)
 
 		modules[i][2] = _moduleid
 	end
@@ -55,8 +55,7 @@ end
 module.init = function()
 
 	listen(module_id, eid.distributed.node_create_succ, function(args) 
-		
-		print("dbproxy node create success!")
+		logInfo("clientNode", "dbproxy node create success!")
 
 		local pack = Args.new()
 		pack:push_i32(node_id)

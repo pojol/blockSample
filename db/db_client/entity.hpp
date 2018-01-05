@@ -99,7 +99,7 @@ public:
 		
 			dispatch(client_m_, 10003, gsf::make_args(sql_create()));
 			//dispatch(client_m_, 10003, gsf::make_args())
-			sql_update_timer_ = dispatch(timer_m_, eid::timer::delay_milliseconds, gsf::make_args(1000))->pop_timerid();
+			sql_update_timer_ = dispatch(timer_m_, eid::timer::delay_milliseconds, gsf::make_args(get_module_id(), 1000))->pop_timerid();
 
 			return nullptr;
 		});

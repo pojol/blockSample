@@ -115,7 +115,7 @@ public:
 
 	void init() override
 	{
-		dispatch(lua_m_, eid::lua_proxy::create, gsf::make_args(get_module_id(), lua_path_, "dbServerNode.lua"));
+		dispatch(lua_m_, eid::lua_proxy::create, gsf::make_args(get_module_id(), lua_path_, "dbproxy/dbServerNode.lua"));
 	}
 
 	void shut() override

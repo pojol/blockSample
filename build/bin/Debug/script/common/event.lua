@@ -51,6 +51,30 @@ function dispatch_getModule(target, moduleName)
     return unpack:pop_i32()
 end
 
+function logInfo(moduleName, info)
+    local args = Args.new()
+    args:push_ui16(2)
+    args:push_string(moduleName)
+    args:push_string(info)
+    dispatch(log_m_, eid.log.print, args:pop_block(0, args:get_pos()))
+end
+
+function logWarn(moduleName, warn)
+    local args = Args.new()
+    args:push_ui16(1)
+    args:push_string(moduleName)
+    args:push_string(info)
+    dispatch(log_m_, eid.log.print, args:pop_block(0, args:get_pos()))
+end
+
+function logError(moduleName, warn)
+    local args = Args.new()
+    args:push_ui16(0)
+    args:push_string(moduleName)
+    args:push_string(info)
+    dispatch(log_m_, eid.log.print, args:pop_block(0, args:get_pos()))
+end
+
 function dispatch_delayMilliseconds(target, delay)
     local args = Args.new()
     args:push_i32(module_id)
