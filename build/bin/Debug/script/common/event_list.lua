@@ -13,7 +13,7 @@ eid = {
 		coordinat_regist = 1004,
 		coordinat_unregit = 1005,
 		coordinat_adjust_weight = 1006,
-		coordinat_get = 1007,
+		coordinat_select = 1007,
 
 		rpc_end = 2000,
 	},

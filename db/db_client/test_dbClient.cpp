@@ -25,14 +25,12 @@
 
 #include <distributed/node.h>
 #include <timer/timer.h>
+#include <lua_proxy/lua_proxy.h>
 
 #include <log/log.h>
 #include <iostream>
 
 #include <fmt/format.h>
-
-#include "entity.hpp"
-#include "clientNode.hpp"
 
 enum dbproxy_event
 {
@@ -40,6 +38,59 @@ enum dbproxy_event
 	db_sql,
 	db_sqlcb,
 };
+
+class PathModule
+	: public gsf::Module
+	, public gsf::IEvent
+{
+public:
+
+	PathModule()
+		: Module("PathModule")
+	{}
+
+	virtual ~PathModule() {}
+
+	void before_init()
+	{
+		char _path[512];
+
+#ifdef WIN32
+		GetModuleFileName(NULL, _path, 512);
+		for (int i = strlen(_path); i >= 0; i--)
+		{
+			if (_path[i] == '\\')
+			{
+				_path[i] = '\0';
+				break;
+			}
+		}
+#else
+		int cnt = readlink("/proc/self/exe", _path, 512);
+		if (cnt < 0 || cnt >= 512) {
+			std::cout << "read path err" << std::endl;
+			return;
+		}
+		for (int i = cnt; i >= 0; --i)
+		{
+			if (_path[i] == '/') {
+				_path[i + 1] = '\0';
+				break;
+			}
+		}
+#endif // WIN32
+
+		path_ = _path;
+
+		listen(this, eid::sample::get_proc_path, [=](const gsf::ArgsPtr &args) {
+			return gsf::make_args(path_);
+		});
+	}
+
+private:
+	std::string path_ = "";
+};
+
 
 class Client2DBConnector
 	: public gsf::network::ConnectorModule
@@ -50,12 +101,12 @@ public:
 	{}
 };
 
+
 class DBClientModule
 	: public gsf::Module
 	, public gsf::IEvent
 {
 public:
-
 	DBClientModule()
 		: Module("DBClientModule")
 	{}
@@ -64,63 +115,19 @@ public:
 
 	void before_init() override
 	{
-		entity_mgr_m_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("EntityMgrModule"))->pop_moduleid();
-		assert(entity_mgr_m_ != gsf::ModuleNil);
+		lua_m_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("LuaProxyModule"))->pop_moduleid();
+		assert(lua_m_ != gsf::ModuleNil);
 
-		connector_m_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("Client2DBConnector"))->pop_moduleid();
-		assert(connector_m_ != gsf::ModuleNil);
+		auto path_m_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("PathModule"))->pop_moduleid();
+		assert(path_m_ != gsf::ModuleNil);
+
+		lua_path_ = dispatch(path_m_, eid::sample::get_proc_path, nullptr)->pop_string();
+
 	}
 
 	void init() override
 	{
-		listen(this, 10001, [&](const gsf::ArgsPtr &args) {
-		
-			std::cout << "init succ!" << std::endl;
-
-			rpc(eid::distributed::coordinat_select, gsf::make_args("DBProxyServerModule", 0), [&](const gsf::ArgsPtr &args, bool result) {
-
-				if (result) {
-					auto _nodid = args->pop_i32();
-					auto _nodtype = args->pop_string();
-					auto _nodweight = args->pop_ui32();
-					auto _acceptorip = args->pop_string();
-					auto _acceptorport = args->pop_i32();
-
-					dispatch(connector_m_, eid::network::make_connector, gsf::make_args(get_module_id(), _acceptorip, _acceptorport));
-				}
-
-			});
-
-			return nullptr;
-		});
-
-		listen(this, eid::network::new_connect, [&](const gsf::ArgsPtr &args) {
-		
-			db_fd_ = args->pop_fd();
-
-			// init succ
-			dispatch(entity_mgr_m_, 10002, nullptr);
-
-			return nullptr;
-		});
-
-		listen(this, 10003, [&](const gsf::ArgsPtr &args) {
-		
-			dispatch(connector_m_, eid::network::send, gsf::make_args(dbproxy_event::db_sql, args->pop_string()));
-
-			return nullptr;
-		});
-
-		listen(this, 10004, [&](const gsf::ArgsPtr &args) {
-		
-			auto _args = gsf::ArgsPool::get_ref().get();
-			_args->push(dbproxy_event::db_sql);
-			_args->push_block(args->pop_block(0, args->get_pos()).c_str(), args->get_pos());
-
-			dispatch(connector_m_, eid::network::send, _args);
-
-			return nullptr;
-		});
+		dispatch(lua_m_, eid::lua_proxy::create, gsf::make_args(get_module_id(), lua_path_, "dbproxy/clientMain.lua"));
 	}
 
 	void shut() override
@@ -129,12 +136,9 @@ public:
 	}
 
 private:
-	gsf::ModuleID entity_mgr_m_ = gsf::ModuleNil;
-	gsf::ModuleID connector_m_ = gsf::ModuleNil;
-
-	gsf::SessionID db_fd_ = gsf::SessionNil;
+	gsf::ModuleID lua_m_ = gsf::ModuleNil;
+	std::string lua_path_ = "";
 };
-
 
 int main()
 {
@@ -161,10 +165,8 @@ int main()
 
 	app.regist_module(new Client2DBConnector);
 
-	app.regist_module(new DBClientModule);
 	app.regist_module(new PathModule);
-	app.regist_module(new DBNodeProxyModule);
-	app.regist_module(new EntityMgrModule);
+	app.regist_module(new DBClientModule);
 
 	app.run();
 

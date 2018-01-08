@@ -41,6 +41,10 @@ function listen(target, eventID, func)
 	event:llisten(module_id, target, eventID, func)
 end
 
+function rpc(eventID, args, callback)
+    event:lrpc(module_id, eventID, args, callback)
+end
+
 function dispatch_getModule(target, moduleName)
     local args = Args.new()
     args:push_string(moduleName)
@@ -84,6 +88,16 @@ function dispatch_delayMilliseconds(target, delay)
     local unpack = Args.new(buf, #buf)
 
     return unpack:pop_ui64()
+end
+
+function dispatch_CreateConnctor(target, ip, port)
+
+    local args = Args.new()
+    args:push_i32(module_id)
+    args:push_string(ip)
+    args:push_i32(port)
+    dispatch(target, eid.network.make_connector, args:pop_block(0, args:get_pos()))
+
 end
 
 function dispatch_createNode(target, nodeID, moduleID, nodeType, acceptor_ip, acceptor_port, rootIp, rootPort, modules)
