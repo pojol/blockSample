@@ -8,9 +8,16 @@ module = {
 log_m_ = 0
 timer_m_ = 0
 node_m_ = 0
-connector_m_ = 0
 
 configNode = nil
+entityMgr = nil
+
+function init_entitymgr()
+
+    entityMgr = require "entityMgr"
+    entityMgr:init()
+
+end
 
 module.before_init = function(dir)
 	local package_path = {}
@@ -31,9 +38,6 @@ module.before_init = function(dir)
     node_m_ = dispatch_getModule(eid.app_id, "NodeModule")
     logInfo("client", "node : " .. node_m_)
 
-    connector_m_ = dispatch_getModule(eid.app_id, "Client2DBConnector")
-    logInfo("client", "connector : " .. connector_m_)
-
     configNode = require "configNode"
     configNode:init()
 
@@ -41,7 +45,7 @@ end
 
 module.init = function()
 
-    listen(module_id, eid.distributed.node_create_succ, function(args)
+    listen(module_id, eid.node.node_create_succ, function(args)
     
         logInfo("client", "create node succ!")
 
@@ -51,9 +55,7 @@ module.init = function()
         rpc(eid.distributed.coordinat_select, rpcArgs:pop_block(0, rpcArgs:get_pos()), function(buf, len, cbResult)
         
             if cbResult == true then
-                
                 resArgs = Args.new(buf, len)
-
                 resArgs:pop_ui16()  --fd
                 resArgs:pop_i32()   --msgid
 
@@ -63,13 +65,22 @@ module.init = function()
                 _acceptorIP = resArgs:pop_string()
                 _acceptorPort = resArgs:pop_i32()
 
-                dispatch_CreateConnctor(connector_m_, _acceptorIP, _acceptorPort)
-
+                dispatch_registNode(node_m_, module_id, eid.db_proxy.mysql_query, _acceptorIP, _acceptorPort)
+                
             else
+                
                 logError("client", "distributed select node fail!")
             end
 
         end)
+
+        return ""
+    end)
+
+    listen(module_id, eid.node.node_regist_succ, function(args) 
+    
+        print("node regist succ")
+        init_entitymgr()
 
         return ""
     end)
@@ -83,12 +94,6 @@ module.init = function()
         , configNode.root_ip
         , configNode.root_port
         , configNode.modules)
-
-    listen(module_id, eid.network.new_connect, function(args)
-    
-        print("new connect")
-
-    end)
 
 end
 

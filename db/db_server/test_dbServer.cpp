@@ -188,17 +188,11 @@ public:
 			auto _fd = args->pop_fd();
 			auto _msgid = args->pop_msgid();
 
-			if (_msgid == dbproxy_event::db_update) {
-
-
-
-			}
-
-			if (_msgid == dbproxy_event::db_sql) {
+			if (_msgid == eid::db_proxy::mysql_query) {
 				std::string _sql = args->pop_string();
 				std::cout << "execute sql " << _sql << std::endl;
 
-				dispatch(db_p_, eid::db_proxy::mysql_query, gsf::make_args(_sql));
+				//dispatch(db_p_, eid::db_proxy::mysql_query, gsf::make_args(_sql));
 			}
 
 			return nullptr;

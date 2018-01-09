@@ -58,7 +58,7 @@ end
 
 module.init = function()
 
-	listen(module_id, eid.distributed.node_create_succ, function(args) 
+	listen(module_id, eid.node.node_create_succ, function(args) 
 		
 		print("game node create success!")
 

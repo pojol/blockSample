@@ -8,12 +8,10 @@ eid = {
 	distributed = {
 		rpc_begin = 1001,
 		
-		node_create = 1002,
-		node_create_succ = 1003,
-		coordinat_regist = 1004,
-		coordinat_unregit = 1005,
-		coordinat_adjust_weight = 1006,
-		coordinat_select = 1007,
+		coordinat_regist = 1002,
+		coordinat_unregit = 1003,
+		coordinat_adjust_weight = 1004,
+		coordinat_select = 1005,
 
 		rpc_end = 2000,
 	},
@@ -29,6 +27,23 @@ eid = {
 		fail_connect = 2008
 	},
 
+	db_proxy = {
+		redis_connect = 2401,
+		redis_command = 2402,
+		redis_avatar_offline = 2403,
+		redis_resume = 2404,
+
+		--[[
+			建立一个新的Mysql连接
+			参数: host, user, password, dbName, port
+			类型: dispatch
+		]]--
+		mysql_connect = 2405,
+
+		mysql_query = 2406,
+		mysql_execute = 2407,
+	},
+
 	log = {
 		print = 2101,
 	},
@@ -40,6 +55,13 @@ eid = {
 		delay_month = 2204,
 		remove_timer = 2205,
 		timer_arrive = 2206,
+	},
+
+	node = {
+		node_create = 2500,
+		node_create_succ = 2501,
+		node_regist = 2502,
+		node_regist_succ = 2503,
 	},
 
 	sample = {

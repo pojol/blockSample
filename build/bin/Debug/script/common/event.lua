@@ -67,19 +67,20 @@ function logWarn(moduleName, warn)
     local args = Args.new()
     args:push_ui16(1)
     args:push_string(moduleName)
-    args:push_string(info)
+    args:push_string(warn)
     dispatch(log_m_, eid.log.print, args:pop_block(0, args:get_pos()))
 end
 
-function logError(moduleName, warn)
+function logError(moduleName, err)
     local args = Args.new()
     args:push_ui16(0)
     args:push_string(moduleName)
-    args:push_string(info)
+    args:push_string(err)
     dispatch(log_m_, eid.log.print, args:pop_block(0, args:get_pos()))
 end
 
 function dispatch_delayMilliseconds(target, delay)
+
     local args = Args.new()
     args:push_i32(module_id)
     args:push_i32(delay)
@@ -98,6 +99,17 @@ function dispatch_CreateConnctor(target, ip, port)
     args:push_i32(port)
     dispatch(target, eid.network.make_connector, args:pop_block(0, args:get_pos()))
 
+end
+
+function dispatch_registNode(target, base, event, ip, port)
+
+    local pack = Args.new()
+    pack:push_i32(base)
+    pack:push_i32(event)
+    pack:push_string(ip)
+    pack:push_i32(port)
+
+    dispatch(target, eid.node.node_regist, pack:pop_block(0, pack:get_pos()))
 end
 
 function dispatch_createNode(target, nodeID, moduleID, nodeType, acceptor_ip, acceptor_port, rootIp, rootPort, modules)
@@ -120,5 +132,5 @@ function dispatch_createNode(target, nodeID, moduleID, nodeType, acceptor_ip, ac
         args:push_i32(mNode[3])
     end
 
-    dispatch(target, eid.distributed.node_create, args:pop_block(0, args:get_pos()))
+    dispatch(target, eid.node.node_create, args:pop_block(0, args:get_pos()))
 end

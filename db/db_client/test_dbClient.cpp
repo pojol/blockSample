@@ -92,15 +92,6 @@ private:
 };
 
 
-class Client2DBConnector
-	: public gsf::network::ConnectorModule
-{
-public:
-	Client2DBConnector()
-		: gsf::network::ConnectorModule("Client2DBConnector")
-	{}
-};
-
 
 class DBClientModule
 	: public gsf::Module
@@ -127,7 +118,7 @@ public:
 
 	void init() override
 	{
-		dispatch(lua_m_, eid::lua_proxy::create, gsf::make_args(get_module_id(), lua_path_, "dbproxy/clientMain.lua"));
+		dispatch(lua_m_, eid::lua_proxy::create, gsf::make_args(get_module_id(), lua_path_, "dbproxy/dbClientModule.lua"));
 	}
 
 	void shut() override
@@ -162,8 +153,6 @@ int main()
 	app.regist_module(new gsf::modules::NodeModule);
 	app.regist_module(new gsf::modules::LuaProxyModule);
 	app.regist_module(new gsf::modules::TimerModule);
-
-	app.regist_module(new Client2DBConnector);
 
 	app.regist_module(new PathModule);
 	app.regist_module(new DBClientModule);
