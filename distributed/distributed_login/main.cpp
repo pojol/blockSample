@@ -159,7 +159,7 @@ public:
 		auto _password = args->pop_string();
 		auto _md5 = "123";
 
-		rpc(eid::distributed::coordinat_select, gsf::make_args("GameModule", 0, _client_fd), [&](const gsf::ArgsPtr &args, bool result) {
+		rpc(eid::distributed::coordinat_select, get_module_id(), gsf::make_args("GameModule", 0, _client_fd), [&](const gsf::ArgsPtr &args, int32_t process, bool result) {
 		
 			if (result) {
 

@@ -61,12 +61,15 @@ public:
 			auto _msgid = args->pop_msgid();
 
 			if (_msgid == eid::distributed::coordinat_regist) {
+
+				auto _callbackid = args->pop_string();
+
 				auto _args = gsf::ArgsPool::get_ref().get();
-				auto _len = sizeof(gsf::SessionID) + 1 + sizeof(gsf::MsgID) + 1;
+				auto _len = sizeof(gsf::SessionID) + 1 + sizeof(gsf::MsgID) + 1 + _callbackid.size() + 3;
 				_args->push_block(args->pop_block(_len, args->get_pos()).c_str(), args->get_pos() - _len);
 
 				if (dispatch(coodinator_m_, eid::distributed::coordinat_regist, _args)->pop_bool()) {
-					dispatch(acceptor_m_, eid::network::send, gsf::make_args(_fd, eid::distributed::coordinat_regist));
+					dispatch(acceptor_m_, eid::network::send, gsf::make_args(_fd, eid::distributed::coordinat_regist, _callbackid, true, -1));
 				}
 			}
 
@@ -80,13 +83,14 @@ public:
 			}
 
 			if (_msgid == eid::distributed::coordinat_select) {
+				auto _callbackid = args->pop_string();
 				auto _moduleName = args->pop_string();
 				auto _moduleFeature = args->pop_i32();
 
 				std::string _block = "";
 				if (args->get_tag() != 0) {
 					// string = tag + typeLen + str
-					auto _len = sizeof(gsf::SessionID) + 1 + sizeof(gsf::MsgID) + 1 + _moduleName.size() + 3 + sizeof(int32_t) + 1;
+					auto _len = sizeof(gsf::SessionID) + 1 + sizeof(gsf::MsgID) + 1 + _moduleName.size() + 3 + sizeof(int32_t) + 1 + _callbackid.size() + 3;
 					_block = args->pop_block(_len, args->get_pos());
 				}
 
@@ -95,6 +99,9 @@ public:
 					auto _args = gsf::ArgsPool::get_ref().get();
 					_args->push(_fd);
 					_args->push(eid::distributed::coordinat_select);
+					_args->push(_callbackid);
+					_args->push(true);
+					_args->push(-1);
 					_args->push_block(_nodeinfo->pop_block(0, _nodeinfo->get_pos()).c_str(), _nodeinfo->get_pos());
 
 					if (_block != "") {

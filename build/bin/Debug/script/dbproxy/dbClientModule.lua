@@ -52,24 +52,21 @@ module.init = function()
         local rpcArgs = Args.new()
         rpcArgs:push_string("DBProxyServerModule")
         rpcArgs:push_i32(0)
-        rpc(eid.distributed.coordinat_select, rpcArgs:pop_block(0, rpcArgs:get_pos()), function(buf, len, cbResult)
+        rpc(eid.distributed.coordinat_select, module_id, rpcArgs:pop_block(0, rpcArgs:get_pos()), function(buf, len, progress, cbResult)
         
-            if cbResult == true then
-                resArgs = Args.new(buf, len)
-                resArgs:pop_ui16()  --fd
-                resArgs:pop_i32()   --msgid
+            resArgs = Args.new(buf, len)
 
+            if cbResult == true then
                 _nodid = resArgs:pop_i32()
                 _nodType = resArgs:pop_string()
                 _nodWeight = resArgs:pop_ui32()
                 _acceptorIP = resArgs:pop_string()
                 _acceptorPort = resArgs:pop_i32()
 
-                dispatch_registNode(node_m_, module_id, eid.db_proxy.mysql_query, _acceptorIP, _acceptorPort)
+                dispatch_registNode(node_m_, module_id, eid.db_proxy.mysql_execute, _acceptorIP, _acceptorPort)
                 
             else
-                
-                logError("client", "distributed select node fail!")
+                logWarn("client", resArgs:pop_string())
             end
 
         end)

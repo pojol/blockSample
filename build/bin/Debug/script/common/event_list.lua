@@ -40,7 +40,7 @@ eid = {
 		]]--
 		mysql_connect = 2405,
 
-		mysql_query = 2406,
+		mysql_update = 2406,
 		mysql_execute = 2407,
 	},
 

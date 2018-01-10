@@ -41,8 +41,8 @@ function listen(target, eventID, func)
 	event:llisten(module_id, target, eventID, func)
 end
 
-function rpc(eventID, args, callback)
-    event:lrpc(module_id, eventID, args, callback)
+function rpc(eventID, moduleid, args, callback)
+    event:lrpc(module_id, eventID, moduleid, args, callback)
 end
 
 function dispatch_getModule(target, moduleName)

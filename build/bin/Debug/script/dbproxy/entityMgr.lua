@@ -45,17 +45,20 @@ entityMgr.init = function()
 
 	-- 创建或更新数据集
 	local pack = Args.new()
+	pack:push_i32(module_id)
 	pack:push_string(create_sql)
-	rpc(eid.db_proxy.mysql_query, pack:pop_block(0, pack:get_pos()), function(buf, len, cbResult)
-	
+	rpc(eid.db_proxy.mysql_execute, module_id, pack:pop_block(0, pack:get_pos()), function(buf, len, progress, cbResult)
+		
+		local unpack = Args.new(buf, len)
 		if cbResult == true then
-			local unpack = Args.new(buf, len)
 			_bres = unpack:pop_bool()
 			if _bres == false then
 				_msg = unpack:pop_string()
 				logWarn('entityMgr', 'create entity table fail : ' .. _msg)
 			end
+		else
 
+			logWarn('entityMgr', unpack:pop_string())
 		end
 
 	end)

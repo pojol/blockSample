@@ -1,4 +1,4 @@
-#include <signal.h>
+﻿#include <signal.h>
 #include <fcntl.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -30,12 +30,13 @@
 
 #include <log/log.h>
 #include <iostream>
+#include <stack>
 
-enum dbproxy_event
+enum TaskState
 {
-	db_update = 3000,
-	db_sql,
-	db_sqlcb,
+	TS_Waiting,
+	TS_Querying,
+	TS_Complete,
 };
 
 class PathModule
@@ -128,6 +129,16 @@ private:
 	std::string lua_path_ = "";
 };
 
+struct Task
+{
+	gsf::ModuleID target_ = gsf::ModuleNil;
+	TaskState state_ = TaskState::TS_Waiting;
+	std::string sql_ = "";
+	gsf::SessionID fd_ = gsf::SessionNil;
+	int progress_ = 0;
+	std::string callbackid_ = "";
+};
+
 class DBProxyServerModule
 	: public gsf::IEvent
 	, public gsf::Module
@@ -188,15 +199,83 @@ public:
 			auto _fd = args->pop_fd();
 			auto _msgid = args->pop_msgid();
 
-			if (_msgid == eid::db_proxy::mysql_query) {
+			if (_msgid == eid::db_proxy::mysql_execute) {
+				auto _callbackid = args->pop_string();
+
+				auto _target = args->pop_moduleid();
 				std::string _sql = args->pop_string();
 				std::cout << "execute sql " << _sql << std::endl;
 
-				//dispatch(db_p_, eid::db_proxy::mysql_query, gsf::make_args(_sql));
+				auto _t = Task();
+				_t.fd_ = _fd;
+				_t.sql_ = _sql;
+				_t.target_ = _target;
+				_t.callbackid_ = _callbackid;
+
+				auto _itr = task_map_.find(_target);
+				if (_itr != task_map_.end()) {
+					auto _task = _itr->second;
+					_task.push(_t);
+				}
+				else {
+					std::stack<Task> _stack;
+					_stack.push(_t);
+					task_map_.insert(std::make_pair(_target, _stack));
+				}
 			}
 
 			return nullptr;
 		});
+
+		listen(this, eid::mysql_callback, [&](const gsf::ArgsPtr &args) {
+		
+			auto _remote = args->pop_moduleid();
+			auto _itr = task_map_.find(_remote);
+			assert(_itr != task_map_.end());
+
+			auto _state = args->pop_bool();
+			auto _progress = args->pop_i32();
+
+			if (_state == false) {
+				dispatch(acceptor_m_, eid::network::send, gsf::make_args(_itr->second.top().fd_, eid::db_proxy::mysql_execute, _state, _progress));
+				_itr->second.pop();
+			}
+			else {
+				_itr->second.top().progress_ = _progress;
+
+				if (_progress != -1) {
+					auto _args = gsf::ArgsPool::get_ref().get();
+					_args->push(_itr->second.top().fd_);
+					_args->push(int(eid::db_proxy::mysql_execute));
+					_args->push(_state);
+					_args->push(_progress);
+					auto _len = sizeof(bool) + 1 + sizeof(int32_t) + 1;
+					_args->push_block(_args->pop_block(_len, _args->get_pos()).c_str(), _args->get_pos() - _len);
+					dispatch(acceptor_m_, eid::network::send, _args);
+				}
+				else { // complete
+					dispatch(acceptor_m_, eid::network::send, gsf::make_args(_itr->second.top().fd_, eid::db_proxy::mysql_execute, _state, _progress));
+					_itr->second.pop();
+				}
+			}
+
+			return nullptr;
+		});
+	}
+
+	void execute() override
+	{
+		for (auto it : task_map_)
+		{
+			if (!it.second.empty()) {
+				if (it.second.top().state_ == TaskState::TS_Waiting) {
+
+					it.second.top().state_ = TaskState::TS_Querying;
+					dispatch(db_p_, eid::db_proxy::mysql_execute, gsf::make_args(get_module_id(), it.second.top().target_, it.second.top().sql_));
+
+				}
+			}	
+		}
 	}
 
 	void shut() override
@@ -205,6 +284,9 @@ public:
 	}
 
 private:
+	//! 保证sql执行循序先进先出
+	std::unordered_map<gsf::ModuleID, std::stack<Task >> task_map_;
+
 
 	gsf::ModuleID log_m_ = gsf::ModuleNil;
 	gsf::ModuleID db_p_ = gsf::ModuleNil;
