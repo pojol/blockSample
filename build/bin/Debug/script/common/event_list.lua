@@ -13,6 +13,9 @@ eid = {
 		coordinat_adjust_weight = 1004,
 		coordinat_select = 1005,
 
+		mysql_update = 1006,
+		mysql_execute = 1007,
+
 		rpc_end = 2000,
 	},
 	
@@ -39,9 +42,6 @@ eid = {
 			类型: dispatch
 		]]--
 		mysql_connect = 2405,
-
-		mysql_update = 2406,
-		mysql_execute = 2407,
 	},
 
 	log = {

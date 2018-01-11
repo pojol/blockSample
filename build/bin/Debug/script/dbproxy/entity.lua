@@ -1,6 +1,4 @@
 
-create_sql = string.format()
-
 local entity = {
     id,
     name,
@@ -8,9 +6,20 @@ local entity = {
     lv,
     loginTime,
 
+    create_sql = string.format("insert into Entity (id,name,hp,mp,lv,gold,loginTime) values (%d,%s,%d,%d,%d,%d,%d);"
+        , 110
+        , "''"
+        , 100
+        , 150
+        , 1
+        , 300
+        , 0),
+
     init = function(stream) end,
     setProperty = function(type, val) end,
     update = function() end,    
+
+    getCreateSql = function() end,
 
     dirtyList = {}
 }

@@ -9,6 +9,8 @@ log_m_ = 0
 timer_m_ = 0
 node_m_ = 0
 
+millisecond_timer_id = 0
+
 configNode = nil
 entityMgr = nil
 
@@ -17,6 +19,24 @@ function init_entitymgr()
     entityMgr = require "entityMgr"
     entityMgr:init()
 
+end
+
+function onTimer(buf, len)
+	args = Args.new(buf, len)
+	timer_id = args:pop_ui64()
+
+	if timer_id == millisecond_timer_id then
+        if entityMgr ~= nil and entityMgr.state_ == EntityState.usable then
+
+            print("start server!")
+            entityMgr:entityLoad(0)
+
+        else
+            millisecond_timer_id = dispatch_delayMilliseconds(timer_m_,  200)
+        end
+	end
+
+	return ""
 end
 
 module.before_init = function(dir)
@@ -63,7 +83,7 @@ module.init = function()
                 _acceptorIP = resArgs:pop_string()
                 _acceptorPort = resArgs:pop_i32()
 
-                dispatch_registNode(node_m_, module_id, eid.db_proxy.mysql_execute, _acceptorIP, _acceptorPort)
+                dispatch_registNode(node_m_, module_id, eid.distributed.mysql_execute, _acceptorIP, _acceptorPort)
                 
             else
                 logWarn("client", resArgs:pop_string())
@@ -91,6 +111,9 @@ module.init = function()
         , configNode.root_ip
         , configNode.root_port
         , configNode.modules)
+
+    listen(module_id, eid.timer.timer_arrive, onTimer)
+    millisecond_timer_id = dispatch_delayMilliseconds(timer_m_, 200)
 
 end
 

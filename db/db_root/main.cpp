@@ -62,10 +62,10 @@ public:
 
 			if (_msgid == eid::distributed::coordinat_regist) {
 
-				auto _callbackid = args->pop_string();
+				auto _callbackid = args->pop_i64();
 
 				auto _args = gsf::ArgsPool::get_ref().get();
-				auto _len = sizeof(gsf::SessionID) + 1 + sizeof(gsf::MsgID) + 1 + _callbackid.size() + 3;
+				auto _len = sizeof(gsf::SessionID) + 1 + sizeof(gsf::MsgID) + 1 + sizeof(int64_t) + 1;
 				_args->push_block(args->pop_block(_len, args->get_pos()).c_str(), args->get_pos() - _len);
 
 				if (dispatch(coodinator_m_, eid::distributed::coordinat_regist, _args)->pop_bool()) {
@@ -83,14 +83,14 @@ public:
 			}
 
 			if (_msgid == eid::distributed::coordinat_select) {
-				auto _callbackid = args->pop_string();
+				auto _callbackid = args->pop_i64();
 				auto _moduleName = args->pop_string();
 				auto _moduleFeature = args->pop_i32();
 
 				std::string _block = "";
 				if (args->get_tag() != 0) {
 					// string = tag + typeLen + str
-					auto _len = sizeof(gsf::SessionID) + 1 + sizeof(gsf::MsgID) + 1 + _moduleName.size() + 3 + sizeof(int32_t) + 1 + _callbackid.size() + 3;
+					auto _len = sizeof(gsf::SessionID) + 1 + sizeof(gsf::MsgID) + 1 + _moduleName.size() + 3 + sizeof(int32_t) + 1 + sizeof(int64_t) + 1;
 					_block = args->pop_block(_len, args->get_pos());
 				}
 
@@ -133,7 +133,7 @@ int main()
 	gsf::Application app;
 	gsf::AppConfig cfg;
 	cfg.name = "root";
-	cfg.is_watch_pref = true;
+	//cfg.is_watch_pref = true;
 	app.init_cfg(cfg);
 
 	app.regist_module(new gsf::modules::LogModule);
@@ -141,7 +141,6 @@ int main()
 	app.regist_module(new gsf::modules::CoodinatorModule);
 
 	app.regist_module(new RootModule);
-	
 
 	app.run();
 
