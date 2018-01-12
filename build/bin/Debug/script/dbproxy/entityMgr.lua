@@ -46,7 +46,7 @@ entityMgr.init = function(self)
 	local pack = Args.new()
 	pack:push_i32(module_id)
 	pack:push_string(create_sql)
-	rpc(eid.distributed.mysql_execute, module_id, pack:pop_block(0, pack:get_pos()), function(buf, len, progress, cbResult)
+	rpc(eid.distributed.mysql_query, module_id, pack:pop_block(0, pack:get_pos()), function(buf, len, progress, cbResult)
 		if cbResult == true then
 
 			self.state_ = EntityState.usable
@@ -68,7 +68,7 @@ entityMgr.entityLoad = function(self, accountid)
 	sql = string.format("select * from Account where account='%d';", accountid)
 	pack:push_string(sql)
 
-	rpc(eid.distributed.mysql_execute, module_id, pack:pop_block(0, pack:get_pos()), function(buf, len, progress, cbResult)
+	rpc(eid.distributed.mysql_query, module_id, pack:pop_block(0, pack:get_pos()), function(buf, len, progress, cbResult)
 		local unpack = Args.new(buf, len)
 		if cbResult == true and progress ~= -1 then
 			_account = unpack:pop_string()
@@ -98,20 +98,21 @@ entityMgr.entityCreate = function(self)
 	local pack = Args.new()
 	pack:push_i32(module_id)
 	pack:push_string(entity.create_sql)
-
-	rpc(eid.distributed.mysql_execute, module_id, pack:pop_block(0, pack:get_pos()), function(buf, len, progress, cbResult)
+--[[
+	rpc(eid.distributed.mysql_query, module_id, pack:pop_block(0, pack:get_pos()), function(buf, len, progress, cbResult)
 		print(progress, cbResult)
 		local unpack = Args.new(buf, len)
 		if true == cbResult then
 			print("create entity succ!")
 
-			
+
 		else
 			logWarn('entityMgr', unpack:pop_string())
 		end
 
 	end)
-
+]]--
+	entity:update("hp", 101)
 end
 
 return entityMgr

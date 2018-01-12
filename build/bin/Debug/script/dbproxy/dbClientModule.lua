@@ -83,8 +83,9 @@ module.init = function()
                 _acceptorIP = resArgs:pop_string()
                 _acceptorPort = resArgs:pop_i32()
 
+                -- 后面改成自动注册
+                dispatch_registNode(node_m_, module_id, eid.distributed.mysql_query, _acceptorIP, _acceptorPort)
                 dispatch_registNode(node_m_, module_id, eid.distributed.mysql_execute, _acceptorIP, _acceptorPort)
-                
             else
                 logWarn("client", resArgs:pop_string())
             end

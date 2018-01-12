@@ -13,7 +13,7 @@ eid = {
 		coordinat_adjust_weight = 1004,
 		coordinat_select = 1005,
 
-		mysql_update = 1006,
+		mysql_query = 1006,
 		mysql_execute = 1007,
 
 		rpc_end = 2000,

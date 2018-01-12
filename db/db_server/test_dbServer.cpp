@@ -39,6 +39,13 @@ enum TaskState
 	TS_Complete,
 };
 
+enum TaskType
+{
+	TT_Nil,
+	TT_Query,
+	TT_Execute
+};
+
 class PathModule
 	: public gsf::Module
 	, public gsf::IEvent
@@ -129,6 +136,7 @@ private:
 	std::string lua_path_ = "";
 };
 
+// test
 struct Task
 {
 	gsf::ModuleID target_ = gsf::ModuleNil;
@@ -137,6 +145,10 @@ struct Task
 	gsf::SessionID fd_ = gsf::SessionNil;
 	int progress_ = 0;
 	int64_t callbackid_ = 0;
+
+	std::string params;
+	int params_len = 0;
+	TaskType type_ = TaskType::TT_Nil;
 };
 
 class DBProxyServerModule
@@ -161,6 +173,19 @@ public:
 
 		acceptor_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("AcceptorModule"))->pop_moduleid();
 		assert(acceptor_m_ != gsf::ModuleNil);
+	}
+
+	void addTask(gsf::ModuleID target, const Task &task)
+	{
+		auto _itr = task_map_.find(target);
+		if (_itr != task_map_.end()) {
+			_itr->second.push(task);
+		}
+		else {
+			std::stack<Task> _stack;
+			_stack.push(task);
+			task_map_.insert(std::make_pair(target, _stack));
+		}
 	}
 
 	void init() override
@@ -198,29 +223,37 @@ public:
 			
 			auto _fd = args->pop_fd();
 			auto _msgid = args->pop_msgid();
+			auto _callbackid = args->pop_i64();
 
-			if (_msgid == eid::distributed::mysql_execute) {
-				auto _callbackid = args->pop_i64();
-
+			if (_msgid == eid::distributed::mysql_query) {
+				
 				auto _target = args->pop_moduleid();
 				std::string _sql = args->pop_string();
-				std::cout << "execute sql " << _sql << std::endl;
+				std::cout << "query sql " << _sql << std::endl;
 
 				auto _t = Task();
 				_t.fd_ = _fd;
 				_t.sql_ = _sql;
 				_t.target_ = _target;
 				_t.callbackid_ = _callbackid;
+				_t.type_ = TaskType::TT_Query;
 
-				auto _itr = task_map_.find(_target);
-				if (_itr != task_map_.end()) {
-					_itr->second.push(_t);
-				}
-				else {
-					std::stack<Task> _stack;
-					_stack.push(_t);
-					task_map_.insert(std::make_pair(_target, _stack));
-				}
+				addTask(_target, _t);
+			}
+			else if (_msgid == eid::distributed::mysql_execute) {
+				auto _target = args->pop_moduleid();
+				std::string _sql = args->pop_string();
+				std::cout << "execute sql " << _sql << std::endl;
+
+				auto _len = sizeof(gsf::SessionID) + 1 + sizeof(int32_t) + 1 + sizeof(int64_t) + 1 + sizeof(gsf::ModuleID) + 1 + _sql.size() + 3;
+
+				auto _t = Task();
+				_t.sql_ = _sql;
+				_t.type_ = TaskType::TT_Execute;
+				_t.params = args->pop_block(_len, args->get_pos());
+				_t.params_len = args->get_pos() - _len;
+		
+				addTask(_target, _t);
 			}
 
 			return nullptr;
@@ -240,26 +273,37 @@ public:
 
 			if (_state == false) {
 				auto _err = args->pop_string();
-				dispatch(acceptor_m_, eid::network::send, gsf::make_args(_fd, eid::distributed::mysql_execute, _callbackid, _state, _progress, _err));
+				if (_callbackid != 0) {
+					dispatch(acceptor_m_, eid::network::send, gsf::make_args(_fd, eid::distributed::mysql_query, _callbackid, _state, _progress, _err));
+				}
+				else {
+					dispatch(log_m_, eid::log::print, gsf::log_warring("DBServer", _err));
+				}
 				_itr->second.pop();
 			}
 			else {
 				_itr->second.top().progress_ = _progress;
 
 				if (_progress != -1) {
-					auto _args = gsf::ArgsPool::get_ref().get();
-					_args->push(_fd);
-					_args->push(int(eid::distributed::mysql_execute));
-					_args->push(_callbackid);
-					_args->push(_state);
-					_args->push(_progress);
-					auto _len = sizeof(bool) + 1 + sizeof(int32_t) + 1 + sizeof(int32_t) + 1;
-					_args->push_block(args->pop_block(_len, args->get_pos()).c_str(), args->get_pos() - _len);
 
-					dispatch(acceptor_m_, eid::network::send, _args);
+					if (_callbackid != 0) {
+						auto _args = gsf::ArgsPool::get_ref().get();
+						_args->push(_fd);
+						_args->push(int(eid::distributed::mysql_query));
+						_args->push(_callbackid);
+						_args->push(_state);
+						_args->push(_progress);
+						auto _len = sizeof(bool) + 1 + sizeof(int32_t) + 1 + sizeof(int32_t) + 1;
+						_args->push_block(args->pop_block(_len, args->get_pos()).c_str(), args->get_pos() - _len);
+
+						dispatch(acceptor_m_, eid::network::send, _args);
+					}
+
 				}
 				else { // complete
-					dispatch(acceptor_m_, eid::network::send, gsf::make_args(_fd, eid::distributed::mysql_execute, _callbackid, _state, _progress));
+					if (_callbackid != 0) {
+						dispatch(acceptor_m_, eid::network::send, gsf::make_args(_fd, eid::distributed::mysql_query, _callbackid, _state, _progress));
+					}
 					_itr->second.pop();
 				}
 			}
@@ -273,11 +317,27 @@ public:
 		for (auto it : task_map_)
 		{
 			if (!it.second.empty()) {
-				if (it.second.top().state_ == TaskState::TS_Waiting) {
+
+				auto _tsk = it.second.top();
+
+				if (_tsk.state_ == TaskState::TS_Waiting) {
 
 					it.second.top().state_ = TaskState::TS_Querying;
-					dispatch(db_p_, eid::distributed::mysql_execute, gsf::make_args(get_module_id(), it.second.top().target_, it.second.top().sql_));
 
+					if (_tsk.type_ == TaskType::TT_Query) {
+						dispatch(db_p_, eid::distributed::mysql_query, gsf::make_args(get_module_id(), _tsk.target_, _tsk.sql_));
+					}
+					else {
+
+						auto _args = gsf::ArgsPool::get_ref().get();
+						_args->push_string(_tsk.sql_);
+						_args->push_block(_tsk.params.c_str(), _tsk.params_len);
+
+						dispatch(db_p_, eid::distributed::mysql_execute, _args);
+
+						//
+						it.second.pop();
+					}
 				}
 			}	
 		}
