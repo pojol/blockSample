@@ -18,13 +18,11 @@ module.before_init = function(dir)
 	require "event"
 	require "event_list"
 
-	log_m_ = dispatch_getModule(eid.app_id, "LogModule")
+	log_m_ = dispatch(eid.app_id, eid.get_module, {"LogModule"})[1]
 	logInfo("client", "log : " .. log_m_)
 
-    timer_m_ = dispatch_getModule(eid.app_id, "TimerModule")
+    timer_m_ = dispatch(eid.app_id, eid.get_module, {"TimerModule"})[1]
     logInfo("client", "timer : " .. timer_m_)
-
-
 end
 
 

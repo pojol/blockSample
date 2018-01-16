@@ -43,38 +43,30 @@ entityMgr.init = function(self)
 	self.state_ = EntityState.init
 
 	-- 创建或更新数据集
-	local pack = Args.new()
-	pack:push_i32(module_id)
-	pack:push_string(create_sql)
-	rpc(eid.distributed.mysql_query, module_id, pack:pop_block(0, pack:get_pos()), function(buf, len, progress, cbResult)
-		if cbResult == true then
-
+	rpc(eid.distributed.mysql_query, module_id, {module_id, create_sql}, function(res, progress, succ) 
+		
+		if succ == true then
 			self.state_ = EntityState.usable
-
-		else
-			local unpack = Args.new(buf, len)
-			logWarn('entityMgr', unpack:pop_string())
-		end
-
+		else 
+			logWarn('entityMgr', res[1])
+		end	
+	
 	end)
 end
 
 -- 查询entity是否存在, 如果存在则获取不存在则创建
 entityMgr.entityLoad = function(self, accountid)
-	local pack = Args.new()
-	pack:push_i32(module_id)
 
 	--sql = string.format("select * from Account where account=%s;", tostrng(accountid))
 	sql = string.format("select * from Account where account='%d';", accountid)
-	pack:push_string(sql)
 
-	rpc(eid.distributed.mysql_query, module_id, pack:pop_block(0, pack:get_pos()), function(buf, len, progress, cbResult)
-		local unpack = Args.new(buf, len)
-		if cbResult == true and progress ~= -1 then
-			_account = unpack:pop_string()
-			_pwd = unpack:pop_string()
-			_entityid = unpack:pop_i32()
-			_time = unpack:pop_i32()
+	rpc(eid.distributed.mysql_query, module_id, {module_id, sql}, function(res, progress, succ)
+
+		if succ == true and progress ~= -1 then
+			_account = res[1]
+			_pwd = res[2]
+			_entityid = res[3]
+			_time = res[4]
 
 			if _entityid == 0 then
 				-- create entity
@@ -82,14 +74,13 @@ entityMgr.entityLoad = function(self, accountid)
 			else
 			end
 
-		elseif cbResult == false then
-			logWarn('entityMgr', unpack:pop_string())
+		elseif succ == false then
+			logWarn('entityMgr', res[1])
 		end
 		
 	end)
 
 end
-
 
 entityMgr.entityCreate = function(self)
 	entity = require "entity"

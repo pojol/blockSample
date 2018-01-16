@@ -17,7 +17,7 @@ module.before_init = function(dir)
     require "event"
     require "event_list"
 
-	echo_m_ = dispatch_getModule(eid.app_id, "EchoServer")
+	echo_m_ = dispatch(eid.app_id, eid.get_module, {"EchoServer"})[1]
 	print("echo : " .. echo_m_)
 end
 

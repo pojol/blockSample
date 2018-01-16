@@ -27,6 +27,7 @@ local entity = {
 entity.init = function(stream)
 
     -- 从数据库请求数据
+    
 
 end
 
@@ -44,14 +45,9 @@ entity.update = function(self, key, val)
 
     print(key, val)
 
-    sql = "update Entity set "
     sql = string.format("update Entity set %s=%d where id='%d';", key, val, 110)
-    local pack = Args.new()
-    pack:push_i32(module_id)
-    pack:push_string(sql)
-    print(sql)
 
-    rpc(eid.distributed.mysql_query, module_id, pack:pop_block(0, pack:get_pos()), nil)
+    rpc(eid.distributed.mysql_query, module_id, {module_id, sql}, nil)
 
     -- 更新到数据库
     

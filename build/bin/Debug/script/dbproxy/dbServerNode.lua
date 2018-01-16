@@ -37,19 +37,19 @@ module.before_init = function(dir)
 	require "event"
 	require "event_list"
 
-	log_m_ = dispatch_getModule(eid.app_id, "LogModule")
+	log_m_ = dispatch(eid.app_id, eid.get_module, {"LogModule"})[1]
 	print("log : " .. log_m_)
 
-	node_m_ = dispatch_getModule(eid.app_id, "NodeModule")
+	node_m_ = dispatch(eid.app_id, eid.get_module, {"NodeModule"})[1]
 	print("node : " .. node_m_)
 
-	db_m_ = dispatch_getModule(eid.app_id, "DBProxyServerModule")
+	db_m_ = dispatch(eid.app_id, eid.get_module, {"DBProxyServerModule"})[1]
 	print("dbproxy : " .. db_m_)
 
 	-- init modules id
 	for i = 1, #modules do
 		local _name = modules[i][1]
-		local _moduleid = dispatch_getModule(eid.app_id, _name)
+		local _moduleid = dispatch(eid.app_id, eid.get_module, {"_name"})[1]
 		print("dbproxy modules id : " .. _moduleid)
 
 		modules[i][2] = _moduleid
@@ -62,17 +62,20 @@ module.init = function()
 		
 		print("dbproxy node create success!")
 
-		local pack = Args.new()
-		pack:push_string(acceptor_ip)
-		pack:push_i32(acceptor_port)
-		pack:push_i32(node_id)
-
-		dispatch(db_m_, eid.sample.create_node_succ, pack:pop_block(0, pack:get_pos()))
+		dispatch(db_m_, eid.sample.create_node_succ, {acceptor_ip, acceptor_port, node_id})
 
 		return ""
 	end)
 
-	dispatch_createNode(node_m_, node_id, module_id, nodeType, acceptor_ip, acceptor_port, root_ip, root_port, modules)
+	dispatch_createNode(node_m_
+		, node_id
+		, module_id
+		, nodeType
+		, acceptor_ip
+		, acceptor_port
+		, root_ip
+		, root_port
+		, modules)
 
 end
 

@@ -32,7 +32,7 @@ function onTimer(buf, len)
             entityMgr:entityLoad(0)
 
         else
-            millisecond_timer_id = dispatch_delayMilliseconds(timer_m_,  200)
+            millisecond_timer_id = dispatch(timer_m_, eid.timer.delay_milliseconds, {module_id, 200})[1]
         end
 	end
 
@@ -49,13 +49,13 @@ module.before_init = function(dir)
 	require "event"
 	require "event_list"
 
-	log_m_ = dispatch_getModule(eid.app_id, "LogModule")
+    log_m_ = dispatch(eid.app_id, eid.get_module, {"LogModule"})[1]
 	logInfo("client", "log : " .. log_m_)
 
-    timer_m_ = dispatch_getModule(eid.app_id, "TimerModule")
+    timer_m_ = dispatch(eid.app_id, eid.get_module, {"TimerModule"})[1] 
     logInfo("client", "timer : " .. timer_m_)
 
-    node_m_ = dispatch_getModule(eid.app_id, "NodeModule")
+    node_m_ = dispatch(eid.app_id, eid.get_module, {"NodeModule"})[1]
     logInfo("client", "node : " .. node_m_)
 
     configNode = require "configNode"
@@ -69,25 +69,20 @@ module.init = function()
     
         logInfo("client", "create node succ!")
 
-        local rpcArgs = Args.new()
-        rpcArgs:push_string("DBProxyServerModule")
-        rpcArgs:push_i32(0)
-        rpc(eid.distributed.coordinat_select, module_id, rpcArgs:pop_block(0, rpcArgs:get_pos()), function(buf, len, progress, cbResult)
-        
-            resArgs = Args.new(buf, len)
-
-            if cbResult == true then
-                _nodid = resArgs:pop_i32()
-                _nodType = resArgs:pop_string()
-                _nodWeight = resArgs:pop_ui32()
-                _acceptorIP = resArgs:pop_string()
-                _acceptorPort = resArgs:pop_i32()
+        rpc(eid.distributed.coordinat_select, module_id, {"DBProxyServerModule", 0}, function(res, progress, succ)
+            
+            if succ == true then
+                _nodid = res[1]
+                _nodType = res[2]
+                _nodWeight = res[3]
+                _acceptorIP = res[4]
+                _acceptorPort = res[5]
 
                 -- 后面改成自动注册
-                dispatch_registNode(node_m_, module_id, eid.distributed.mysql_query, _acceptorIP, _acceptorPort)
-                dispatch_registNode(node_m_, module_id, eid.distributed.mysql_execute, _acceptorIP, _acceptorPort)
+                dispatch(node_m_, eid.node.node_regist, {module_id, eid.distributed.mysql_query, _acceptorIP, _acceptorPort})
+                dispatch(node_m_, eid.node.node_regist, {module_id, eid.distributed.mysql_execute, _acceptorIP, _acceptorPort})
             else
-                logWarn("client", resArgs:pop_string())
+                logWarn("client", res[1])
             end
 
         end)
@@ -103,6 +98,7 @@ module.init = function()
         return ""
     end)
 
+
     dispatch_createNode(node_m_
         , configNode.node_id
         , module_id
@@ -114,7 +110,7 @@ module.init = function()
         , configNode.modules)
 
     listen(module_id, eid.timer.timer_arrive, onTimer)
-    millisecond_timer_id = dispatch_delayMilliseconds(timer_m_, 200)
+    millisecond_timer_id = dispatch(timer_m_, eid.timer.delay_milliseconds, {module_id, 200})[1]
 
 end
 

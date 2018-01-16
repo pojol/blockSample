@@ -14,7 +14,7 @@ configNode.init = function()
 
     for i = 1, #configNode.modules do
         local _name = configNode.modules[i][1]
-		local _moduleid = dispatch_getModule(eid.app_id, _name)
+		local _moduleid = dispatch(eid.app_id, eid.get_module, {"_name"})[1]
         logInfo("clientNode", "dbproxy modules id : " .. _moduleid)
 
 		configNode.modules[i][2] = _moduleid
