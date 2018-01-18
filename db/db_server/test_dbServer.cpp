@@ -250,8 +250,8 @@ public:
 				auto _t = Task();
 				_t.sql_ = _sql;
 				_t.type_ = TaskType::TT_Execute;
-				_t.params = args->pop_block(_len, args->get_pos());
-				_t.params_len = args->get_pos() - _len;
+				_t.params = args->pop_block(_len, args->get_size());
+				_t.params_len = args->get_size() - _len;
 		
 				addTask(_target, _t);
 			}
@@ -294,7 +294,7 @@ public:
 						_args->push(_state);
 						_args->push(_progress);
 						auto _len = sizeof(bool) + 1 + sizeof(int32_t) + 1 + sizeof(int32_t) + 1;
-						_args->push_block(args->pop_block(_len, args->get_pos()).c_str(), args->get_pos() - _len);
+						_args->push_block(args->pop_block(_len, args->get_size()).c_str(), args->get_size() - _len);
 
 						dispatch(acceptor_m_, eid::network::send, _args);
 					}

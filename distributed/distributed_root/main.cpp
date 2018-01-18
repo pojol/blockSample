@@ -63,7 +63,7 @@ public:
 			if (_msgid == eid::distributed::coordinat_regist) {
 				auto _args = gsf::ArgsPool::get_ref().get();
 				auto _len = sizeof(gsf::SessionID) + 1 + sizeof(gsf::MsgID) + 1;
-				_args->push_block(args->pop_block(_len, args->get_pos()).c_str(), args->get_pos() - _len);
+				_args->push_block(args->pop_block(_len, args->get_size()).c_str(), args->get_size() - _len);
 
 				if (dispatch(coodinator_m_, eid::distributed::coordinat_regist, _args)->pop_bool()) {
 					dispatch(acceptor_m_, eid::network::send, gsf::make_args(_fd, eid::distributed::coordinat_regist));
@@ -74,7 +74,7 @@ public:
 
 				auto _args = gsf::ArgsPool::get_ref().get();
 				auto _len = sizeof(gsf::SessionID) + 1 + sizeof(gsf::MsgID) + 1;
-				_args->push_block(args->pop_block(_len, args->get_pos()).c_str(), args->get_pos() - _len);
+				_args->push_block(args->pop_block(_len, args->get_size()).c_str(), args->get_size() - _len);
 
 				dispatch(coodinator_m_, eid::distributed::coordinat_adjust_weight, _args);
 			}
@@ -87,7 +87,7 @@ public:
 				if (args->get_tag() != 0) {
 					// string = tag + typeLen + str
 					auto _len = sizeof(gsf::SessionID) + 1 + sizeof(gsf::MsgID) + 1 + _moduleName.size() + 3 + sizeof(int32_t) + 1;
-					_block = args->pop_block(_len, args->get_pos());
+					_block = args->pop_block(_len, args->get_size());
 				}
 
 				auto _nodeinfo = dispatch(coodinator_m_, eid::distributed::coordinat_select, gsf::make_args(_moduleName, _moduleFeature));
@@ -95,7 +95,7 @@ public:
 					auto _args = gsf::ArgsPool::get_ref().get();
 					_args->push(_fd);
 					_args->push(eid::distributed::coordinat_select);
-					_args->push_block(_nodeinfo->pop_block(0, _nodeinfo->get_pos()).c_str(), _nodeinfo->get_pos());
+					_args->push_block(_nodeinfo->pop_block(0, _nodeinfo->get_size()).c_str(), _nodeinfo->get_size());
 
 					if (_block != "") {
 						_args->push_block(_block.c_str(), _block.size());

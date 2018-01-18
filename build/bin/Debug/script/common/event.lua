@@ -76,7 +76,7 @@ function __pack(event_id, args)
         _idx = _idx + 1
     end
 
-    return pack:pop_block(0, pack:get_pos())
+    return pack:pop_block(0, pack:get_size())
 end
 
 function __unpack(buf, len)
@@ -140,7 +140,7 @@ function logInfo(moduleName, info)
     args:push_ui16(2)
     args:push_string(moduleName)
     args:push_string(info)
-    __dispatch(log_m_, eid.log.print, args:pop_block(0, args:get_pos()))
+    __dispatch(log_m_, eid.log.print, args:pop_block(0, args:get_size()))
 end
 
 function logWarn(moduleName, warn)
@@ -148,7 +148,7 @@ function logWarn(moduleName, warn)
     args:push_ui16(1)
     args:push_string(moduleName)
     args:push_string(warn)
-    __dispatch(log_m_, eid.log.print, args:pop_block(0, args:get_pos()))
+    __dispatch(log_m_, eid.log.print, args:pop_block(0, args:get_size()))
 end
 
 function logError(moduleName, err)
@@ -156,7 +156,7 @@ function logError(moduleName, err)
     args:push_ui16(0)
     args:push_string(moduleName)
     args:push_string(err)
-    __dispatch(log_m_, eid.log.print, args:pop_block(0, args:get_pos()))
+    __dispatch(log_m_, eid.log.print, args:pop_block(0, args:get_size()))
 end
 
 function dispatch_createNode(target, nodeID, moduleID, nodeType, acceptor_ip, acceptor_port, rootIp, rootPort, modules)
@@ -179,5 +179,5 @@ function dispatch_createNode(target, nodeID, moduleID, nodeType, acceptor_ip, ac
         args:push_i32(mNode[3])
     end
 
-    __dispatch(target, eid.node.node_create, args:pop_block(0, args:get_pos()))
+    __dispatch(target, eid.node.node_create, args:pop_block(0, args:get_size()))
 end
