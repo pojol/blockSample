@@ -41,8 +41,11 @@ public:
 
 	void before_init() override
 	{
-		connector_id_ = dispatch(eid::app_id, eid::new_dynamic_module, gsf::make_args("ConnectorModule"))->pop_moduleid();
-		timer_m_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("TimerModule"))->pop_moduleid();
+		connector_id_ = APP.create_dynamic_module("ConnectorModule");
+		assert(connector_id_ != gsf::ModuleNil);
+
+		timer_m_ = APP.get_module("TimerModule");
+		assert(timer_m_ != gsf::ModuleNil);
 
 		listen(this, eid::timer::timer_arrive, std::bind(&Client::timerArrive, this, std::placeholders::_1));
 

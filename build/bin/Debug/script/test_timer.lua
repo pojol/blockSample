@@ -25,15 +25,16 @@ module.before_init = function(dir)
 	profiler = require "profiler"
 	profiler:start()
 
-	log_m_ = dispatch(eid.app_id, eid.get_module, {"LogModule"})[1]
+	log_m_ = APP:get_module("LogModule")
 	logInfo("timer", "log : " .. log_m_)
-	timer_m_ = dispatch(eid.app_id, eid.get_module, {"TimerModule"})[1]
+
+	timer_m_ = APP:get_module("TimerModule")
 	logInfo("timer", "timer : " .. timer_m_)
 end
 
 module.init = function()
 	print("init")
-	
+
 	listen(module_id, eid.timer.timer_arrive, onTimer)
 
 	millisecond_timer_id = dispatch(timer_m_, eid.timer.delay_milliseconds, {module_id, 1000})[1]

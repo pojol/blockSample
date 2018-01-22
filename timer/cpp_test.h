@@ -32,8 +32,11 @@ struct TestCaseModule
 
 	void before_init() override
 	{
-		timer_m_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("TimerModule"))->pop_moduleid();
-		log_m_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("LogModule"))->pop_moduleid();
+		timer_m_ = APP.get_module("TimerModule");
+		assert(timer_m_ != gsf::ModuleNil);
+
+		log_m_ = APP.get_module("LogModule");
+		assert(log_m_ != gsf::ModuleNil);
 	}
 
 	gsf::ArgsPtr timeArrive(const gsf::ArgsPtr &args)

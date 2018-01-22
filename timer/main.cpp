@@ -2,17 +2,18 @@
 #include "lua_test.h"
 
 
-void case_cpp_timer(gsf::Application &app)
+void case_cpp_timer()
 {
-	app.regist_module(new TestCaseModule);
+	APP.create_module(new TestCaseModule);
 }
 
 
-void case_lua_timer(gsf::Application &app)
+void case_lua_timer()
 {
-	app.regist_module(new PathModule);
-	app.regist_module(new gsf::modules::LuaProxyModule);
-	app.regist_module(new TestCaseLuaModule);
+	APP.create_module(new PathModule);
+	APP.create_module(new PathModule);
+	APP.create_module(new gsf::modules::LuaProxyModule);
+	APP.create_module(new TestCaseLuaModule);
 }
 
 
@@ -23,11 +24,11 @@ int main()
 	//cfg.is_watch_pref = true;
 	app.init_cfg(cfg);
 
-	app.regist_module(new gsf::modules::LogModule);
-	app.regist_module(new gsf::modules::TimerModule);
+	APP.create_module(new gsf::modules::LogModule);
+	APP.create_module(new gsf::modules::TimerModule);
 
-	//case_cpp_timer(app);
-	case_lua_timer(app);
+	//case_cpp_timer();
+	case_lua_timer();
 
 	app.run();
 

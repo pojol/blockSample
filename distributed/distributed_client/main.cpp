@@ -59,9 +59,14 @@ public:
 	
 	void before_init() override
 	{
-		log_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("LogModule"))->pop_moduleid();
-		login_connector_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("LoginConnectorModule"))->pop_moduleid();
-		gate_connector_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("GateConnectorModule"))->pop_moduleid();
+		log_m_ = APP.get_module("LogModule");
+		assert(log_m_ != gsf::ModuleNil);
+
+		login_connector_m_ = APP.get_module("LoginConnectorModule");
+		assert(login_connector_m_ != gsf::ModuleNil);
+
+		gate_connector_m_ = APP.get_module("GateConnectorModule");
+		assert(gate_connector_m_ != gsf::ModuleNil);
 	}
 
 	void init() override
@@ -85,7 +90,7 @@ public:
 				auto iport = std::atoi(_port.c_str());
 				gate_port_ = iport;
 
-				dispatch(eid::base::app_id, eid::base::delete_module, gsf::make_args(login_connector_m_));
+				APP.delete_module(login_connector_m_);
 				std::cout << "relogin gate! " << iport << std::endl;
 			}
 
@@ -124,11 +129,11 @@ int main()
 	cfg.name = "db";
 	app.init_cfg(cfg);
 
-	app.regist_module(new gsf::modules::LogModule);
-	app.regist_module(new LoginConnectorModule);
-	app.regist_module(new GateConnectorModule);
+	app.create_module(new gsf::modules::LogModule);
+	app.create_module(new LoginConnectorModule);
+	app.create_module(new GateConnectorModule);
 
-	app.regist_module(new ClientModule);
+	app.create_module(new ClientModule);
 
 	app.run();
 

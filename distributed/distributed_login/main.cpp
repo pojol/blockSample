@@ -101,10 +101,10 @@ public:
 
 	void before_init() override
 	{
-		lua_m_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("LuaProxyModule"))->pop_moduleid();
+		lua_m_ = APP.get_module("LuaProxyModule");
 		assert(lua_m_ != gsf::ModuleNil);
 
-		auto path_m_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("PathModule"))->pop_moduleid();
+		auto path_m_ = APP.get_module("PathModule");
 		assert(path_m_ != gsf::ModuleNil);
 
 		lua_path_ = dispatch(path_m_, eid::sample::get_proc_path, nullptr)->pop_string();
@@ -137,10 +137,10 @@ public:
 
 	void before_init() override
 	{
-		log_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("LogModule"))->pop_moduleid();
+		log_m_ = APP.get_module("LogModule");
 		assert(log_m_ != gsf::ModuleNil);
 
-		login_m_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("LoginModule"))->pop_moduleid();
+		login_m_ = APP.get_module("LoginModule");
 		assert(login_m_ != gsf::ModuleNil);
 
 		using namespace std::placeholders;
@@ -198,9 +198,14 @@ public:
 
 	void before_init() override
 	{
-		log_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("LogModule"))->pop_moduleid();
-		acceptor_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("AcceptorModule"))->pop_moduleid();
-		root_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("RootModule"))->pop_moduleid();
+		log_m_ = APP.get_module("LogModule");
+		assert(log_m_ != gsf::ModuleNil);
+		
+		acceptor_m_ = APP.get_module("AcceptorModule");
+		assert(acceptor_m_ != gsf::ModuleNil);
+
+		root_m_ = APP.get_module("RootModule");
+		assert(root_m_ != gsf::ModuleNil);
 
 		using namespace std::placeholders;
 		listen(this, login_event::to_client, std::bind(&LoginModule::event_send, this, _1));
@@ -263,17 +268,17 @@ int main()
 	cfg.name = "login";
 	app.init_cfg(cfg);
 
-	app.regist_module(new gsf::modules::LogModule);
-	app.regist_module(new gsf::network::AcceptorModule);
-	app.regist_module(new gsf::modules::TimerModule);
-	app.regist_module(new gsf::modules::NodeModule);
-	app.regist_module(new gsf::modules::LuaProxyModule);
+	app.create_module(new gsf::modules::LogModule);
+	app.create_module(new gsf::network::AcceptorModule);
+	app.create_module(new gsf::modules::TimerModule);
+	app.create_module(new gsf::modules::NodeModule);
+	app.create_module(new gsf::modules::LuaProxyModule);
 
-	app.regist_module(new PathModule);
-	app.regist_module(new LoginNodeProxyModule);
+	app.create_module(new PathModule);
+	app.create_module(new LoginNodeProxyModule);
 
-	app.regist_module(new RootModule);
-	app.regist_module(new LoginModule);
+	app.create_module(new RootModule);
+	app.create_module(new LoginModule);
 
 	app.run();
 

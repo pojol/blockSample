@@ -37,19 +37,19 @@ module.before_init = function(dir)
 	require "event"
 	require "event_list"
 
-	log_m_ = dispatch(eid.app_id, eid.get_module, {"LogModule"})[1]
+	log_m_ = APP:get_module("LogModule") 
 	print("log : " .. log_m_)
 
-	node_m_ = dispatch(eid.app_id, eid.get_module, {"NodeModule"})[1]
+	node_m_ = APP:get_module("NodeModule")
 	print("node : " .. node_m_)
 
-	login_m_ = dispatch(eid.app_id, eid.get_module, {"LoginModule"})[1]
+	login_m_ = APP:get_module("LoginModule")
 	print("game : " .. login_m_)
 
 	-- init modules id
 	for i = 1, #modules do
 		local _name = modules[i][1]
-		local _moduleid = dispatch(eid.app_id, eid.get_module, {_name})[1]
+		local _moduleid = APP:get_module(_name) 
 		print("game modules id : " .. _moduleid)
 
 		modules[i][2] = _moduleid

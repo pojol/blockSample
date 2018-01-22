@@ -5,15 +5,15 @@ void case_cpp_client(gsf::Application &app)
 {
 	for (int i = 0; i < 1; ++i)
 	{
-		app.regist_module(new Client);
+		app.create_module(new Client);
 	}
 }
 
 void case_lua_client(gsf::Application &app)
 {
-	app.regist_module(new gsf::modules::LuaProxyModule);
-	app.regist_module(new PathModule);
-	app.regist_module(new TestClientLuaModule);
+	app.create_module(new gsf::modules::LuaProxyModule);
+	app.create_module(new PathModule);
+	app.create_module(new TestClientLuaModule);
 }
 
 
@@ -30,9 +30,9 @@ int main()
 	cfg.pool_args_count = 1024 * 100;
 	app.init_cfg(cfg);
 
-	app.regist_module(new gsf::modules::LogModule);
-	app.regist_module(new gsf::network::ConnectorModule);
-	app.regist_module(new gsf::modules::TimerModule);
+	app.create_module(new gsf::modules::LogModule);
+	app.create_module(new gsf::network::ConnectorModule);
+	app.create_module(new gsf::modules::TimerModule);
 
 	case_cpp_client(app);
 	//case_lua_client(app);

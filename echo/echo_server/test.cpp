@@ -112,10 +112,10 @@ public:
 
 	void before_init() override
 	{
-		lua_m_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("LuaProxyModule"))->pop_moduleid();
+		lua_m_ = APP.get_module("LuaProxyModule");
 		assert(lua_m_ != gsf::ModuleNil);
 
-		auto path_m_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("PathModule"))->pop_moduleid();
+		auto path_m_ = APP.get_module("PathModule");
 		assert(path_m_ != gsf::ModuleNil);
 
 		lua_path_ = dispatch(path_m_, eid::sample::get_proc_path, nullptr)->pop_string();
@@ -152,9 +152,14 @@ public:
 
 	void before_init() override
 	{
-		log_m_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("LogModule"))->pop_moduleid();
-		acceptor_m_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("EchoServerProxyModule"))->pop_moduleid();
-		script_m_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("EchoServerScriptProxy"))->pop_moduleid();
+		log_m_ = APP.get_module("LogModule");
+		assert(log_m_ != gsf::ModuleNil);
+
+		acceptor_m_ = APP.get_module("EchoServerProxyModule");
+		assert(acceptor_m_ != gsf::ModuleNil);
+
+		script_m_ = APP.get_module("EchoServerScriptProxy");
+		assert(script_m_ != gsf::ModuleNil);
 	}
 
 	void init() override
@@ -243,13 +248,13 @@ int main()
 
 	app.init_cfg(cfg);
 
-	app.regist_module(new gsf::modules::LogModule());
-	app.regist_module(new EchoServerProxyModule());
-	app.regist_module(new gsf::modules::LuaProxyModule);
-	app.regist_module(new PathModule);
+	app.create_module(new gsf::modules::LogModule());
+	app.create_module(new EchoServerProxyModule());
+	app.create_module(new gsf::modules::LuaProxyModule);
+	app.create_module(new PathModule);
 
-	app.regist_module(new EchoServerScriptProxy);
-	app.regist_module(new EchoServer);
+	app.create_module(new EchoServerScriptProxy);
+	app.create_module(new EchoServer);
 
 	app.run();
 

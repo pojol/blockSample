@@ -1,9 +1,5 @@
 
 eid = {
-	app_id = 1,
-	get_module = 3,
-	new_dynamic_module = 102,
-	delete_dynamic_module = 103,
 	
 	distributed = {
 		rpc_begin = 1001,

@@ -86,8 +86,11 @@ public:
 
 	void before_init()
 	{
-		luaproxy_m_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("LuaProxyModule"))->pop_moduleid();
-		gsf::ModuleID _path_m = dispatch(eid::app_id, eid::get_module, gsf::make_args("PathModule"))->pop_moduleid();
+		luaproxy_m_ = APP.get_module("LuaProxyModule");
+		assert(luaproxy_m_ != gsf::ModuleNil);
+	
+		auto _path_m = APP.get_module("PathModule");
+		assert(_path_m != gsf::ModuleNil);
 
 		path_ = dispatch(_path_m, eid::sample::get_proc_path, nullptr)->pop_string();
 	}

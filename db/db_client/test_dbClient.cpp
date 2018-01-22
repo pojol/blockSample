@@ -106,10 +106,10 @@ public:
 
 	void before_init() override
 	{
-		lua_m_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("LuaProxyModule"))->pop_moduleid();
+		lua_m_ = APP.get_module("LuaProxyModule");
 		assert(lua_m_ != gsf::ModuleNil);
 
-		auto path_m_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("PathModule"))->pop_moduleid();
+		auto path_m_ = APP.get_module("PathModule");
 		assert(path_m_ != gsf::ModuleNil);
 
 		lua_path_ = dispatch(path_m_, eid::sample::get_proc_path, nullptr)->pop_string();
@@ -148,14 +148,14 @@ int main()
 	gsf::AppConfig cfg;
 	app.init_cfg(cfg);
 
-	app.regist_module(gsf::EventModule::get_ptr());
-	app.regist_module(new gsf::modules::LogModule());
-	app.regist_module(new gsf::modules::NodeModule);
-	app.regist_module(new gsf::modules::LuaProxyModule);
-	app.regist_module(new gsf::modules::TimerModule);
+	app.create_module(gsf::EventModule::get_ptr());
+	app.create_module(new gsf::modules::LogModule());
+	app.create_module(new gsf::modules::NodeModule);
+	app.create_module(new gsf::modules::LuaProxyModule);
+	app.create_module(new gsf::modules::TimerModule);
 
-	app.regist_module(new PathModule);
-	app.regist_module(new DBClientModule);
+	app.create_module(new PathModule);
+	app.create_module(new DBClientModule);
 
 	app.run();
 

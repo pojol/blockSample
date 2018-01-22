@@ -94,10 +94,10 @@ public:
 
 	void before_init() override
 	{
-		lua_m_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("LuaProxyModule"))->pop_moduleid();
+		lua_m_ = APP.get_module("LuaProxyModule");
 		assert(lua_m_ != gsf::ModuleNil);
 
-		auto path_m_ = dispatch(eid::app_id, eid::get_module, gsf::make_args("PathModule"))->pop_moduleid();
+		auto path_m_ = APP.get_module("PathModule");
 		assert(path_m_ != gsf::ModuleNil);
 
 		lua_path_ = dispatch(path_m_, eid::sample::get_proc_path, nullptr)->pop_string();
@@ -130,10 +130,17 @@ public:
 
 	void before_init() override
 	{
-		log_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("LogModule"))->pop_moduleid();
-		acceptor_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("AcceptorModule"))->pop_moduleid();
-		node_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("NodeModule"))->pop_moduleid();
-		cfg_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("CfgModule"))->pop_moduleid();
+		log_m_ = APP.get_module("LogModule");
+		assert(log_m_ != gsf::ModuleNil);
+
+		acceptor_m_ = APP.get_module("AcceptorModule");
+		assert(acceptor_m_ != gsf::ModuleNil);
+	
+		node_m_ = APP.get_module("NodeModule");
+		assert(node_m_ != gsf::ModuleNil);
+
+		cfg_m_ = APP.get_module("CfgModule");
+		assert(cfg_m_ != gsf::ModuleNil);
 	}
 
 	void init() override
@@ -188,16 +195,16 @@ int main()
 	cfg.name = "login";
 	app.init_cfg(cfg);
 
-	app.regist_module(new gsf::modules::LogModule);
-	app.regist_module(new gsf::network::AcceptorModule);
-	app.regist_module(new gsf::modules::LuaProxyModule);
-	app.regist_module(new gsf::modules::NodeModule);
-	app.regist_module(new gsf::modules::TimerModule);
+	app.create_module(new gsf::modules::LogModule);
+	app.create_module(new gsf::network::AcceptorModule);
+	app.create_module(new gsf::modules::LuaProxyModule);
+	app.create_module(new gsf::modules::NodeModule);
+	app.create_module(new gsf::modules::TimerModule);
 
-	app.regist_module(new PathModule);
+	app.create_module(new PathModule);
 
-	app.regist_module(new GameModule);
-	app.regist_module(new GameNodeProxyModule);
+	app.create_module(new GameModule);
+	app.create_module(new GameNodeProxyModule);
 
 	app.run();
 

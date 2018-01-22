@@ -40,10 +40,17 @@ public:
 
 	void before_init() override
 	{
-		log_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("LogModule"))->pop_moduleid();
-		acceptor_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("AcceptorModule"))->pop_moduleid();
-		node_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("NodeModule"))->pop_moduleid();
-		coodinator_m_ = dispatch(eid::base::app_id, eid::base::get_module, gsf::make_args("CoodinatorModule"))->pop_moduleid();
+		log_m_ = APP.get_module("LogModule");
+		assert(log_m_ != gsf::ModuleNil);
+
+		acceptor_m_ = APP.get_module("AcceptorModule");
+		assert(acceptor_m_ != gsf::ModuleNil);
+
+		node_m_ = APP.get_module("NodeModule");
+		assert(node_m_ != gsf::ModuleNil);
+
+		coodinator_m_ = APP.get_module("CoodinatorModule");
+		assert(coodinator_m_ != gsf::ModuleNil);
 	}
 
 	void init() override
@@ -136,11 +143,11 @@ int main()
 	//cfg.is_watch_pref = true;
 	app.init_cfg(cfg);
 
-	app.regist_module(new gsf::modules::LogModule);
-	app.regist_module(new gsf::network::AcceptorModule);
-	app.regist_module(new gsf::modules::CoodinatorModule);
+	app.create_module(new gsf::modules::LogModule);
+	app.create_module(new gsf::network::AcceptorModule);
+	app.create_module(new gsf::modules::CoodinatorModule);
 
-	app.regist_module(new RootModule);
+	app.create_module(new RootModule);
 
 	app.run();
 
