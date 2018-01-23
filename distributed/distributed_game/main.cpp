@@ -138,9 +138,6 @@ public:
 	
 		node_m_ = APP.get_module("NodeModule");
 		assert(node_m_ != gsf::ModuleNil);
-
-		cfg_m_ = APP.get_module("CfgModule");
-		assert(cfg_m_ != gsf::ModuleNil);
 	}
 
 	void init() override
@@ -177,7 +174,6 @@ private:
 	gsf::ModuleID log_m_ = gsf::ModuleNil;
 	gsf::ModuleID acceptor_m_ = gsf::ModuleNil;
 	gsf::ModuleID node_m_ = gsf::ModuleNil;
-	gsf::ModuleID cfg_m_ = gsf::ModuleNil;
 
 	std::string acceptor_ip_ = "";
 	int32_t acceptor_port_ = 0;

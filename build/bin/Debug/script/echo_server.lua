@@ -33,15 +33,9 @@ function onRecv(buf, len)
 	fd = unpack:pop_ui16()
 	msgid = unpack:pop_i32()
 	res = unpack:pop_string()
-	--print("recv : " .. res)
-	
+	print("recv : " .. res)
 
-	local pack = Args.new()
-	pack:push_ui16(fd)
-	pack:push_i32(1002)
-	pack:push_string("gsf!")
-
-	dispatch(echo_m_, 10002, pack:pop_block(0, pack:get_pos()))
+	dispatch(echo_m_, 10002, {fd, 1002, "gsf!"})
 end
 
 module.execute = function()

@@ -46,9 +46,6 @@ public:
 		acceptor_m_ = APP.get_module("AcceptorModule");
 		assert(acceptor_m_ != gsf::ModuleNil);
 
-		node_m_ = APP.get_module("NodeModule");
-		assert(node_m_ != gsf::ModuleNil);
-
 		coodinator_m_ = APP.get_module("CoodinatorModule");
 		assert(coodinator_m_ != gsf::ModuleNil);
 	}

@@ -61,13 +61,7 @@ module.init = function()
 	listen(module_id, eid.node.node_create_succ, function(args) 
 		
 		print("game node create success!")
-
-		local pack = Args.new()
-		pack:push_string(acceptor_ip)
-		pack:push_i32(acceptor_port)
-		pack:push_i32(node_id)
-
-		dispatch(login_m_, eid.sample.create_node_succ, pack:pop_block(0, pack:get_pos()))
+		dispatch(login_m_, eid.sample.create_node_succ, {acceptor_ip, acceptor_port, node_id})
 
 		return ""
 	end)

@@ -57,7 +57,8 @@ _type_map = {
     [1006] = {"int32_t", "string"},
     [2201] = {"int32_t", "int32_t"},
     [2502] = {"int32_t", "int32_t", "string", "int32_t"},
-    [10001] = {"string", "int32_t", "int32_t"}
+    [10001] = {"string", "int32_t", "int32_t"},
+    [10002] = {"uint16_t", "int32_t", "string"}
 }
 
 function __pack(event_id, args)
@@ -71,6 +72,8 @@ function __pack(event_id, args)
             pack:push_string(args[_idx])
         elseif val == 'int32_t' then
             pack:push_i32(args[_idx])
+        elseif val == 'uint16_t' then
+            pack:push_ui16(args[_idx])
         end
 
         _idx = _idx + 1
@@ -112,7 +115,11 @@ function dispatch(target, eventID, args)
     reqBuf = __pack(eventID, args)
 
     resBuf = event:ldispatch(module_id, target, eventID, reqBuf)
-    return __unpack(resBuf, #resBuf)
+    if #resBuf == 0 then
+        return nil
+    else
+        return __unpack(resBuf, #resBuf)
+    end
 end
 
 function __dispatch(target, eventID, args, func)
@@ -131,8 +138,12 @@ function rpc(event_id, module_id, args, callback)
     end
 
     reqBuf = __pack(event_id, args)
-    event:lrpc(module_id, event_id, module_id, reqBuf, _callback)
-
+    
+    if callback ~= nil then
+        event:lrpc(module_id, event_id, module_id, reqBuf, _callback)
+    else
+        event:lrpc(module_id, event_id, module_id, reqBuf, nil)
+    end
 end
 
 function logInfo(moduleName, info)
