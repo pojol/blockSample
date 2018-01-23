@@ -10,7 +10,9 @@ eid = {
 		coordinat_select = 1005,
 
 		mysql_query = 1006,
-		mysql_execute = 1007,
+		mysql_select = 1007,
+		mysql_insert = 1008,
+		mysql_update = 1009,
 
 		rpc_end = 2000,
 	},
