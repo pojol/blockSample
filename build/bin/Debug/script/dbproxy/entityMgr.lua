@@ -1,11 +1,9 @@
 
-create_sql = string.format("create table if not exists Entity(%s%s%s%s%s%s%s) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;"
+create_sql = string.format("create table if not exists Entity(%s%s%s%s%s) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;"
     , "id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,"
 	, "name VARCHAR(32) NOT NULL,"
 	, "hp INT NOT NULL,"
-	, "mp INT NOT NULL,"
 	, "lv INT NOT NULL,"
-	, "gold INT NOT NULL,"
 	, "loginTime INT NOT NULL")
 
 entity_map = {}
@@ -23,8 +21,9 @@ local entityMgr = {
 
 	init = function() end,
 
-	entityCreate = function() end,
-	entityLoad = function(accountid) end,
+	entity_create = function() end,
+	entity_init = function(entity_id) end,
+	entity_load = function(account_id) end,
 
 }
 
@@ -44,7 +43,6 @@ entityMgr.init = function(self)
 
 	-- 创建或更新数据集
 	rpc(eid.distributed.mysql_query, module_id, {module_id, create_sql}, function(res, progress, succ) 
-		
 		if succ == true then
 			self.state_ = EntityState.usable
 		else 
@@ -55,11 +53,10 @@ entityMgr.init = function(self)
 end
 
 -- 查询entity是否存在, 如果存在则获取不存在则创建
-entityMgr.entityLoad = function(self, accountid)
+entityMgr.entity_load = function(self, accountid)
+	print("load entity : " .. accountid)
 
-	--sql = string.format("select * from Account where account=%s;", tostrng(accountid))
-	sql = string.format("select * from Account where account='%d';", accountid)
-
+	sql = string.format("select * from Account where id='%d';", accountid)
 	rpc(eid.distributed.mysql_query, module_id, {module_id, sql}, function(res, progress, succ)
 
 		if succ == true and progress ~= -1 then
@@ -67,11 +64,16 @@ entityMgr.entityLoad = function(self, accountid)
 			_pwd = res[2]
 			_entityid = res[3]
 			_time = res[4]
+			
+			print("account: " .. _account .. " pwd " .. _pwd .. " entity " .. "time" .. _time)
 
 			if _entityid == 0 then
+				print("create entity")
 				-- create entity
-				self.entityCreate()
+				self:entity_create(_account)
 			else
+				print("init entity")
+				self:entity_init(_entityid)
 			end
 
 		elseif succ == false then
@@ -82,28 +84,28 @@ entityMgr.entityLoad = function(self, accountid)
 
 end
 
-entityMgr.entityCreate = function(self)
+entityMgr.entity_init = function(self, entity_id)
+
+
+end
+
+entityMgr.entity_create = function(self, account)
 	entity = require "entity"
-	print(entity.create_sql)
+	_sql = entity:create_sql()
+	print(_sql)
 
-	local pack = Args.new()
-	pack:push_i32(module_id)
-	pack:push_string(entity.create_sql)
---[[
-	rpc(eid.distributed.mysql_query, module_id, pack:pop_block(0, pack:get_pos()), function(buf, len, progress, cbResult)
-		print(progress, cbResult)
-		local unpack = Args.new(buf, len)
-		if true == cbResult then
-			print("create entity succ!")
+	rpc(eid.distributed.mysql_query, module_id, {module_id, _sql}, function(res, progress, succ)
+		if true == succ and progress > 0 then
+			print("id : " .. res[1])
 
+			rpc(eid.distributed.mysql_update, module_id, {"Account", account, "entityID", res[1]}, nil)
 
-		else
-			logWarn('entityMgr', unpack:pop_string())
+		elseif true ~= succ then
+			logWarn('entityMgr', res[1])
 		end
 
 	end)
-]]--
-	entity:update("hp", 101)
+
 end
 
 return entityMgr

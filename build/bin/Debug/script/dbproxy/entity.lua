@@ -4,7 +4,7 @@ local entity = {
     -- db property
     property = {
         id = 0,
-        name = "",
+        name = "''",
         hp = 100,
         lv = 1,
         loginTime = 0,
@@ -15,22 +15,25 @@ local entity = {
 
     },
 
-    create_sql = string.format("insert into Entity (id,name,hp,mp,lv,gold,loginTime) values (%d,%s,%d,%d,%d,%d,%d);"
-        , 110
-        , "''"
-        , 100
-        , 150
-        , 1
-        , 300
-        , 0),
-
+    create_sql = function() end,
     init = function(stream) end,
+    update = function() end,    
 
     setProperty = function(type, val) end,
-    update = function() end,    
 }
 
-entity.init = function(stream)
+entity.create_sql = function(self)
+    _sql = string.format("insert into Entity (id,name,hp,lv,loginTime) values (%d,%s,%d,%d,%d);"
+        , self.property.id
+        , self.property.name
+        , self.property.hp
+        , self.property.lv
+        , os.time())
+    
+    return _sql
+end
+
+entity.init = function(self, stream)
 
     -- 从数据库请求数据
     
@@ -66,26 +69,6 @@ entity.update = function(self)
     self.dirty = {}
 
     rpc(eid.distributed.mysql_update, module_id, it, nil)
-
-    --[[
-    print(key, val)
-
-    sql = string.format("update Entity set %s=%d where id='%d';", key, val, 110)
-
-    rpc(eid.distributed.mysql_query, module_id, {module_id, sql}, nil)
-
-    rpc(eid.distributed.mysql_select, module_id, {"Entity", 0}, function(res, progress, succ)
-        
-    end)
-    ]]--
-
-    --rpc(eid.distributed.mysql_update, module_id, {"hp", 100 ... }, nil)
-
-    --[[
-    rpc(eid.distributed.mysql_insert, module_id, {"hp", 100 ...}, function(res, progress, succ)
-        
-    end)
-    ]]--
 
     -- 更新到数据库 
 end

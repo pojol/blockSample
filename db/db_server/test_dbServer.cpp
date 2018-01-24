@@ -32,20 +32,6 @@
 #include <iostream>
 #include <stack>
 
-enum TaskState
-{
-	TS_Waiting,
-	TS_Querying,
-	TS_Complete,
-};
-
-enum TaskType
-{
-	TT_Nil,
-	TT_Query,
-	TT_Execute
-};
-
 class PathModule
 	: public gsf::Module
 	, public gsf::IEvent
@@ -140,15 +126,12 @@ private:
 struct Task
 {
 	gsf::ModuleID target_ = gsf::ModuleNil;
-	TaskState state_ = TaskState::TS_Waiting;
-	std::string sql_ = "";
 	gsf::SessionID fd_ = gsf::SessionNil;
 	int progress_ = 0;
 	int64_t callbackid_ = 0;
+	gsf::EventID eid_ = gsf::EventNil;
 
-	std::string params;
-	int params_len = 0;
-	TaskType type_ = TaskType::TT_Nil;
+	std::string params = "";
 };
 
 class DBProxyServerModule
@@ -223,38 +206,34 @@ public:
 			
 			auto _fd = args->pop_fd();
 			auto _msgid = args->pop_msgid();
-			auto _callbackid = args->pop_i64();
 
-			if (_msgid == eid::distributed::mysql_query) {
+			std::cout << "recv : " << _msgid << std::endl;
+			std::cout << args->to_string() << std::endl;
+
+			int64_t _callbackid = 0;
+			int32_t _target = 0;
+			int32_t _len = 0;
+
+			_callbackid = args->pop_i64();
+			if (eid::distributed::mysql_query == _msgid) {
+				_target = args->pop_moduleid();
+				_len = sizeof(gsf::SessionID) + 1 + sizeof(int32_t) + 1 + sizeof(int64_t) + 1 + sizeof(gsf::ModuleID) + 1;
+			}
+			else if (eid::distributed::mysql_update == _msgid)
+			{
 				
-				auto _target = args->pop_moduleid();
-				std::string _sql = args->pop_string();
-				std::cout << "query sql " << _sql << std::endl;
 
-				auto _t = Task();
-				_t.fd_ = _fd;
-				_t.sql_ = _sql;
-				_t.target_ = _target;
-				_t.callbackid_ = _callbackid;
-				_t.type_ = TaskType::TT_Query;
-
-				addTask(_target, _t);
+				_len = sizeof(gsf::SessionID) + 1 + sizeof(int32_t) + 1 + sizeof(int64_t) + 1;
 			}
-			else if (_msgid == eid::distributed::mysql_execute) {
-				auto _target = args->pop_moduleid();
-				std::string _sql = args->pop_string();
-				std::cout << "execute sql " << _sql << std::endl;
+			
+			auto _t = Task();
+			_t.fd_ = _fd;
+			_t.params = args->pop_block(_len, args->get_size());
+			_t.target_ = _target;
+			_t.callbackid_ = _callbackid;
+			_t.eid_ = _msgid;
 
-				auto _len = sizeof(gsf::SessionID) + 1 + sizeof(int32_t) + 1 + sizeof(int64_t) + 1 + sizeof(gsf::ModuleID) + 1 + _sql.size() + 3;
-
-				auto _t = Task();
-				_t.sql_ = _sql;
-				_t.type_ = TaskType::TT_Execute;
-				_t.params = args->pop_block(_len, args->get_size());
-				_t.params_len = args->get_size() - _len;
-		
-				addTask(_target, _t);
-			}
+			addTask(_target, _t);
 
 			return nullptr;
 		});
@@ -320,25 +299,17 @@ public:
 
 				auto _tsk = it.second.top();
 
-				if (_tsk.state_ == TaskState::TS_Waiting) {
-
-					it.second.top().state_ = TaskState::TS_Querying;
-
-					if (_tsk.type_ == TaskType::TT_Query) {
-						dispatch(db_p_, eid::distributed::mysql_query, gsf::make_args(get_module_id(), _tsk.target_, _tsk.sql_));
-					}
-					else {
-
-						auto _args = gsf::ArgsPool::get_ref().get();
-						_args->push_string(_tsk.sql_);
-						_args->push_block(_tsk.params.c_str(), _tsk.params_len);
-
-						dispatch(db_p_, eid::distributed::mysql_execute, _args);
-
-						//
-						it.second.pop();
-					}
+				auto _args = gsf::ArgsPool::get_ref().get();
+				if (_tsk.eid_ == eid::distributed::mysql_query) {
+					_args->push(get_module_id());
+					_args->push(_tsk.target_);
 				}
+
+				_args->push_block(_tsk.params.c_str(), _tsk.params.size());
+				std::cout << _args->to_string() << std::endl;
+				dispatch(db_p_, _tsk.eid_, _args);
+
+				it.second.pop();
 			}	
 		}
 	}
@@ -363,40 +334,6 @@ private:
 	std::string acceptor_ip_ = "";
 	int32_t acceptor_port_ = 0;
 };
-
-void init()
-{
-	auto mysqlInit = mysql_init(nullptr);
-	if (nullptr == mysqlInit) {
-		std::cout << "err" << std::endl;
-	}
-
-	//mysqlPtr = mysql_real_connect(mysqlInit, "192.168.50.130", "root", "root", "Logs233", 3306, nullptr, 0);
-	//if (nullptr == mysqlPtr) {
-	//	mysql_close(mysqlPtr);
-	//}
-
-	/*
-	std::string qstr = fmt::format("create table if not exists Test1{}{}{}{}{}{}", "( "
-		, "id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,"
-		, "name VARCHAR(32) NOT NULL,"
-		, "time INT NOT NULL" 
-		, ")"
-		, " ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;");
-	query(qstr);
-	*/
-
-	//SqlStmtPtr stmt;
-	//perpare("insert into Test1 values (?,?,?)", stmt);
-	//ExecuteStmt(stmt, gsf::make_args(1, "hello", 200));
-
-	//SqlStmtPtr stmt;
-	//perpare("insert into Consume20171207 values (?,?,?,?,?,?,?,?)", stmt);
-	//ExecuteStmt(stmt, gsf::make_args(111, 10, 100, 1000, 10000, 100000, 2, "hello"));
-
-	
-	std::cout << "" << std::endl;
-}
 
 int main()
 {

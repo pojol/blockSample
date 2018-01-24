@@ -29,7 +29,7 @@ function onTimer(buf, len)
         if entityMgr ~= nil and entityMgr.state_ == EntityState.usable then
 
             print("start server!")
-            entityMgr:entityLoad(0)
+            entityMgr:entity_load(1)
 
         else
             millisecond_timer_id = dispatch(timer_m_, eid.timer.delay_milliseconds, {module_id, 200})[1]
@@ -80,7 +80,9 @@ module.init = function()
 
                 -- 后面改成自动注册
                 dispatch(node_m_, eid.node.node_regist, {module_id, eid.distributed.mysql_query, _acceptorIP, _acceptorPort})
-                dispatch(node_m_, eid.node.node_regist, {module_id, eid.distributed.mysql_execute, _acceptorIP, _acceptorPort})
+                dispatch(node_m_, eid.node.node_regist, {module_id, eid.distributed.mysql_select, _acceptorIP, _acceptorPort})
+                dispatch(node_m_, eid.node.node_regist, {module_id, eid.distributed.mysql_insert, _acceptorIP, _acceptorPort})
+                dispatch(node_m_, eid.node.node_regist, {module_id, eid.distributed.mysql_update, _acceptorIP, _acceptorPort})
             else
                 logWarn("client", res[1])
             end
