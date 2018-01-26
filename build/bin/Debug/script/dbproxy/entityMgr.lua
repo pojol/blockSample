@@ -86,6 +86,23 @@ end
 
 entityMgr.entity_init = function(self, entity_id)
 
+	_sql = string.format("select * from Entity where id = '%d';", entity_id);
+	rpc(eid.distributed.mysql_query, module_id, {module_id, _sql}, function(res, progress, succ)
+	
+		if true == succ and progress > 0 then
+
+			entity_map[entity_id] = deep_copy(require "entity")
+			
+			entity_map[entity_id]:init(res)
+
+			entity_map[entity_id]:setProperty("hp", 50)
+			entity_map[entity_id]:update()
+
+		elseif true ~= succ then
+			logWarn('entityMgr', res[1])
+		end
+	
+	end)
 
 end
 

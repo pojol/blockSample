@@ -221,11 +221,9 @@ public:
 			}
 			else if (eid::distributed::mysql_update == _msgid)
 			{
-				
-
 				_len = sizeof(gsf::SessionID) + 1 + sizeof(int32_t) + 1 + sizeof(int64_t) + 1;
 			}
-			
+
 			auto _t = Task();
 			_t.fd_ = _fd;
 			_t.params = args->pop_block(_len, args->get_size());
@@ -293,7 +291,7 @@ public:
 
 	void execute() override
 	{
-		for (auto it : task_map_)
+		for (auto &it : task_map_)
 		{
 			if (!it.second.empty()) {
 
@@ -309,7 +307,9 @@ public:
 				std::cout << _args->to_string() << std::endl;
 				dispatch(db_p_, _tsk.eid_, _args);
 
-				it.second.pop();
+				if (_tsk.callbackid_ == 0) {
+					it.second.pop();
+				}
 			}	
 		}
 	}

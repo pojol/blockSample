@@ -16,7 +16,7 @@ local entity = {
     },
 
     create_sql = function() end,
-    init = function(stream) end,
+    init = function(args) end,
     update = function() end,    
 
     setProperty = function(type, val) end,
@@ -33,10 +33,14 @@ entity.create_sql = function(self)
     return _sql
 end
 
-entity.init = function(self, stream)
-
+entity.init = function(self, args)
+    dump(args)
     -- 从数据库请求数据
-    
+    self.property.id = args[1]
+    self.property.name = args[2]
+    self.property.hp = args[3]
+    self.property.lv = args[4]
+    self.property.loginTime = args[5]    
 
 end
 
@@ -59,7 +63,7 @@ entity.update = function(self)
         return
     end
 
-    it = {"entity"}
+    it = {"Entity", self.property.id}
 
     for k, v in pairs(self.dirty) do
         table.insert(it, k)

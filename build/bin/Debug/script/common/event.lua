@@ -51,7 +51,7 @@ local at_vec = 14
 local at_map = 15
 local at_eof = 20
 
--- 后续自动生成
+-- 后续自动生成 (通过事件结构描述文件
 _type_map = {
     [eid.distributed.coordinat_select] = function(args) 
         local pack = Args.new()
@@ -69,8 +69,15 @@ _type_map = {
         local pack = Args.new()
         pack:push_string(args[1])
         pack:push_i32(args[2])
-        pack:push_string(args[3])
-        pack:push_i32(args[4])
+
+        -- tmp
+        for i = 3, #args, 2 do
+        
+            pack:push_string(args[i])
+            pack:push_i32(args[i+1])
+
+        end
+
         return pack:pop_block(0, pack:get_size())
     end,
     [eid.timer.delay_milliseconds] = function(args)
@@ -134,6 +141,24 @@ function __unpack(buf, len)
     end
 
     return _args
+end
+
+function deep_copy(object)
+    local lookup_table = {}
+    local function _copy(object)
+        if type(object) ~= "table" then
+            return object
+        elseif lookup_table[object] then
+            return lookup_table[object]
+        end
+        local new_table = {}
+        lookup_table[object] = new_table
+        for key, value in pairs(object) do
+            new_table[_copy(key)] = _copy(value)
+        end
+        return setmetatable(new_table, getmetatable(object))
+    end
+    return _copy(object)
 end
 
 function dispatch(target, eventID, args)
