@@ -18,8 +18,7 @@ module.before_init = function(dir)
 	table.insert(package_path, dir .. "../protobuf/?.lua")
 	package.path = table.concat(package_path, ';')
 
-	require "event"
-	require "event_list"
+	require "utils"
 	
 end
 

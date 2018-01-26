@@ -34,8 +34,7 @@ module.before_init = function(dir)
 	table.insert(package_path, dir .. "/protobuf/?.lua")
 	package.path = table.concat(package_path, ';')
 
-	require "event"
-	require "event_list"
+	require "utils"
 
 	log_m_ = APP:get_module("LogModule")
 	print("log : " .. log_m_)
@@ -62,20 +61,20 @@ module.init = function()
 		
 		print("dbproxy node create success!")
 
-		dispatch(db_m_, eid.sample.create_node_succ, {acceptor_ip, acceptor_port, node_id})
+		dispatch(db_m_, eid.sample.create_node_succ, evpack:res_nodinfo(acceptor_ip, acceptor_port, node_id))
 
 		return ""
 	end)
 
-	dispatch_createNode(node_m_
-		, node_id
-		, module_id
-		, nodeType
-		, acceptor_ip
-		, acceptor_port
-		, root_ip
-		, root_port
-		, modules)
+    dispatch(node_m_, eid.node.node_create, evpack:node_create(
+          node_id
+        , nodeType
+        , module_id
+        , acceptor_ip
+        , acceptor_port
+        , root_ip
+        , root_port
+        , modules))
 
 end
 

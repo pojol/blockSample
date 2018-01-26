@@ -63,7 +63,7 @@ entity.update = function(self)
         return
     end
 
-    it = {"Entity", self.property.id}
+    it = {}
 
     for k, v in pairs(self.dirty) do
         table.insert(it, k)
@@ -72,7 +72,7 @@ entity.update = function(self)
 
     self.dirty = {}
 
-    rpc(eid.distributed.mysql_update, module_id, it, nil)
+    rpc(eid.distributed.mysql_update, module_id, evpack:entity_update("Entity", self.property.id, it), nil)
 
     -- 更新到数据库 
 end

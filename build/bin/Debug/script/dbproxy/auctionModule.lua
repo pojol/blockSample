@@ -15,8 +15,7 @@ module.before_init = function(dir)
     table.insert(package_path, dir .. "/dbproxy/?.lua")
 	package.path = table.concat(package_path, ';')
 
-	require "event"
-	require "event_list"
+	require "utils"
 
 	log_m_ = APP:get_module("LogModule")
 	logInfo("client", "log : " .. log_m_)

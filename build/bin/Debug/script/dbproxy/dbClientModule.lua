@@ -32,7 +32,7 @@ function onTimer(buf, len)
             entityMgr:entity_load(1)
 
         else
-            millisecond_timer_id = dispatch(timer_m_, eid.timer.delay_milliseconds, {module_id, 200})[1]
+            millisecond_timer_id = dispatch(timer_m_, eid.timer.delay_milliseconds, evpack:delay_milliseconds(module_id, 200))[1]
         end
 	end
 
@@ -46,8 +46,7 @@ module.before_init = function(dir)
     table.insert(package_path, dir .. "/dbproxy/?.lua")
 	package.path = table.concat(package_path, ';')
 
-	require "event"
-	require "event_list"
+	require "utils"
 
     log_m_ = APP:get_module("LogModule")
 	logInfo("client", "log : " .. log_m_)
@@ -69,8 +68,8 @@ module.init = function()
     
         logInfo("client", "create node succ!")
 
-        rpc(eid.distributed.coordinat_select, module_id, {"DBProxyServerModule", 0}, function(res, progress, succ)
-            
+        rpc(eid.distributed.coordinat_select, module_id, evpack:coordinat_select("DBProxyServerModule", 0), function(res, progress, succ)
+            print("coordinat select succ!")
             if succ == true then
                 _nodid = res[1]
                 _nodType = res[2]
@@ -79,10 +78,10 @@ module.init = function()
                 _acceptorPort = res[5]
 
                 -- 后面改成自动注册
-                dispatch(node_m_, eid.node.node_regist, {module_id, eid.distributed.mysql_query, _acceptorIP, _acceptorPort})
-                dispatch(node_m_, eid.node.node_regist, {module_id, eid.distributed.mysql_select, _acceptorIP, _acceptorPort})
-                dispatch(node_m_, eid.node.node_regist, {module_id, eid.distributed.mysql_insert, _acceptorIP, _acceptorPort})
-                dispatch(node_m_, eid.node.node_regist, {module_id, eid.distributed.mysql_update, _acceptorIP, _acceptorPort})
+                dispatch(node_m_, eid.node.node_regist, evpack:node_regist(module_id, eid.distributed.mysql_query, _acceptorIP, _acceptorPort))
+                dispatch(node_m_, eid.node.node_regist, evpack:node_regist(module_id, eid.distributed.mysql_select, _acceptorIP, _acceptorPort))
+                dispatch(node_m_, eid.node.node_regist, evpack:node_regist(module_id, eid.distributed.mysql_insert, _acceptorIP, _acceptorPort))
+                dispatch(node_m_, eid.node.node_regist, evpack:node_regist(module_id, eid.distributed.mysql_update, _acceptorIP, _acceptorPort))
             else
                 logWarn("client", res[1])
             end
@@ -101,18 +100,18 @@ module.init = function()
     end)
 
 
-    dispatch_createNode(node_m_
-        , configNode.node_id
-        , module_id
+    dispatch(node_m_, eid.node.node_create, evpack:node_create(
+          configNode.node_id
         , configNode.nodeType
+        , module_id
         , ""
         , 0
         , configNode.root_ip
         , configNode.root_port
-        , configNode.modules)
+        , configNode.modules))
 
     listen(module_id, eid.timer.timer_arrive, onTimer)
-    millisecond_timer_id = dispatch(timer_m_, eid.timer.delay_milliseconds, {module_id, 200})[1]
+    millisecond_timer_id = dispatch(timer_m_, eid.timer.delay_milliseconds, evpack:delay_milliseconds(module_id, 200))[1]
 
 end
 

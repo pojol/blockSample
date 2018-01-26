@@ -14,8 +14,7 @@ module.before_init = function(dir)
 	table.insert(package_path, dir .. "/protobuf/?.lua")
     package.path = table.concat(package_path, ';')
 
-    require "event"
-    require "event_list"
+    require "utils"
 
 	echo_m_ = APP:get_module("EchoServer") 
 	print("echo : " .. echo_m_)
@@ -35,7 +34,7 @@ function onRecv(buf, len)
 	res = unpack:pop_string()
 	print("recv : " .. res)
 
-	dispatch(echo_m_, 10002, {fd, 1002, "gsf!"})
+	dispatch(echo_m_, 10002, evpack:send(fd, 1002, "gsf!"))
 end
 
 module.execute = function()

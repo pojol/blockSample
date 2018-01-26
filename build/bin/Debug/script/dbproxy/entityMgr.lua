@@ -42,7 +42,7 @@ entityMgr.init = function(self)
 	self.state_ = EntityState.init
 
 	-- 创建或更新数据集
-	rpc(eid.distributed.mysql_query, module_id, {module_id, create_sql}, function(res, progress, succ) 
+	rpc(eid.distributed.mysql_query, module_id, evpack:mysql_query(module_id, create_sql), function(res, progress, succ) 
 		if succ == true then
 			self.state_ = EntityState.usable
 		else 
@@ -57,7 +57,7 @@ entityMgr.entity_load = function(self, accountid)
 	print("load entity : " .. accountid)
 
 	sql = string.format("select * from Account where id='%d';", accountid)
-	rpc(eid.distributed.mysql_query, module_id, {module_id, sql}, function(res, progress, succ)
+	rpc(eid.distributed.mysql_query, module_id, evpack:mysql_query(module_id, sql), function(res, progress, succ)
 
 		if succ == true and progress ~= -1 then
 			_account = res[1]
@@ -87,7 +87,7 @@ end
 entityMgr.entity_init = function(self, entity_id)
 
 	_sql = string.format("select * from Entity where id = '%d';", entity_id);
-	rpc(eid.distributed.mysql_query, module_id, {module_id, _sql}, function(res, progress, succ)
+	rpc(eid.distributed.mysql_query, module_id, evpack:mysql_query(module_id, _sql), function(res, progress, succ)
 	
 		if true == succ and progress > 0 then
 
@@ -111,11 +111,13 @@ entityMgr.entity_create = function(self, account)
 	_sql = entity:create_sql()
 	print(_sql)
 
-	rpc(eid.distributed.mysql_query, module_id, {module_id, _sql}, function(res, progress, succ)
+	rpc(eid.distributed.mysql_query, module_id, evpack:mysql_query(module_id, _sql), function(res, progress, succ)
 		if true == succ and progress > 0 then
 			print("id : " .. res[1])
 
-			rpc(eid.distributed.mysql_update, module_id, {"Account", account, "entityID", res[1]}, nil)
+			-- 通用的更新流程看 entity:update  这里懒得建表了
+			_updatesql = string.format("update Account set entityID='%d' where id='%d'", account, res[1]) 
+			rpc(eid.distributed.mysql_query, module_id, evpack:mysql_query(module_id, _updatesql), nil)
 
 		elseif true ~= succ then
 			logWarn('entityMgr', res[1])

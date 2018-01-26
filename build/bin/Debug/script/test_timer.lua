@@ -19,8 +19,7 @@ module.before_init = function(dir)
 	table.insert(package_path, dir .. "/protobuf/?.lua")
 	package.path = table.concat(package_path, ';')
 
-	require "event"
-	require "event_list"
+	require "utils"
 	
 	profiler = require "profiler"
 	profiler:start()
@@ -37,7 +36,7 @@ module.init = function()
 
 	listen(module_id, eid.timer.timer_arrive, onTimer)
 
-	millisecond_timer_id = dispatch(timer_m_, eid.timer.delay_milliseconds, {module_id, 1000})[1]
+	millisecond_timer_id = dispatch(timer_m_, eid.timer.delay_milliseconds, evpack:delay_milliseconds(module_id, 1000))[1]
 	logInfo("timer", "timer id : " .. millisecond_timer_id)
 end
 
