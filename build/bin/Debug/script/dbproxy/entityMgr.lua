@@ -94,7 +94,8 @@ entityMgr.entity_init = function(self, entity_id)
 			entity_map[entity_id] = deep_copy(require "entity")
 			
 			entity_map[entity_id]:init(res)
-
+			
+			-- 这里模拟下entity的更新行为
 			entity_map[entity_id]:setProperty("hp", 50)
 			entity_map[entity_id]:update()
 
