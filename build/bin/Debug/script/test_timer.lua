@@ -3,6 +3,7 @@ module = {
 	init = function() end,
 	execute = function() end,
 	shut = function() end,
+	after_shut = function() end,
 }
 
 log_m_ = 0
