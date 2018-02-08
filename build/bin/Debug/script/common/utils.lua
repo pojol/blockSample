@@ -64,7 +64,13 @@ function dispatch(target, eventID, buf)
 end
 
 function listen(target, eventID, func)
-	event:llisten(module_id, target, eventID, func)
+
+    function _callback(buf, len)
+        _args = evunpack(buf, len)
+        func(_args)
+    end
+
+	event:llisten(module_id, target, eventID, _callback)
 end
 
 function rpc(event_id, module_id, buf, callback)

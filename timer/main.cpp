@@ -10,8 +10,6 @@ void case_cpp_timer()
 
 void case_lua_timer()
 {
-	APP.create_module(new PathModule);
-	APP.create_module(new PathModule);
 	APP.create_module(new gsf::modules::LuaProxyModule);
 	APP.create_module(new TestCaseLuaModule);
 }

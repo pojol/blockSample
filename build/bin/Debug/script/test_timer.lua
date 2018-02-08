@@ -49,24 +49,14 @@ end
 
 ----------
 
-function onTimer(buf, len)
-	args = Args.new(buf, len)
-	timer_id = args:pop_ui64()
+function onTimer(args)
 
-	logInfo("timer", "arrive timer id : " .. timer_id)
+	timer_id = args[1]
 
 	if timer_id == millisecond_timer_id then
-		print("on timer " .. tick_)
-		--[[
-		tick_ = tick_ + 1
+		logInfo("timer", "arrive timer " .. timer_id)
 
-		if tick_ == 10000 then
-			profiler:stop()
-		else
-			
-		end	
-		]]--	
-		millisecond_timer_id = dispatch(timer_m_, eid.timer.delay_milliseconds, {module_id, 1000})[1]		
+		millisecond_timer_id = dispatch(timer_m_, eid.timer.delay_milliseconds, evpack:delay_milliseconds(module_id, 1000))[1]		
 	end
 
 	return ""
