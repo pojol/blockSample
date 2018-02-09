@@ -109,9 +109,32 @@ evpack = {
         return pack:pop_block(0, pack:get_size())
     end,
 
+    make_acceptor = function(self, module_id, ip, port)
+        local pack = Args.new()
+        pack:push_i32(module_id)
+        pack:push_string(ip)
+        pack:push_i32(port)
+        return pack:pop_block(0, pack:get_size())
+    end,
+
+    make_connector = function(self, module_id, ip, port)
+        local pack = Args.new()
+        pack:push_i32(module_id)
+        pack:push_string(ip)
+        pack:push_i32(port)
+        return pack:pop_block(0, pack:get_size())
+    end,
+
     send = function(self, fd, msg_id, buf)
         local pack = Args.new()
         pack:push_ui16(fd)
+        pack:push_i32(msg_id)
+        pack:push_string(buf)
+        return pack:pop_block(0, pack:get_size())
+    end,
+
+    send2 = function(self, msg_id, buf)
+        local pack = Args.new()
         pack:push_i32(msg_id)
         pack:push_string(buf)
         return pack:pop_block(0, pack:get_size())
@@ -121,13 +144,15 @@ evpack = {
 
 function evunpack(buf, len)
     unpack = Args.new(buf, len)
-    
+
     _args = {}
     _idx = 1
     _tag = unpack:get_tag()
     while(_tag ~= 0) do
 
-        if _tag == at_int32 then
+        if _tag == at_uint16 then
+            table.insert(_args, _idx, unpack:pop_ui16())
+        elseif _tag == at_int32 then
             table.insert(_args, _idx, unpack:pop_i32())
         elseif _tag == at_string then
             table.insert(_args, _idx, unpack:pop_string())
