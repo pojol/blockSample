@@ -1,4 +1,4 @@
-﻿PROJECT(distributed_login)
+PROJECT(distributed_login)
 
 #引用头文件目录
 if(WIN32)
