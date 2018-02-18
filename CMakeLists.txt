@@ -7,11 +7,11 @@ if(UNIX)
     set(CMAKE_CXX_FLAGS "-std=c++14 ${CMAKE_CXX_FLAGS}")
     message(STATUS "optional:-std=c++1z")
     set(CMAKE_EXE_LINKER_FLAGS "-lrt")
+    SET(GSF_PATH /home/github/gsf CACHE INTERNAL "gsf path")
 endif()
 if(APPLE)
     set(CMAKE_CXX_FLAGS "-std=c++14 ${CMAKE_CXX_FLAGS}")
     message(STATUS "optional:-std=c++11")
-    SET(GSF_PATH /home/github/gsf CACHE INTERNAL "gsf path")
 endif()
 
 
