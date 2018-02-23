@@ -1,0 +1,5 @@
+ADD_SUBDIRECTORY(entitys_client)
+ADD_SUBDIRECTORY(entitys_db)
+ADD_SUBDIRECTORY(entitys_game)
+ADD_SUBDIRECTORY(entitys_login)
+ADD_SUBDIRECTORY(entitys_root)
