@@ -21,24 +21,21 @@ module.before_init = function(dir)
 	package.path = table.concat(package_path, ';')
 
 	require "utils"
-	
-	profiler = require "profiler"
-	profiler:start()
 
 	log_m_ = APP:get_module("LogModule")
-	logInfo("timer", "log : " .. log_m_)
+	DEBUG_LOG("timer", "log module id", log_m_)
 
 	timer_m_ = APP:get_module("TimerModule")
-	logInfo("timer", "timer : " .. timer_m_)
+	DEBUG_LOG("timer", "timer module id", timer_m_)
 end
 
 module.init = function()
-	print("init")
+	DEBUG_LOG("timer", "init status")
 
 	listen(module_id, eid.timer.timer_arrive, onTimer)
 
 	millisecond_timer_id = dispatch(timer_m_, eid.timer.delay_milliseconds, evpack:delay_milliseconds(module_id, 1000))[1]
-	logInfo("timer", "timer id : " .. millisecond_timer_id)
+	DEBUG_LOG("timer", "timer id", millisecond_timer_id)
 end
 
 module.execute = function()
@@ -54,7 +51,7 @@ function onTimer(args)
 	timer_id = args[1]
 
 	if timer_id == millisecond_timer_id then
-		logInfo("timer", "arrive timer " .. timer_id)
+		DEBUG_LOG("timer", "arrive", timer_id)
 
 		millisecond_timer_id = dispatch(timer_m_, eid.timer.delay_milliseconds, evpack:delay_milliseconds(module_id, 1000))[1]		
 	end

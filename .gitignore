@@ -178,3 +178,8 @@ build/bin/Debug/test_timer.exe
 build/bin/Debug/test_timer.ilk
 build/bin/Debug/test_timer.pdb
 build/test_timer.dir/Debug/test_timer.log
+build/entitys/entitys_client.dir/Debug/entitys_client.log
+build/entitys/
+build/hello_world/
+build/echo/
+build/db/

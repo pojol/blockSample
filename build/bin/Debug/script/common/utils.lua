@@ -35,6 +35,42 @@ function dump ( t )
     print()
 end
 
+function dumpStr(t)
+    local _str = ""
+    local print_r_cache={}
+    local function sub_print_r(t,indent)
+        if (print_r_cache[tostring(t)]) then
+            _str = _str .. indent.."*"..tostring(t) .. '\n'
+        else
+            print_r_cache[tostring(t)]=true
+            if (type(t)=="table") then
+                for pos,val in pairs(t) do
+                    if (type(val)=="table") then
+                        _str = _str .. indent.."["..pos.."] => "..tostring(t).." {\n"
+                        sub_print_r(val,indent..string.rep(" ",string.len(pos)+8))
+                        _str = _str .. indent..string.rep(" ",string.len(pos)+6).."}\n"
+                    elseif (type(val)=="string") then
+                        _str = _str .. indent.."["..pos..'] => "'..val..'"\n'
+                    else
+                        _str = _str .. indent.."["..pos.."] => "..tostring(val) .. '\n'
+                    end
+                end
+            else
+                _str = _str .. indent..tostring(t) .. '\n'
+            end
+        end
+    end
+    if (type(t)=="table") then
+        _str = _str .. tostring(t).." {\n"
+        sub_print_r(t,"  ")
+        _str = _str .. "}\n"
+    else
+        sub_print_r(t,"")
+    end
+
+    return _str
+end
+
 function deep_copy(object)
     local lookup_table = {}
     local function _copy(object)
@@ -87,26 +123,51 @@ function rpc(event_id, module_id, buf, callback)
     end
 end
 
-function logInfo(moduleName, info)
-    local args = Args.new()
-    args:push_ui16(2)
-    args:push_string(moduleName)
-    args:push_string(info)
-    event:ldispatch(module_id, log_m_, eid.log.print, args:pop_block(0, args:get_size()), nil)
-end
+-- 在使用日志接口前先获取 LogModule
+-- 调试日志 --
+function DEBUG_LOG(module, reason, ...)
 
-function logWarn(moduleName, warn)
-    local args = Args.new()
-    args:push_ui16(1)
-    args:push_string(moduleName)
-    args:push_string(warn)
-    event:ldispatch(module_id, log_m_, eid.log.print, args:pop_block(0, args:get_size()), nil)
-end
+    logContent = "[module] " .. module .. " [reason] " .. reason .. '\n'
+    local _args = { ... }
 
-function logError(moduleName, err)
+    for k, v in ipairs(_args) do
+        logContent = logContent .. dumpStr(v)
+    end
+
     local args = Args.new()
     args:push_ui16(0)
-    args:push_string(moduleName)
-    args:push_string(err)
+    args:push_string(logContent)
     event:ldispatch(module_id, log_m_, eid.log.print, args:pop_block(0, args:get_size()), nil)
+end
+
+-- 诊断日志 --
+function INFO_LOG(module, reason, ...)
+    logContent = "[module] " .. module .. " [reason] " .. reason .. ' '
+    local _args = { ... }
+
+    for k, v in ipairs(_args) do
+        _v = v
+        if type(v) ~= "string" then
+            _v = tostring(v)
+        end 
+
+        logContent = logContent .. _v .. ' '
+    end
+
+    local args = Args.new()
+    args:push_ui16(1)
+    args:push_string(logContent)
+    event:ldispatch(module_id, log_m_, eid.log.print, args:pop_block(0, args:get_size()), nil)
+end
+
+function WARN_LOG(module, reason, ...)
+end
+
+function ERR_LOG(module, reason, ...)
+end
+
+-- 统计日志 --
+
+function RECORD_LOG(behavior, player, time, ...)
+
 end

@@ -1,18 +1,62 @@
-#include "cpp_test.h"
-#include "lua_test.h"
+#include <signal.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+#include <stdint.h>
+#include <sstream>
+#include <iostream>
 
+#ifdef WIN32
+#include <winsock2.h>
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif // WIN32
 
-void case_cpp_timer()
+#include <core/application.h>
+#include <core/event.h>
+#include <core/dynamic_module_factory.h>
+
+#include <timer/timer.h>
+
+#include <log/log.h>
+#include <lua_proxy/lua_proxy.h>
+
+class TestCaseLuaModule
+	: public gsf::Module
+	, public gsf::IEvent
 {
-	APP.create_module(new TestCaseModule);
-}
+public:
+	TestCaseLuaModule()
+		: Module("TestCaseLuaModule")
+	{}
 
+	virtual ~TestCaseLuaModule() {}
 
-void case_lua_timer()
-{
-	APP.create_module(new gsf::modules::LuaProxyModule);
-	APP.create_module(new TestCaseLuaModule);
-}
+	void before_init()
+	{
+		luaproxy_m_ = APP.get_module("LuaProxyModule");
+		assert(luaproxy_m_ != gsf::ModuleNil);
+	}
+
+	void init()
+	{
+		//APP.DEBUG_LOG("testlua", "test", "{}\n{}\n", 33, 44);
+		//APP.RECORD_LOG("market_buy", 1001, 20180224, ",{},{}", 100, 1000);
+
+		dispatch(luaproxy_m_, eid::lua_proxy::create, gsf::make_args(get_module_id(), "test_timer.lua"));
+	}
+
+	void shut()
+	{
+		dispatch(luaproxy_m_, eid::lua_proxy::destroy, gsf::make_args(get_module_id()));
+	}
+
+private:
+	uint32_t luaproxy_m_ = 0;
+};
 
 
 int main()
@@ -23,10 +67,10 @@ int main()
 	app.init_cfg(cfg);
 
 	APP.create_module(new gsf::modules::LogModule);
+	APP.create_module(new gsf::modules::LuaProxyModule);
 	APP.create_module(new gsf::modules::TimerModule);
 
-	//case_cpp_timer();
-	case_lua_timer();
+	APP.create_module(new TestCaseLuaModule);
 
 	app.run();
 
