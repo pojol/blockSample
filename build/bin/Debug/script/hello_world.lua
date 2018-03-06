@@ -16,11 +16,11 @@ module.before_init = function(dir)
 	require "utils"
 
 	log_m_ = APP:get_module("LogModule")
-	logInfo("test", "log : " .. log_m_)
+	INFO_LOG("test", "log : " .. log_m_)
 end
 
 module.init = function()
-	logInfo("test", "hello, gsf!")
+	INFO_LOG("test", "hello, gsf!")
 end
 
 module.execute = function()
