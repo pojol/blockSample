@@ -89,13 +89,17 @@ function deep_copy(object)
     return _copy(object)
 end
 
-function dispatch(target, eventID, buf)
+function dispatch(target, eventID, buf, callback)
 
-    resBuf = event:ldispatch(module_id, target, eventID, buf)
-    if #resBuf == 0 then
-        return nil
+    function _callback(buf, len)
+        _args = evunpack(buf, len)
+        callback(_args)
+    end
+
+    if callback ~= nil then
+        event:ldispatch(module_id, target, eventID, buf, _callback)
     else
-        return evunpack(resBuf, #resBuf)
+        event:ldispatch(module_id, target, eventID, buf)
     end
 end
 

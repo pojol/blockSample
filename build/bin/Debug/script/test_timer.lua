@@ -34,8 +34,10 @@ module.init = function()
 
 	listen(module_id, eid.timer.timer_arrive, onTimer)
 
-	millisecond_timer_id = dispatch(timer_m_, eid.timer.delay_milliseconds, evpack:delay_milliseconds(module_id, 1000))[1]
-	DEBUG_LOG("timer", "timer id", millisecond_timer_id)
+	dispatch(timer_m_, eid.timer.delay_milliseconds, evpack:delay_milliseconds(module_id, 1000), function(args)
+		millisecond_timer_id = args[1]
+		DEBUG_LOG("timer", "timer id", millisecond_timer_id)
+	end)
 end
 
 module.execute = function()
@@ -53,7 +55,9 @@ function onTimer(args)
 	if timer_id == millisecond_timer_id then
 		DEBUG_LOG("timer", "arrive", timer_id)
 
-		millisecond_timer_id = dispatch(timer_m_, eid.timer.delay_milliseconds, evpack:delay_milliseconds(module_id, 1000))[1]		
+		dispatch(timer_m_, eid.timer.delay_milliseconds, evpack:delay_milliseconds(module_id, 1000), function(args)
+			millisecond_timer_id = args[1]
+		end)		
 	end
 
 	return ""
