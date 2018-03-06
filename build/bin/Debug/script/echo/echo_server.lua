@@ -17,30 +17,30 @@ module.before_init = function(dir)
     require "utils"
 
 	log_m_ = APP:get_module("LogModule")
-	logInfo("server", "log : " .. log_m_)
+	INFO_LOG("server", "log : ", log_m_)
 
 	acceptor_m_ = APP:get_module("AcceptorModule")
-	logInfo("server", "acceptor module : " .. acceptor_m_)
+	INFO_LOG("server", "acceptor module : ", acceptor_m_)
 
-	logInfo("server", "module id : " .. module_id)
+	INFO_LOG("server", "module id : ", module_id)
 end
 
 
 module.init = function()
 
 	listen(module_id, eid.network.new_connect, function(args)
-		logInfo("server", "new connect fd : " .. args[1])
+		INFO_LOG("server", "new connect fd : ", args[1])
 	end)
 
 	listen(module_id, eid.network.dis_connect, function(args)
-		logInfo("server", "dis connect fd : " .. args[1])
+		v("server", "dis connect fd : ", args[1])
 	end)
 
 	listen(module_id, eid.network.recv, function(args)
 		_fd = args[1]
 		_msgid = args[2]
 
-		logInfo("server", "recv : " .. args[3])
+		INFO_LOG("server", "recv : ", args[3])
 
 		dispatch(acceptor_m_, eid.network.send, evpack:send(_fd, 1002, "gsf!"))
 

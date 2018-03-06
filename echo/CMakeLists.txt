@@ -9,6 +9,7 @@ if(WIN32)
 		${GSF_PATH}/modules
 		${GSF_PATH}/3rd/lua-5.3.4/src
 		${GSF_PATH}/3rd/sol2
+		${GSF_PATH}/3rd/fmt
 	)
 endif()
 if(UNIX)

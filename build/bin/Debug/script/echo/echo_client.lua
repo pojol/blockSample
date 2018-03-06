@@ -17,18 +17,18 @@ module.before_init = function(dir)
     require "utils"
 
     log_m_ = APP:get_module("LogModule")
-	logInfo("client", "log : " .. log_m_)
+	INFO_LOG("client", "log : ", log_m_)
 
     conn_m_ = APP:get_module("ConnectorModule")
-    logInfo("client", "connector module : " .. conn_m_)
+    INFO_LOG("client", "connector module : ", conn_m_)
 
-    logInfo("client", "module id : " .. module_id)
+    INFO_LOG("client", "module id : ", module_id)
 end
 
 module.init = function()
 
     listen(module_id, eid.network.new_connect, function(args)
-        logInfo("client", "new connect fd : " .. args[1])
+        INFO_LOG("client", "new connect fd : ", args[1])
 
         dispatch(conn_m_, eid.network.send, evpack:send2(1001, "hello"))
     end)
@@ -37,7 +37,7 @@ module.init = function()
         _fd = args[1]
 		_msgid = args[2]
 
-        logInfo("client", "recv : " .. args[3])
+        INFO_LOG("client", "recv : " .. args[3])
 
         --dispatch(conn_m_, eid.network.send, evpack:send2(1001, "hello"))
 

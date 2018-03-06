@@ -165,9 +165,41 @@ function INFO_LOG(module, reason, ...)
 end
 
 function WARN_LOG(module, reason, ...)
+    logContent = "[module] " .. module .. " [reason] " .. reason .. ' '
+    local _args = { ... }
+
+    for k, v in ipairs(_args) do
+        _v = v
+        if type(v) ~= "string" then
+            _v = tostring(v)
+        end 
+
+        logContent = logContent .. _v .. ' '
+    end
+
+    local args = Args.new()
+    args:push_ui16(2)
+    args:push_string(logContent)
+    event:ldispatch(module_id, log_m_, eid.log.print, args:pop_block(0, args:get_size()), nil)
 end
 
 function ERR_LOG(module, reason, ...)
+    logContent = "[module] " .. module .. " [reason] " .. reason .. ' '
+    local _args = { ... }
+
+    for k, v in ipairs(_args) do
+        _v = v
+        if type(v) ~= "string" then
+            _v = tostring(v)
+        end 
+
+        logContent = logContent .. _v .. ' '
+    end
+
+    local args = Args.new()
+    args:push_ui16(3)
+    args:push_string(logContent)
+    event:ldispatch(module_id, log_m_, eid.log.print, args:pop_block(0, args:get_size()), nil)
 end
 
 -- 统计日志 --
