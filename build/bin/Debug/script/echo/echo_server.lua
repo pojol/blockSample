@@ -25,7 +25,6 @@ module.before_init = function(dir)
 	INFO_LOG("server", "module id : ", module_id)
 end
 
-
 module.init = function()
 
 	listen(module_id, eid.network.new_connect, function(args)
@@ -33,7 +32,7 @@ module.init = function()
 	end)
 
 	listen(module_id, eid.network.dis_connect, function(args)
-		v("server", "dis connect fd : ", args[1])
+		INFO_LOG("server", "dis connect fd : ", args[1])
 	end)
 
 	listen(module_id, eid.network.recv, function(args)
@@ -43,7 +42,6 @@ module.init = function()
 		INFO_LOG("server", "recv : ", args[3])
 
 		dispatch(acceptor_m_, eid.network.send, evpack:send(_fd, 1002, "gsf!"))
-
 	end)
 
 	-- 创建接收器

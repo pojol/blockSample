@@ -138,6 +138,12 @@ evpack = {
         pack:push_i32(msg_id)
         pack:push_string(buf)
         return pack:pop_block(0, pack:get_size())
+    end,
+
+    kick_connect = function(self, fd)
+        local pack = Args.new()
+        pack:push_ui16(fd)
+        return pack:pop_block(0, pack:get_size())
     end
 }
 
