@@ -25,7 +25,7 @@
 
 #include <distributed/node.h>
 #include <timer/timer.h>
-#include <lua_proxy/lua_proxy.h>
+#include <luaProxy/luaProxy.h>
 
 #include <log/log.h>
 #include <iostream>
@@ -118,7 +118,7 @@ public:
 
 	void init() override
 	{
-		dispatch(lua_m_, eid::lua_proxy::create, gsf::make_args(get_module_id(), lua_path_, "dbproxy/dbClientModule.lua"));
+		dispatch(lua_m_, eid::luaProxy::create, gsf::make_args(get_module_id(), lua_path_, "dbproxy/dbClientModule.lua"));
 	}
 
 	void shut() override

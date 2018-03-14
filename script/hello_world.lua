@@ -15,7 +15,7 @@ module.before_init = function(dir)
 
 	require "utils"
 
-	log_m_ = APP:get_module("LogModule")
+	log_m_ = APP:getModule("LogModule")
 	INFO_LOG("test", "log : " .. log_m_)
 end
 

@@ -62,7 +62,7 @@ if(MSVC)
       endif()
     endforeach()
 
-        TARGET_LINK_LIBRARIES(test_dbproxy_root libevent.lib libevent_core.lib libevent_extras.lib network.lib gsf_core.lib ws2_32.lib pbc.lib libprotobufd.lib glog.lib log.lib distributed.lib fmt.lib)
+        TARGET_LINK_LIBRARIES(test_dbproxy_root libevent.lib libevent_core.lib libevent_extras.lib network.lib core.lib ws2_32.lib pbc.lib libprotobufd.lib glog.lib log.lib distributed.lib fmt.lib)
 endif()
 if(UNIX)
 	if ("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 3.1)

@@ -63,7 +63,7 @@ if(MSVC)
       endif()
     endforeach()
 
-        TARGET_LINK_LIBRARIES(test_dbproxy_server libevent.lib libevent_core.lib libevent_extras.lib network.lib gsf_core.lib ws2_32.lib pbc.lib libprotobufd.lib glog.lib log.lib libmysql.lib mysql_proxy.lib fmt.lib lua53.lib lua_proxy.lib distributed.lib timer.lib)
+        TARGET_LINK_LIBRARIES(test_dbproxy_server libevent.lib libevent_core.lib libevent_extras.lib network.lib core.lib ws2_32.lib pbc.lib libprotobufd.lib glog.lib log.lib libmysql.lib mysql_proxy.lib fmt.lib lua53.lib lua_proxy.lib distributed.lib timer.lib)
 endif()
 if(UNIX)
 	

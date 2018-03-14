@@ -40,7 +40,7 @@ evpack = {
         pack:push_i32(entity_id)
 
         for i = 1, #arr, 2 do
-            
+
             pack:push_string(arr[i])
 
             if arr[i] == "id" then
