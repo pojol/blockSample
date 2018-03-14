@@ -17,7 +17,7 @@
 #include <unistd.h>
 #endif // WIN32
 
-#include <lua_proxy/lua_proxy.h>
+#include <luaProxy/luaProxy.h>
 #include <log/log.h>
 #include <timer/timer.h>
 
@@ -35,7 +35,7 @@ public:
 
 	void before_init()
 	{
-		luaproxy_m_ = APP.get_module("LuaProxyModule");
+		luaproxy_m_ = APP.getModule("LuaProxyModule");
 		assert(luaproxy_m_ != gsf::ModuleNil);
 	}
 
@@ -43,14 +43,14 @@ public:
 	{
 		dispatch(luaproxy_m_
 			, eid::lua_proxy::create
-			, gsf::make_args(get_module_id(), "hello_world.lua"));
+			, gsf::makeArgs(getModuleID(), "hello_world.lua"));
 	}
 
 	void shut()
 	{
 		dispatch(luaproxy_m_
 			, eid::lua_proxy::destroy
-			, gsf::make_args(get_module_id()));
+			, gsf::makeArgs(getModuleID()));
 	}
 
 private:
@@ -58,18 +58,18 @@ private:
 };
 
 
-
 int main()
 {
 	gsf::Application app;
 	gsf::AppConfig cfg;
-	app.init_cfg(cfg);
+	cfg.scriptPath_ = "C:/github/gsf_sample/script";
+	app.initCfg(cfg);
 
-	APP.create_module(new gsf::modules::LogModule);
-	APP.create_module(new gsf::modules::TimerModule);
-	APP.create_module(new gsf::modules::LuaProxyModule);
+	APP.createModule(new gsf::modules::LogModule);
+	APP.createModule(new gsf::modules::TimerModule);
+	APP.createModule(new gsf::modules::LuaProxyModule);
 
-	APP.create_module(new TestLuaModuleCtl);
+	APP.createModule(new TestLuaModuleCtl);
 
 	app.run();
 
