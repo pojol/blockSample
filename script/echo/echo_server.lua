@@ -16,10 +16,10 @@ module.before_init = function(dir)
 
     require "utils"
 
-	log_m_ = APP:get_module("LogModule")
+	log_m_ = APP:getModule("LogModule")
 	INFO_LOG("server", "log : ", log_m_)
 
-	acceptor_m_ = APP:get_module("AcceptorModule")
+	acceptor_m_ = APP:getModule("AcceptorModule")
 	INFO_LOG("server", "acceptor module : ", acceptor_m_)
 
 	INFO_LOG("server", "module id : ", module_id)

@@ -57,6 +57,7 @@ int main()
 	gsf::Application app;
 	gsf::AppConfig cfg;
 	cfg.name = "test_echo";
+	cfg.scriptPath_ = "C:/github/gsf_sample/script";
 	app.initCfg(cfg);
 
 	app.createModule(new gsf::modules::LogModule);

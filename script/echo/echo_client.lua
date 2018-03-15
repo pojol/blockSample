@@ -16,10 +16,10 @@ module.before_init = function(dir)
 
     require "utils"
 
-    log_m_ = APP:get_module("LogModule")
+    log_m_ = APP:getModule("LogModule")
 	INFO_LOG("client", "log : ", log_m_)
 
-    conn_m_ = APP:get_module("ConnectorModule")
+    conn_m_ = APP:getModule("ConnectorModule")
     INFO_LOG("client", "connector module : ", conn_m_)
 
     INFO_LOG("client", "module id : ", module_id)
