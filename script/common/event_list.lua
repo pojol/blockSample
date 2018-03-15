@@ -38,6 +38,7 @@ eid = {
 			类型: dispatch
 		]]--
 		mysql_connect = 2405,
+		mysql_callback = 2406
 	},
 
 	log = {

@@ -141,7 +141,7 @@ function DEBUG_LOG(module, reason, ...)
     local args = Args.new()
     args:push_ui16(0)
     args:push_string(logContent)
-    event:ldispatch(module_id, log_m_, eid.log.print, args:pop_block(0, args:get_size()), nil)
+    event:ldispatch(module_id, logM_, eid.log.print, args:pop_block(0, args:get_size()), nil)
 end
 
 -- 诊断日志 --
@@ -161,7 +161,7 @@ function INFO_LOG(module, reason, ...)
     local args = Args.new()
     args:push_ui16(1)
     args:push_string(logContent)
-    event:ldispatch(module_id, log_m_, eid.log.print, args:pop_block(0, args:get_size()), nil)
+    event:ldispatch(module_id, logM_, eid.log.print, args:pop_block(0, args:get_size()), nil)
 end
 
 function WARN_LOG(module, reason, ...)
@@ -180,7 +180,7 @@ function WARN_LOG(module, reason, ...)
     local args = Args.new()
     args:push_ui16(2)
     args:push_string(logContent)
-    event:ldispatch(module_id, log_m_, eid.log.print, args:pop_block(0, args:get_size()), nil)
+    event:ldispatch(module_id, logM_, eid.log.print, args:pop_block(0, args:get_size()), nil)
 end
 
 function ERR_LOG(module, reason, ...)
@@ -199,7 +199,7 @@ function ERR_LOG(module, reason, ...)
     local args = Args.new()
     args:push_ui16(3)
     args:push_string(logContent)
-    event:ldispatch(module_id, log_m_, eid.log.print, args:pop_block(0, args:get_size()), nil)
+    event:ldispatch(module_id, logM_, eid.log.print, args:pop_block(0, args:get_size()), nil)
 end
 
 -- 统计日志 --

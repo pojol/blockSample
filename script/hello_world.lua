@@ -6,7 +6,7 @@ module = {
 	after_shut = function() end,
 }
 
-log_m_ = 0
+logM_ = 0
 
 module.before_init = function(dir)
 	local package_path = {}
@@ -15,8 +15,8 @@ module.before_init = function(dir)
 
 	require "utils"
 
-	log_m_ = APP:getModule("LogModule")
-	INFO_LOG("test", "log : " .. log_m_)
+	logM_ = APP:getModule("LogModule")
+	INFO_LOG("test", "log : " .. logM_)
 end
 
 module.init = function()

@@ -6,7 +6,7 @@ module = {
 }
 
 acceptor_m_ = 0
-log_m_ = 0
+logM_ = 0
 
 module.before_init = function(dir)
 
@@ -16,8 +16,8 @@ module.before_init = function(dir)
 
     require "utils"
 
-	log_m_ = APP:getModule("LogModule")
-	INFO_LOG("server", "log : ", log_m_)
+	logM_ = APP:getModule("LogModule")
+	INFO_LOG("server", "log : ", logM_)
 
 	acceptor_m_ = APP:getModule("AcceptorModule")
 	INFO_LOG("server", "acceptor module : ", acceptor_m_)

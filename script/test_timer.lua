@@ -6,8 +6,8 @@ module = {
 	after_shut = function() end,
 }
 
-log_m_ = 0
-timer_m_ = 0
+logM_ = 0
+timerM_ = 0
 
 millisecond_timer_id = 0
 
@@ -22,11 +22,11 @@ module.before_init = function(dir)
 
 	require "utils"
 
-	log_m_ = APP:getModule("LogModule")
-	DEBUG_LOG("timer", "log module id", log_m_)
+	logM_ = APP:getModule("LogModule")
+	DEBUG_LOG("timer", "log module id", logM_)
 
-	timer_m_ = APP:getModule("TimerModule")
-	DEBUG_LOG("timer", "timer module id", timer_m_)
+	timerM_ = APP:getModule("TimerModule")
+	DEBUG_LOG("timer", "timer module id", timerM_)
 end
 
 module.init = function()
@@ -34,7 +34,7 @@ module.init = function()
 
 	listen(module_id, eid.timer.timer_arrive, onTimer)
 
-	dispatch(timer_m_, eid.timer.delay_milliseconds, evpack:delay_milliseconds(module_id, 1000), function(args)
+	dispatch(timerM_, eid.timer.delay_milliseconds, evpack:delay_milliseconds(module_id, 1000), function(args)
 		millisecond_timer_id = args[1]
 		DEBUG_LOG("timer", "timer id", millisecond_timer_id)
 	end)
@@ -55,7 +55,7 @@ function onTimer(args)
 	if timer_id == millisecond_timer_id then
 		DEBUG_LOG("timer", "arrive", timer_id)
 
-		dispatch(timer_m_, eid.timer.delay_milliseconds, evpack:delay_milliseconds(module_id, 1000), function(args)
+		dispatch(timerM_, eid.timer.delay_milliseconds, evpack:delay_milliseconds(module_id, 1000), function(args)
 			millisecond_timer_id = args[1]
 		end)		
 	end

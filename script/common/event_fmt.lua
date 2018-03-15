@@ -29,7 +29,18 @@ evpack = {
     mysql_query = function(self, module_id, sql)
         local pack = Args.new()
         pack:push_i32(module_id)
+        pack:push_i32(module_id)
         pack:push_string(sql)
+        return pack:pop_block(0, pack:get_size())
+    end,
+
+    mysql_connect = function(self, host, user, password, db, port)
+        local pack = Args.new()
+        pack:push_string(host)
+        pack:push_string(user)
+        pack:push_string(password)
+        pack:push_string(db)
+        pack:push_i32(port)
         return pack:pop_block(0, pack:get_size())
     end,
 
