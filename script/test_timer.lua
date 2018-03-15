@@ -22,10 +22,10 @@ module.before_init = function(dir)
 
 	require "utils"
 
-	log_m_ = APP:get_module("LogModule")
+	log_m_ = APP:getModule("LogModule")
 	DEBUG_LOG("timer", "log module id", log_m_)
 
-	timer_m_ = APP:get_module("TimerModule")
+	timer_m_ = APP:getModule("TimerModule")
 	DEBUG_LOG("timer", "timer module id", timer_m_)
 end
 

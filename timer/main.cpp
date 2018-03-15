@@ -22,7 +22,7 @@
 #include <timer/timer.h>
 
 #include <log/log.h>
-#include <lua_proxy/lua_proxy.h>
+#include <luaProxy/luaProxy.h>
 
 class TestCaseLuaModule
 	: public gsf::Module
@@ -37,7 +37,7 @@ public:
 
 	void before_init()
 	{
-		luaproxy_m_ = APP.get_module("LuaProxyModule");
+		luaproxy_m_ = APP.getModule("LuaProxyModule");
 		assert(luaproxy_m_ != gsf::ModuleNil);
 	}
 
@@ -46,12 +46,12 @@ public:
 		//APP.DEBUG_LOG("testlua", "test", "{}\n{}\n", 33, 44);
 		//APP.RECORD_LOG("market_buy", 1001, 20180224, ",{},{}", 100, 1000);
 
-		dispatch(luaproxy_m_, eid::lua_proxy::create, gsf::make_args(get_module_id(), "test_timer.lua"));
+		dispatch(luaproxy_m_, eid::lua_proxy::create, gsf::makeArgs(getModuleID(), "test_timer.lua"));
 	}
 
 	void shut()
 	{
-		dispatch(luaproxy_m_, eid::lua_proxy::destroy, gsf::make_args(get_module_id()));
+		dispatch(luaproxy_m_, eid::lua_proxy::destroy, gsf::makeArgs(getModuleID()));
 	}
 
 private:
@@ -63,14 +63,15 @@ int main()
 {
 	gsf::Application app;
 	gsf::AppConfig cfg;
+	cfg.scriptPath_ = "C:/github/gsf_sample/script";
 	//cfg.is_watch_pref = true;
-	app.init_cfg(cfg);
+	app.initCfg(cfg);
 
-	APP.create_module(new gsf::modules::LogModule);
-	APP.create_module(new gsf::modules::LuaProxyModule);
-	APP.create_module(new gsf::modules::TimerModule);
+	APP.createModule(new gsf::modules::LogModule);
+	APP.createModule(new gsf::modules::LuaProxyModule);
+	APP.createModule(new gsf::modules::TimerModule);
 
-	APP.create_module(new TestCaseLuaModule);
+	APP.createModule(new TestCaseLuaModule);
 
 	app.run();
 
