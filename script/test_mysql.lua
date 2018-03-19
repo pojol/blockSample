@@ -42,6 +42,7 @@ module.init = function()
 		,"name VARCHAR(32) NOT NULL,"
 		,"loginTime INT NOT NULL")
 
+	INFO_LOG("mysql", "create", _createSql)
 	dispatch(mysqlM_, eid.distributed.mysql_query, evpack:mysql_query(module_id, _createSql))
 
 	_addSql = string.format("insert into Entity (id, name, loginTime) values (%d, %s, %d);"
@@ -49,8 +50,15 @@ module.init = function()
 		,"'test'"
 		,os.time())
 	
-	INFO_LOG("mysql", "sql", _addSql)
+	INFO_LOG("mysql", "insert", _addSql)
 	dispatch(mysqlM_, eid.distributed.mysql_query, evpack:mysql_query(module_id, _addSql))
+
+	_entityID = 1
+	_entityDirty = {
+		"name",			-- key
+		"'test1'"		-- value
+	}
+	dispatch(mysqlM_, eid.mysql_update, evpack:entity_update("Entity", _entityID, _entityDirty))
 end
 
 module.execute = function()

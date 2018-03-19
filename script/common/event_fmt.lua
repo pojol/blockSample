@@ -29,7 +29,6 @@ evpack = {
     mysql_query = function(self, module_id, sql)
         local pack = Args.new()
         pack:push_i32(module_id)
-        pack:push_i32(module_id)
         pack:push_string(sql)
         return pack:pop_block(0, pack:get_size())
     end,
