@@ -38,8 +38,16 @@ eid = {
 			类型: dispatch
 		]]--
 		mysql_connect = 2405,
-		mysql_callback = 2406
+		mysql_callback = 2406,
 	},
+
+	dbProxy = {
+		connect = 2401,
+		query = 2402,
+		insert = 2403,
+		select = 2404,		
+		update = 2405,
+	}
 
 	log = {
 		print = 2101,

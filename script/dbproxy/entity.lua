@@ -40,7 +40,7 @@ entity.init = function(self, args)
     self.property.name = args[2]
     self.property.hp = args[3]
     self.property.lv = args[4]
-    self.property.loginTime = args[5]    
+    self.property.loginTime = args[5]
 
 end
 

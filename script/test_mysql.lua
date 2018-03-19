@@ -29,9 +29,19 @@ mysql_pwd = "root"
 mysql_name = "Tmp"
 mysql_port = 3306
 
+local entity = {
+	property = {
+		id = 0,
+        name = "''",
+        hp = 100,
+        lv = 1,
+        loginTime = 0
+	}
+}
+
 module.init = function()
 
-	dispatch(mysqlM_, eid.db_proxy.mysql_connect, evpack:mysql_connect(mysql_ip, mysql_usr, mysql_pwd, mysql_name, mysql_port))
+	dispatch(mysqlM_, eid.dbProxy.connect, evpack:mysql_connect(mysql_ip, mysql_usr, mysql_pwd, mysql_name, mysql_port))
 
 	listen(module_id, eid.db_proxy.mysql_callback, function(args)
 		DEBUG_LOG("mysql", "callback", args)
@@ -43,15 +53,20 @@ module.init = function()
 		,"loginTime INT NOT NULL")
 
 	INFO_LOG("mysql", "create", _createSql)
-	dispatch(mysqlM_, eid.distributed.mysql_query, evpack:mysql_query(module_id, _createSql))
+	dispatch(mysqlM_, eid.dbProxy.query, evpack:mysql_query(module_id, _createSql))
 
-	_addSql = string.format("insert into Entity (id, name, loginTime) values (%d, %s, %d);"
-		,0
-		,"'test'"
-		,os.time())
-	
-	INFO_LOG("mysql", "insert", _addSql)
-	dispatch(mysqlM_, eid.distributed.mysql_query, evpack:mysql_query(module_id, _addSql))
+	local _add = {}
+
+	for k, val in pairs(entity.property) do
+		table.insert(_add, k)
+		table.insert(_add, val)
+	end
+
+	dispatch(mysqlM_, eid::mysql::insert, evpack:mysql_insert("Entity", _add))
+
+	--dispatch(mysqlM_, eid::mysql_select, evpack:mysql_select("Entity", 1))
+
+	--[[
 
 	_entityID = 1
 	_entityDirty = {
@@ -59,6 +74,8 @@ module.init = function()
 		"'test1'"		-- value
 	}
 	dispatch(mysqlM_, eid.mysql_update, evpack:entity_update("Entity", _entityID, _entityDirty))
+	
+	]]--
 end
 
 module.execute = function()
