@@ -23,7 +23,7 @@
 
 #include <log/log.h>
 #include <luaProxy/luaProxy.h>
-#include <mysqlProxy/mysqlProxy.h>
+#include <dbProxy/mysqlProxy.h>
 
 class TestCaseLuaModule
 	: public gsf::Module
@@ -61,7 +61,7 @@ int main()
 {
 	gsf::Application app;
 	gsf::AppConfig cfg;
-	cfg.scriptPath_ = "C:/github/gsf_sample/script";
+	cfg.scriptPath_ = "E:/github/gsf_sample/script";
 	//cfg.is_watch_pref = true;
 	app.initCfg(cfg);
 

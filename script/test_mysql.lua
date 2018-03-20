@@ -23,9 +23,9 @@ module.before_init = function(dir)
 	INFO_LOG("mysql", "dbProxy : " .. mysqlM_)
 end
 
-mysql_ip = "127.0.0.1"
+mysql_ip = "111.231.108.183"
 mysql_usr = "root"
-mysql_pwd = "root"
+mysql_pwd = "234werSDF"
 mysql_name = "Tmp"
 mysql_port = 3306
 
@@ -41,9 +41,7 @@ local entity = {
 
 module.init = function()
 
-	dispatch(mysqlM_, eid.dbProxy.connect, evpack:mysql_connect(mysql_ip, mysql_usr, mysql_pwd, mysql_name, mysql_port))
-
-	listen(module_id, eid.db_proxy.mysql_callback, function(args)
+	dispatch(mysqlM_, eid.dbProxy.connect, evpack:mysql_connect(mysql_ip, mysql_usr, mysql_pwd, mysql_name, mysql_port), function(args)
 		DEBUG_LOG("mysql", "callback", args)
 	end)
 
@@ -52,8 +50,12 @@ module.init = function()
 		,"name VARCHAR(32) NOT NULL,"
 		,"loginTime INT NOT NULL")
 
+	listen(module_id, eid.dbProxy.callback, function(args)
+		DEBUG_LOG("mysql", "callback", args)
+	end)
+
 	INFO_LOG("mysql", "create", _createSql)
-	dispatch(mysqlM_, eid.dbProxy.query, evpack:mysql_query(module_id, _createSql))
+	dispatch(mysqlM_, eid.dbProxy.query, evpack:dbQuery(module_id, _createSql))
 
 	local _add = {}
 
@@ -62,7 +64,8 @@ module.init = function()
 		table.insert(_add, val)
 	end
 
-	dispatch(mysqlM_, eid::mysql::insert, evpack:mysql_insert("Entity", _add))
+	DEBUG_LOG("mysql", "insert entity", _add)
+	dispatch(mysqlM_, eid.dbProxy.insert, evpack:dbInsert("Entity", _add))
 
 	--dispatch(mysqlM_, eid::mysql_select, evpack:mysql_select("Entity", 1))
 

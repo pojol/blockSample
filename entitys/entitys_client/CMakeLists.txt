@@ -8,6 +8,7 @@ if(WIN32)
 		${GSF_PATH}/modules
 		${GSF_PATH}/3rd/lua-5.3.4/src
 		${GSF_PATH}/3rd/sol2
+		${GSF_PATH}/3rd/fmt
 	)
 endif()
 if(UNIX)
@@ -59,7 +60,7 @@ if(MSVC)
       endif()
     endforeach()
 
-        TARGET_LINK_LIBRARIES(entitys_client libevent.lib libevent_core.lib libevent_extras.lib network.lib core.lib ws2_32.lib libprotobufd.lib glog.lib log.lib distributed.lib lua53.lib lua_proxy.lib fmt.lib)
+        TARGET_LINK_LIBRARIES(entitys_client libevent.lib libevent_core.lib libevent_extras.lib network.lib core.lib ws2_32.lib libprotobufd.lib glog.lib log.lib distributed.lib lua53.lib luaProxy.lib fmt.lib)
 endif()
 if(UNIX)
 		TARGET_LINK_LIBRARIES(entitys_client  ${CMAKE_THREAD_LIBS_INIT} libnetwork.a libevent.a libevent_core.a libevent_extra.a libtimer.a libgsf_core.a liblog.a libglog.a liblua_proxy.a)

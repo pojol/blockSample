@@ -26,28 +26,14 @@ eid = {
 		fail_connect = 2008
 	},
 
-	db_proxy = {
-		redis_connect = 2401,
-		redis_command = 2402,
-		redis_avatar_offline = 2403,
-		redis_resume = 2404,
-
-		--[[
-			建立一个新的Mysql连接
-			参数: host, user, password, dbName, port
-			类型: dispatch
-		]]--
-		mysql_connect = 2405,
-		mysql_callback = 2406,
-	},
-
 	dbProxy = {
 		connect = 2401,
 		query = 2402,
 		insert = 2403,
 		select = 2404,		
 		update = 2405,
-	}
+		callback = 2406
+	},
 
 	log = {
 		print = 2101,

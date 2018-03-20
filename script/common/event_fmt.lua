@@ -26,10 +26,35 @@ evpack = {
         return pack:pop_block(0, pack:get_size())
     end,
 
-    mysql_query = function(self, module_id, sql)
+    dbQuery = function(self, module_id, sql)
         local pack = Args.new()
         pack:push_i32(module_id)
         pack:push_string(sql)
+        return pack:pop_block(0, pack:get_size())
+    end,
+
+    dbInsert = function(self, tableName, property)
+        local pack = Args.new()
+        pack:push_i32(module_id)
+        pack:push_string(tableName)
+
+        -- 后面通过描述文件生成
+        for i = 1, #property, 2 do
+            pack:push_string(property[i])
+
+            if property[i] == "id" then
+                pack:push_i32(property[i + 1])
+            elseif property[i] == "name" then
+                pack:push_string(property[i + 1])
+            elseif property[i] == "hp" then
+                pack:push_i32(property[i + 1])
+            elseif property[i] == "lv" then
+                pack:push_i32(property[i + 1])
+            elseif property[i] == "loginTime" then
+                pack:push_i32(property[i + 1])
+            end
+        end
+
         return pack:pop_block(0, pack:get_size())
     end,
 
@@ -40,6 +65,7 @@ evpack = {
         pack:push_string(password)
         pack:push_string(db)
         pack:push_i32(port)
+        pack:push_bool(false)
         return pack:pop_block(0, pack:get_size())
     end,
 

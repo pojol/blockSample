@@ -22,7 +22,7 @@
 
 #include <network/acceptor.h>
 #include <network/connector.h>
-#include <lua_proxy/lua_proxy.h>
+#include <luaProxy/luaProxy.h>
 #include <distributed/node.h>
 #include <timer/timer.h>
 
@@ -40,8 +40,8 @@ public:
 
 	void init() override
 	{
-		auto luaproxy_m_ = APP.get_module("LuaProxyModule");
-		dispatch(luaproxy_m_, eid::lua_proxy::create, gsf::make_args(get_module_id(), "entitys/game.lua"));
+		auto luaproxy_m_ = APP.getModule("LuaProxyModule");
+		dispatch(luaproxy_m_, eid::lua_proxy::create, gsf::makeArgs(getModuleID(), "entitys/game.lua"));
 	}
 };
 
@@ -55,15 +55,15 @@ int main()
 	gsf::Application app;
 	gsf::AppConfig cfg;
 	cfg.name = "login";
-	app.init_cfg(cfg);
+	app.initCfg(cfg);
 
-	app.create_module(new gsf::modules::LogModule);
-	app.create_module(new gsf::network::AcceptorModule);
-	app.create_module(new gsf::modules::LuaProxyModule);
-	app.create_module(new gsf::modules::NodeModule);
-	app.create_module(new gsf::modules::TimerModule);
+	app.createModule(new gsf::modules::LogModule);
+	app.createModule(new gsf::network::AcceptorModule);
+	app.createModule(new gsf::modules::LuaProxyModule);
+	app.createModule(new gsf::modules::NodeModule);
+	app.createModule(new gsf::modules::TimerModule);
 
-	app.create_module(new GameModuleCtl);
+	app.createModule(new GameModuleCtl);
 
 	app.run();
 
