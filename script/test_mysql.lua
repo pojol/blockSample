@@ -56,8 +56,10 @@ module.init = function()
 		DEBUG_LOG("mysql", "callback", args)
 	end)
 
-	INFO_LOG("mysql", "create", _createSql)
-	dispatch(mysqlM_, eid.dbProxy.query, evpack:dbQuery(module_id, _createSql))
+	
+	dispatch(mysqlM_, eid.dbProxy.query, evpack:dbQuery(module_id, _createSql), function(args)
+		DEBUG_LOG("mysql", "create", args)
+	end)
 
 	local _add = {}
 
@@ -66,8 +68,10 @@ module.init = function()
 		table.insert(_add, val)
 	end
 
-	DEBUG_LOG("mysql", "insert entity", _add)
-	dispatch(mysqlM_, eid.dbProxy.insert, evpack:dbInsert("Entity", _add))
+	
+	dispatch(mysqlM_, eid.dbProxy.insert, evpack:dbInsert("Entity", _add), function(args)
+		DEBUG_LOG("mysql", "insert entity", args)
+	end)
 
 	--dispatch(mysqlM_, eid::mysql_select, evpack:mysql_select("Entity", 1))
 
