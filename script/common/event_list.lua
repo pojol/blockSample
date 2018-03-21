@@ -9,9 +9,6 @@ eid = {
 		coordinat_adjust_weight = 1004,
 		coordinat_select = 1005,
 
-		mysql_query = 1006,
-		mysql_update = 1007,
-
 		rpc_end = 2000,
 	},
 	
@@ -28,9 +25,9 @@ eid = {
 
 	dbProxy = {
 		connect = 2401,
-		query = 2402,
+		execSql = 2402,
 		insert = 2403,
-		select = 2404,		
+		load = 2404,		
 		update = 2405,
 		callback = 2406
 	},

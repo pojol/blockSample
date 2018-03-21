@@ -61,7 +61,7 @@ int main()
 {
 	gsf::Application app;
 	gsf::AppConfig cfg;
-	cfg.scriptPath_ = "c:/github/gsf_sample/script";
+	cfg.scriptPath_ = "e:/github/gsf_sample/script";
 	//cfg.is_watch_pref = true;
 	app.initCfg(cfg);
 

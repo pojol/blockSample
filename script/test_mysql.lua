@@ -57,7 +57,7 @@ module.init = function()
 	end)
 
 	
-	dispatch(mysqlM_, eid.dbProxy.query, evpack:dbQuery(module_id, _createSql), function(args)
+	dispatch(mysqlM_, eid.dbProxy.execSql, evpack:dbQuery(module_id, _createSql), function(args)
 		DEBUG_LOG("mysql", "create", args)
 	end)
 
@@ -73,17 +73,24 @@ module.init = function()
 		DEBUG_LOG("mysql", "insert entity", args)
 	end)
 
-	--dispatch(mysqlM_, eid::mysql_select, evpack:mysql_select("Entity", 1))
 
-	--[[
+	--[[ load all
+		dispatch(mysqlM_, eid.dbProxy.load, evpack:dbLoad("Entity", 3), function(args)
+			DEBUG_LOG("mysql", "load entity", args)
+		end)
+	]]--
 
-	_entityID = 1
-	_entityDirty = {
-		"name",			-- key
-		"'test1'"		-- value
-	}
-	dispatch(mysqlM_, eid.mysql_update, evpack:entity_update("Entity", _entityID, _entityDirty))
-	
+	dispatch(mysqlM_, eid.dbProxy.load, evpack:dbLoad("Entity", 3), function(args)
+		DEBUG_LOG("mysql", "load entity", args)
+	end)
+
+	--[[ update entity
+		_entityID = 1
+		_entityDirty = {
+			"name",			-- key
+			"'test1'"		-- value
+		}
+		dispatch(mysqlM_, eid.mysql_update, evpack:entity_update("Entity", _entityID, _entityDirty))
 	]]--
 end
 

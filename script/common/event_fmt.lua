@@ -33,6 +33,14 @@ evpack = {
         return pack:pop_block(0, pack:get_size())
     end,
 
+    dbLoad = function(self, entity, id)
+        local pack = Args.new()
+        pack:push_i32(module_id)
+        pack:push_string(entity)
+        pack:push_i32(id)
+        return pack:pop_block(0, pack:get_size())
+    end,
+
     dbInsert = function(self, tableName, property)
         local pack = Args.new()
         pack:push_i32(module_id)
