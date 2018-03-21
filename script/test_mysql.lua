@@ -45,9 +45,11 @@ module.init = function()
 		DEBUG_LOG("mysql", "callback", args)
 	end)
 
-	_createSql = string.format("create table if not exists Entity(%s%s%s) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;"
+	_createSql = string.format("create table if not exists Entity(%s%s%s%s%s) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;"
 		,"id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,"
 		,"name VARCHAR(32) NOT NULL,"
+		,"hp INT NOT NULL,"
+		,"lv INT NOT NULL,"
 		,"loginTime INT NOT NULL")
 
 	listen(module_id, eid.dbProxy.callback, function(args)
