@@ -1,6 +1,3 @@
-#include <core/application.h>
-#include <core/event.h>
-
 #include <signal.h>
 #include <fcntl.h>
 #include <stdlib.h>
@@ -17,59 +14,36 @@
 #include <unistd.h>
 #endif // WIN32
 
-#include <luaProxy/luaProxy.h>
+#include <core/application.h>
+#include <luaAdapter/luaAdapter.h>
 #include <log/log.h>
 #include <timer/timer.h>
 
 
-class TestLuaModuleCtl
-	: public gsf::Module
-	, public gsf::IEvent
+class TestLuaModule
+	: public gsf::modules::LuaAdapterModule
 {
 public:
-	TestLuaModuleCtl()
-		: Module("TestLuaModuleCtl")
-	{}
-
-	virtual ~TestLuaModuleCtl() {}
-
-	void before_init()
+	TestLuaModule()
+		: gsf::modules::LuaAdapterModule("TestLuaModule")
 	{
-		luaproxy_m_ = APP.getModule("LuaProxyModule");
-		assert(luaproxy_m_ != gsf::ModuleNil);
-	}
-
-	void init()
-	{
-		dispatch(luaproxy_m_
-			, eid::lua_proxy::create
-			, gsf::makeArgs(getModuleID(), "hello_world.lua"));
-	}
-
-	void shut()
-	{
-		dispatch(luaproxy_m_
-			, eid::lua_proxy::destroy
-			, gsf::makeArgs(getModuleID()));
+		dir_ = "C:/github/gsf_sample/script";
+		name_ = "hello_world.lua";
 	}
 
 private:
-	uint32_t luaproxy_m_ = gsf::ModuleNil;
 };
-
 
 int main()
 {
 	gsf::Application app;
 	gsf::AppConfig cfg;
-	cfg.scriptPath_ = "C:/github/gsf_sample/script";
 	app.initCfg(cfg);
 
 	APP.createModule(new gsf::modules::LogModule);
 	APP.createModule(new gsf::modules::TimerModule);
-	APP.createModule(new gsf::modules::LuaProxyModule);
 
-	APP.createModule(new TestLuaModuleCtl);
+	APP.createModule(new TestLuaModule);
 
 	app.run();
 

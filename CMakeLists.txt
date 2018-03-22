@@ -1,7 +1,7 @@
 PROJECT(GSF_SAMPLE)
 
 if(WIN32)
-    SET(GSF_PATH E:/github/gsf CACHE INTERNAL "gsf path")
+    SET(GSF_PATH C:/github/gsf CACHE INTERNAL "gsf path")
 endif()
 if(UNIX)
     set(CMAKE_CXX_FLAGS "-std=c++14 ${CMAKE_CXX_FLAGS}")
