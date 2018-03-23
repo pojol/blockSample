@@ -17,7 +17,6 @@
 #endif // WIN32
 
 #include <core/application.h>
-#include <core/event.h>
 #include <core/dynamic_module_factory.h>
 
 #include <network/acceptor.h>
@@ -27,22 +26,21 @@
 #include <log/log.h>
 
 #include <random>
-#include <luaProxy/luaProxy.h>
+#include <luaAdapter/luaAdapter.h>
 
 
 class ServerModuleCtl
-	: public gsf::Module
-	, public gsf::IEvent
+	: public gsf::modules::LuaAdapterModule
 {
 public:
 	ServerModuleCtl()
-		: Module("ServerModuleCtl")
+		: gsf::modules::LuaAdapterModule("ServerModuleCtl")
 	{}
 
-	void init() override
+	void before_init() override
 	{
-		auto luaproxy_m_ = APP.getModule("LuaProxyModule");
-		dispatch(luaproxy_m_, eid::lua_proxy::create, gsf::makeArgs(getModuleID(), "echo/echo_server.lua"));
+		dir_ = "C:/github/gsf_sample/script";
+		name_ = "echo/echo_server.lua";
 	}
 };
 
@@ -57,11 +55,9 @@ int main()
 	gsf::Application app;
 	gsf::AppConfig cfg;
 	cfg.name = "test_echo";
-	cfg.scriptPath_ = "C:/github/gsf_sample/script";
 	app.initCfg(cfg);
 
 	app.createModule(new gsf::modules::LogModule);
-	app.createModule(new gsf::modules::LuaProxyModule);
 	app.createModule(new gsf::network::ConnectorModule);
 	app.createModule(new gsf::network::AcceptorModule);
 	app.createModule(new gsf::modules::TimerModule);

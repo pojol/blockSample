@@ -9,7 +9,8 @@ module = {
 logM_ = 0
 timerM_ = 0
 
-millisecond_timer_id = 0
+-- timer 标记
+delayTag = 0
 
 tick_ = 0
 
@@ -30,35 +31,22 @@ module.before_init = function(dir)
 end
 
 module.init = function()
-	DEBUG_LOG("timer", "init status")
 
-	listen(module_id, eid.timer.timer_arrive, onTimer)
-
-	dispatch(timerM_, eid.timer.delay_milliseconds, evpack:delay_milliseconds(module_id, 1000), function(args)
-		millisecond_timer_id = args[1]
-		DEBUG_LOG("timer", "timer id", millisecond_timer_id)
+	listen(eid.timer.timer_arrive, function(args)
+	
+		if delayTag == args[1] then
+			DEBUG_LOG("timer", "arrive", "tag:" .. tostring(delayTag))
+			
+			dispatch(timerM_, eid.timer.delay_milliseconds, evpack:delay_milliseconds(delayTag, 1000))
+		end
+		
 	end)
+
+	dispatch(timerM_, eid.timer.delay_milliseconds, evpack:delay_milliseconds(delayTag, 1000))
 end
 
 module.execute = function()
 end
 
 module.shut = function()
-end
-
-----------
-
-function onTimer(args)
-
-	timer_id = args[1]
-
-	if timer_id == millisecond_timer_id then
-		DEBUG_LOG("timer", "arrive", timer_id)
-
-		dispatch(timerM_, eid.timer.delay_milliseconds, evpack:delay_milliseconds(module_id, 1000), function(args)
-			millisecond_timer_id = args[1]
-		end)		
-	end
-
-	return ""
 end

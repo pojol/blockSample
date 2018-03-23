@@ -27,13 +27,13 @@ end
 
 module.init = function()
 
-    listen(module_id, eid.network.new_connect, function(args)
+    listen(eid.network.new_connect, function(args)
         INFO_LOG("client", "new connect fd : ", args[1])
 
         dispatch(conn_m_, eid.network.send, evpack:send2(1001, "hello"))
     end)
 
-    listen(module_id, eid.network.recv, function(args)
+    listen(eid.network.recv, function(args)
         _fd = args[1]
 		_msgid = args[2]
 
@@ -44,6 +44,6 @@ module.init = function()
     end)
 
     -- 创建连接器
-    dispatch(conn_m_, eid.network.make_connector, evpack:make_connector(module_id, "127.0.0.1", 8001))
+    dispatch(conn_m_, eid.network.make_connector, evpack:make_connector("127.0.0.1", 8001))
 
 end

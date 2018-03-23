@@ -104,9 +104,9 @@ evpack = {
 
     end,
 
-    delay_milliseconds = function(self, module_id, milliseconds)
+    delay_milliseconds = function(self, tag, milliseconds)
         local pack = Args.new()
-        pack:push_i32(module_id)
+        pack:push_i32(tag)
         pack:push_i32(milliseconds)
         return pack:pop_block(0, pack:get_size())
     end,
@@ -153,17 +153,15 @@ evpack = {
         return pack:pop_block(0, pack:get_size())
     end,
 
-    make_acceptor = function(self, module_id, ip, port)
+    make_acceptor = function(self, ip, port)
         local pack = Args.new()
-        pack:push_i32(module_id)
         pack:push_string(ip)
         pack:push_i32(port)
         return pack:pop_block(0, pack:get_size())
     end,
 
-    make_connector = function(self, module_id, ip, port)
+    make_connector = function(self, ip, port)
         local pack = Args.new()
-        pack:push_i32(module_id)
         pack:push_string(ip)
         pack:push_i32(port)
         return pack:pop_block(0, pack:get_size())

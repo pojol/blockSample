@@ -27,15 +27,15 @@ end
 
 module.init = function()
 
-	listen(module_id, eid.network.new_connect, function(args)
+	listen(eid.network.new_connect, function(args)
 		INFO_LOG("server", "new connect fd : ", args[1])
 	end)
 
-	listen(module_id, eid.network.dis_connect, function(args)
+	listen(eid.network.dis_connect, function(args)
 		INFO_LOG("server", "dis connect fd : ", args[1])
 	end)
 
-	listen(module_id, eid.network.recv, function(args)
+	listen(eid.network.recv, function(args)
 		_fd = args[1]
 		_msgid = args[2]
 
@@ -45,6 +45,6 @@ module.init = function()
 	end)
 
 	-- 创建接收器
-	dispatch(acceptor_m_, eid.network.make_acceptor, evpack:make_acceptor(module_id, "127.0.0.1", 8001))
+	dispatch(acceptor_m_, eid.network.make_acceptor, evpack:make_acceptor("127.0.0.1", 8001))
 
 end

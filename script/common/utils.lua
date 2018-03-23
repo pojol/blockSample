@@ -89,28 +89,18 @@ function deep_copy(object)
     return _copy(object)
 end
 
-function dispatch(target, eventID, buf, callback)
-
-    function _callback(buf, len)
-        _args = evunpack(buf, len)
-        callback(_args)
-    end
-
-    if callback ~= nil then
-        event:ldispatch(module_id, target, eventID, buf, _callback)
-    else
-        event:ldispatch(module_id, target, eventID, buf)
-    end
+function dispatch(target, eventID, buf)
+        event:ldispatch(target, eventID, buf)
 end
 
-function listen(target, eventID, func)
+function listen(eventID, func)
 
     function _callback(buf, len)
         _args = evunpack(buf, len)
         func(_args)
     end
 
-	event:llisten(module_id, target, eventID, _callback)
+	event:llisten(eventID, _callback)
 end
 
 function rpc(event_id, module_id, buf, callback)
@@ -141,7 +131,7 @@ function DEBUG_LOG(module, reason, ...)
     local args = Args.new()
     args:push_ui16(0)
     args:push_string(logContent)
-    event:ldispatch(module_id, logM_, eid.log.print, args:pop_block(0, args:get_size()), nil)
+    event:ldispatch(logM_, eid.log.print, args:pop_block(0, args:get_size()), nil)
 end
 
 -- 诊断日志 --
@@ -180,7 +170,7 @@ function WARN_LOG(module, reason, ...)
     local args = Args.new()
     args:push_ui16(2)
     args:push_string(logContent)
-    event:ldispatch(module_id, logM_, eid.log.print, args:pop_block(0, args:get_size()), nil)
+    event:ldispatch(logM_, eid.log.print, args:pop_block(0, args:get_size()), nil)
 end
 
 function ERR_LOG(module, reason, ...)
@@ -199,7 +189,7 @@ function ERR_LOG(module, reason, ...)
     local args = Args.new()
     args:push_ui16(3)
     args:push_string(logContent)
-    event:ldispatch(module_id, logM_, eid.log.print, args:pop_block(0, args:get_size()), nil)
+    event:ldispatch(logM_, eid.log.print, args:pop_block(0, args:get_size()), nil)
 end
 
 -- 统计日志 --

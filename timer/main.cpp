@@ -16,46 +16,29 @@
 #endif // WIN32
 
 #include <core/application.h>
-#include <core/event.h>
 #include <core/dynamic_module_factory.h>
 
 #include <timer/timer.h>
 
 #include <log/log.h>
-#include <luaProxy/luaProxy.h>
+#include <luaAdapter/luaAdapter.h>
+
 
 class TestCaseLuaModule
-	: public gsf::Module
-	, public gsf::IEvent
+	: public gsf::modules::LuaAdapterModule
 {
 public:
 	TestCaseLuaModule()
-		: Module("TestCaseLuaModule")
+		: gsf::modules::LuaAdapterModule("TestCaseLuaModule")
 	{}
 
 	virtual ~TestCaseLuaModule() {}
 
 	void before_init()
 	{
-		luaproxy_m_ = APP.getModule("LuaProxyModule");
-		assert(luaproxy_m_ != gsf::ModuleNil);
+		dir_ = "C:/github/gsf_sample/script";
+		name_ = "test_timer.lua";
 	}
-
-	void init()
-	{
-		//APP.DEBUG_LOG("testlua", "test", "{}\n{}\n", 33, 44);
-		//APP.RECORD_LOG("market_buy", 1001, 20180224, ",{},{}", 100, 1000);
-
-		dispatch(luaproxy_m_, eid::lua_proxy::create, gsf::makeArgs(getModuleID(), "test_timer.lua"));
-	}
-
-	void shut()
-	{
-		dispatch(luaproxy_m_, eid::lua_proxy::destroy, gsf::makeArgs(getModuleID()));
-	}
-
-private:
-	uint32_t luaproxy_m_ = 0;
 };
 
 
@@ -63,12 +46,10 @@ int main()
 {
 	gsf::Application app;
 	gsf::AppConfig cfg;
-	cfg.scriptPath_ = "C:/github/gsf_sample/script";
 	//cfg.is_watch_pref = true;
 	app.initCfg(cfg);
 
 	APP.createModule(new gsf::modules::LogModule);
-	APP.createModule(new gsf::modules::LuaProxyModule);
 	APP.createModule(new gsf::modules::TimerModule);
 
 	APP.createModule(new TestCaseLuaModule);
