@@ -1,13 +1,10 @@
 # gsf_sample
 
-## timer
-> * 时钟的样例
+|-|-|-|
+|:----:|:----:|:----:|
+|hello_world|hello,world用例|✔
+|timer|时钟用例|✔
+|echo|网络层用例|✔
+|db|模拟数据库相关操作，缓存，灾备|✔
+|entity| 模拟对数据分片，分布式架构|✖
 
-## echo
-> * tcp echo 的样例， c++编写client， lua编写了server。
-
-## distributed
-> * 模拟了如何使用node模块将自身（app进程注册到root ， 如何使用coordinate来进行负载均衡
-
-## db
-> * 模拟了一个entity的创建和更新过程
