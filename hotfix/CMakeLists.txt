@@ -8,6 +8,8 @@ if(WIN32)
 		${GSF_PATH}/3rd/lua-5.3.4/src
 		${GSF_PATH}/3rd/sol2
 		${GSF_PATH}/3rd/fmt
+		${GSF_PATH}/3rd/mysql_connect/include
+		${GSF_PATH}/3rd/redis/deps/hiredis
 	)
 endif()
 if(UNIX)
@@ -62,7 +64,7 @@ if(MSVC)
       endif()
     endforeach()
 
-        TARGET_LINK_LIBRARIES(hotfix ws2_32.lib libevent.lib libevent_core.lib libevent_extras.lib core.lib timer.lib glog.lib log.lib lua53.lib luaAdapter.lib fmt.lib)
+        TARGET_LINK_LIBRARIES(hotfix ws2_32.lib libevent.lib libevent_core.lib libevent_extras.lib core.lib timer.lib glog.lib log.lib lua53.lib luaAdapter.lib fmt.lib libmysql.lib Win32_Interop.lib hiredis.lib dbProxy.lib)
 elseif(UNIX)
 	if ("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 3.1)
 		target_link_libraries(hotfix ${CMAKE_THREAD_LIBS_INIT})
