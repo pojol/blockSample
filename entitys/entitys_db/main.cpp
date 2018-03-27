@@ -7,7 +7,6 @@
 #include <stdint.h>
 
 #include <sys/types.h>
-
 #include <fmt/format.h>
 
 #ifdef WIN32
@@ -18,12 +17,11 @@
 #endif // WIN32
 
 #include <core/application.h>
-#include <core/event.h>
 
 #include <network/acceptor.h>
 #include <network/connector.h>
 
-#include <luaProxy/luaProxy.h>
+#include <luaAdapter/luaAdapter.h>
 #include <dbProxy/mysqlProxy.h>
 #include <distributed/node.h>
 #include <timer/timer.h>
@@ -33,19 +31,17 @@
 #include <stack>
 
 class DBModuleCtl
-	: public gsf::Module
-	, public gsf::IEvent
+	: public gsf::modules::LuaAdapterModule
 {
 public:
 	DBModuleCtl()
-		: Module("DBModuleCtl")
-	{}
-
-	void init() override
+		: gsf::modules::LuaAdapterModule("DBModuleCtl")
 	{
-		auto luaproxy_m_ = APP.getModule("LuaProxyModule");
-		dispatch(luaproxy_m_, eid::lua_proxy::create, gsf::makeArgs(getModuleID(), "entitys/db.lua"));
+		dir_ = "C:/github/gsf_sample/script";
+		name_ = "entitys/db.lua";
 	}
+
+private:
 };
 
 int main()
@@ -65,12 +61,10 @@ int main()
 	gsf::AppConfig cfg;
 	app.initCfg(cfg);
 
-	app.createModule(gsf::EventModule::get_ptr());
 	app.createModule(new gsf::modules::LogModule());
 	app.createModule(new gsf::modules::NodeModule);
 	app.createModule(new gsf::network::AcceptorModule);
 	app.createModule(new gsf::modules::MysqlProxyModule);
-	app.createModule(new gsf::modules::LuaProxyModule);
 	app.createModule(new gsf::modules::TimerModule);
 
 	app.createModule(new DBModuleCtl);

@@ -17,12 +17,11 @@
 #endif // WIN32
 
 #include <core/application.h>
-#include <core/event.h>
 #include <core/dynamic_module_factory.h>
 
 #include <network/acceptor.h>
 #include <network/connector.h>
-#include <luaProxy/luaProxy.h>
+#include <luaAdapter/luaAdapter.h>
 #include <distributed/node.h>
 #include <timer/timer.h>
 
@@ -30,20 +29,19 @@
 
 
 class GameModuleCtl
-	: public gsf::Module
-	, public gsf::IEvent
+	: public gsf::modules::LuaAdapterModule
 {
 public:
 	GameModuleCtl()
-		: Module("GameModuleCtl")
-	{}
-
-	void init() override
+		: gsf::modules::LuaAdapterModule("GameModuleCtl")
 	{
-		auto luaproxy_m_ = APP.getModule("LuaProxyModule");
-		dispatch(luaproxy_m_, eid::lua_proxy::create, gsf::makeArgs(getModuleID(), "entitys/game.lua"));
+		dir_ = "C:/github/gsf_sample/script";
+		name_ = "entitys/game.lua";
 	}
+
+private:
 };
+
 
 int main()
 {
@@ -59,7 +57,6 @@ int main()
 
 	app.createModule(new gsf::modules::LogModule);
 	app.createModule(new gsf::network::AcceptorModule);
-	app.createModule(new gsf::modules::LuaProxyModule);
 	app.createModule(new gsf::modules::NodeModule);
 	app.createModule(new gsf::modules::TimerModule);
 

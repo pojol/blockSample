@@ -17,34 +17,30 @@
 #endif // WIN32
 
 #include <core/application.h>
-#include <core/event.h>
 #include <core/dynamic_module_factory.h>
 
 #include <network/acceptor.h>
 #include <network/connector.h>
 
 #include <log/log.h>
-#include <luaProxy/luaProxy.h>
+#include <luaAdapter/luaAdapter.h>
 #include <distributed/node.h>
 #include <timer/timer.h>
 
 
 class LoginModuleCtl
-	: public gsf::Module
-	, public gsf::IEvent
+	: public gsf::modules::LuaAdapterModule
 {
 public:
 	LoginModuleCtl()
-		: Module("LoginModuleCtl")
-	{}
-
-	void init() override
+		: gsf::modules::LuaAdapterModule("LoginModuleCtl")
 	{
-		auto luaproxy_m_ = APP.getModule("LuaProxyModule");
-		dispatch(luaproxy_m_, eid::lua_proxy::create, gsf::makeArgs(getModuleID(), "entitys/login.lua"));
+		dir_ = "C:/github/gsf_sample/script";
+		name_ = "entitys/login.lua";
 	}
-};
 
+private:
+};
 
 int main()
 {
@@ -62,7 +58,6 @@ int main()
 	app.createModule(new gsf::network::AcceptorModule);
 	app.createModule(new gsf::modules::TimerModule);
 	app.createModule(new gsf::modules::NodeModule);
-	app.createModule(new gsf::modules::LuaProxyModule);
 
 	app.createModule(new LoginModuleCtl);
 

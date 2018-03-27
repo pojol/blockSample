@@ -62,7 +62,7 @@ if(MSVC)
       endif()
     endforeach()
 
-        TARGET_LINK_LIBRARIES(entitys_game libevent.lib libevent_core.lib libevent_extras.lib network.lib core.lib ws2_32.lib libprotobufd.lib glog.lib log.lib distributed.lib lua53.lib luaProxy.lib timer.lib fmt.lib)
+        TARGET_LINK_LIBRARIES(entitys_game libevent.lib libevent_core.lib libevent_extras.lib network.lib core.lib ws2_32.lib libprotobufd.lib glog.lib log.lib distributed.lib lua53.lib LuaAdapter.lib timer.lib fmt.lib)
 endif()
 
 if(UNIX)
