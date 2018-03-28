@@ -24,6 +24,7 @@
 #include <luaAdapter/luaAdapter.h>
 #include <dbProxy/mysqlProxy.h>
 
+
 class TestCaseLuaModule
 	: public gsf::modules::LuaAdapterModule
 {

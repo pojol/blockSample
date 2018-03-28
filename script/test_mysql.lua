@@ -8,6 +8,7 @@ module = {
 
 logM_ = 0
 mysqlM_ = 0
+local protobuf_
 
 module.before_init = function(dir)
 	local package_path = {}
@@ -15,6 +16,7 @@ module.before_init = function(dir)
 	package.path = table.concat(package_path, ';')
 
 	require "utils"
+	protobuf_ = require "protobuf"
 
 	logM_ = APP:getModule("LogModule")
 	INFO_LOG("mysql", "log : " .. logM_)
@@ -44,6 +46,7 @@ sqloper = {
 	insert = 2,
 	load = 3,
 }
+
 
 module.init = function()
 
