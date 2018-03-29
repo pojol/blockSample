@@ -22,8 +22,8 @@
 
 #include <log/log.h>
 #include <luaAdapter/luaAdapter.h>
-#include <dbProxy/mysqlProxy.h>
 
+#include "DBEntity.hpp"
 
 class TestCaseLuaModule
 	: public gsf::modules::LuaAdapterModule
@@ -55,9 +55,10 @@ int main()
 
 	APP.createModule(new gsf::modules::LogModule);
 	APP.createModule(new gsf::modules::TimerModule);
-	APP.createModule(new gsf::modules::MysqlProxyModule);
+
 
 	APP.createModule(new TestCaseLuaModule);
+	APP.createModule(new DBEntityModule);
 
 	app.run();
 

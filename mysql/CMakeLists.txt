@@ -10,6 +10,7 @@ if(WIN32)
 		${GSF_PATH}/3rd/fmt
 		${GSF_PATH}/3rd/mysql_connect/include
 		${GSF_PATH}/3rd/redis/deps/hiredis
+		${GSF_PATH}/3rd/protobuf-3.2.0/src
 	)
 endif()
 if(UNIX)
@@ -48,7 +49,7 @@ endif()
 if(APPLE)
 endif()
 
-FILE(GLOB_RECURSE SRC "*.cpp" "*.h")
+FILE(GLOB_RECURSE SRC "*.cpp" "*.h" "*.cc" "*.hpp")
 ADD_EXECUTABLE(test_mysql ${SRC})
 
 if(MSVC)
@@ -64,7 +65,7 @@ if(MSVC)
       endif()
     endforeach()
 
-        TARGET_LINK_LIBRARIES(test_mysql ws2_32.lib libevent.lib libevent_core.lib libevent_extras.lib core.lib timer.lib glog.lib log.lib lua53.lib pbc.lib luaAdapter.lib fmt.lib libmysql.lib Win32_Interop.lib hiredis.lib dbProxy.lib)
+        TARGET_LINK_LIBRARIES(test_mysql ws2_32.lib libevent.lib libevent_core.lib libevent_extras.lib core.lib timer.lib glog.lib log.lib lua53.lib pbc.lib luaAdapter.lib fmt.lib libmysql.lib Win32_Interop.lib hiredis.lib dbProxy.lib libprotocd.lib libprotobufd.lib)
 elseif(UNIX)
 	if ("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 3.1)
 		target_link_libraries(test_mysql ${CMAKE_THREAD_LIBS_INIT})

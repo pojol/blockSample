@@ -27,43 +27,21 @@ evpack = {
         return pack:pop_block(0, pack:get_size())
     end,
 
-    dbQuery = function(self, oper, sql)
+    dbQuery = function(self, sql)
         local pack = Args.new()
-        pack:push_i32(oper)
         pack:push_string(sql)
         return pack:pop_block(0, pack:get_size())
     end,
 
-    dbLoad = function(self, oper, entity, id)
+    dbLoad = function(self, id)
         local pack = Args.new()
-        pack:push_i32(oper)
-        pack:push_string(entity)
         pack:push_i32(id)
         return pack:pop_block(0, pack:get_size())
     end,
 
-    dbInsert = function(self, oper, tableName, property)
+    dbInsert = function(self, buf)
         local pack = Args.new()
-        pack:push_i32(oper)
-        pack:push_string(tableName)
-
-        -- 后面通过描述文件生成
-        for i = 1, #property, 2 do
-            pack:push_string(property[i])
-
-            if property[i] == "id" then
-                pack:push_i32(property[i + 1])
-            elseif property[i] == "name" then
-                pack:push_string(property[i + 1])
-            elseif property[i] == "hp" then
-                pack:push_i32(property[i + 1])
-            elseif property[i] == "lv" then
-                pack:push_i32(property[i + 1])
-            elseif property[i] == "loginTime" then
-                pack:push_i32(property[i + 1])
-            end
-        end
-
+        pack:push_block(buf, #buf)
         return pack:pop_block(0, pack:get_size())
     end,
 
