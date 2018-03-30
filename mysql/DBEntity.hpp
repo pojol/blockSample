@@ -138,15 +138,10 @@ private:
 
 		mysqlPtr_->execSql(target, eid::dbProxy::load, "select * from Entity where id = '1';", [&](gsf::ModuleID _target, gsf::ArgsPtr args) {
 			auto _callbackPtr = new CallbackInfo();
-			int len = args->get_size() - (sizeof(int) + sizeof(bool) + sizeof(int32_t) + sizeof(int) + sizeof(int32_t) + 5);
-			auto _str = args->pop_block(args->get_size() - len, args->get_size());
-			test::Avatar _avatar;
-			_avatar.ParseFromString(_str);
-
-			std::cout << "" << std::endl;
-			//_callbackPtr->args_ = std::move(args);
-			//_callbackPtr->target_ = _target;
-			//queue_.push(_callbackPtr);
+			
+			_callbackPtr->args_ = std::move(args);
+			_callbackPtr->target_ = _target;
+			queue_.push(_callbackPtr);
 		});
 	}
 
@@ -155,7 +150,7 @@ private:
 	**/
 	void eInsert(gsf::ModuleID target, gsf::ArgsPtr args)
 	{
-		auto _buf = args->pop_block(0, args->get_size());
+		auto _buf = args->exportBuf();
 
 		//test::Avatar _avatar;
 		//_avatar.ParseFromArray(_buf.c_str(), args->get_size());
@@ -164,7 +159,7 @@ private:
 
 		}
 		else {
-			mysqlPtr_->execute("insert into Entity values(?, ?);", _buf.c_str(), args->get_size());
+			mysqlPtr_->insert("insert into Entity values(?, ?);", _buf.c_str(), args->get_size());
 		}
 	}
 
@@ -173,7 +168,15 @@ private:
 	**/
 	void eUpdate(gsf::ModuleID target, gsf::ArgsPtr args)
 	{
+		auto _id = args->pop_i32();
+		auto _buf = args->pop_string();
 
+		if (useCache_) {
+
+		}
+		else {
+			mysqlPtr_->update("update Entity set dat = ? where id = " + std::to_string(_id) + ";", _buf.c_str(), _buf.length());
+		}
 	}
 
 	/*!

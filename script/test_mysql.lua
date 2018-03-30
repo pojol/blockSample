@@ -67,17 +67,31 @@ module.init = function()
 		elseif args[1] == eid.dbProxy.insert then
 			DEBUG_LOG("mysql", "insert callback", args)
 		elseif args[1] == eid.dbProxy.load then
-			DEBUG_LOG("mysql", "load callback", args)
+
+			_avatar = protobuf_.decode("test.Avatar", args[6])
+			DEBUG_LOG("mysql", "load", "oper->", args[1]
+				, "succ->", args[2]
+				, "total->", args[3]
+				, "progress->", args[4]
+				, "id->", args[5]
+				, "entity->", _avatar)
 		end
 	end)
 	
 	--dispatch(dbEntityM_, eid.dbProxy.execSql, evpack:dbQuery(_createEntity))
 	--dispatch(dbEntityM_, eid.dbProxy.execSql, evpack:dbQuery(_createLog))
 	
+	-- insert
 	--_buf = protobuf_.encode("test.Avatar", entity.property)
 	--dispatch(dbEntityM_, eid.dbProxy.insert, evpack:dbInsert(_buf))
 
+	-- load
 	dispatch(dbEntityM_, eid.dbProxy.load, evpack:dbLoad(1))
+
+	-- update
+	--entity.property.name = "hello"
+	--_buf = protobuf_.encode("test.Avatar", entity.property)
+	--dispatch(dbEntityM_, eid.dbProxy.update, evpack:dbUpdate(1, _buf))
 end
 
 module.execute = function()

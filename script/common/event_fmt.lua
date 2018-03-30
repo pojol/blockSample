@@ -24,25 +24,32 @@ evpack = {
         local pack = Args.new()
         pack:push_string(module_name)
         pack:push_i32(module_fature)
-        return pack:pop_block(0, pack:get_size())
+        return pack:exportBuf()
     end,
 
     dbQuery = function(self, sql)
         local pack = Args.new()
         pack:push_string(sql)
-        return pack:pop_block(0, pack:get_size())
+        return pack:exportBuf()
     end,
 
     dbLoad = function(self, id)
         local pack = Args.new()
         pack:push_i32(id)
-        return pack:pop_block(0, pack:get_size())
+        return pack:exportBuf()
     end,
 
     dbInsert = function(self, buf)
         local pack = Args.new()
         pack:push_block(buf, #buf)
-        return pack:pop_block(0, pack:get_size())
+        return pack:exportBuf()
+    end,
+
+    dbUpdate = function(self, id, buf)
+        local pack = Args.new()
+        pack:push_i32(id)
+        pack:push_string(buf)
+        return pack:exportBuf()
     end,
 
     mysql_connect = function(self, host, user, password, db, port)
@@ -53,7 +60,7 @@ evpack = {
         pack:push_string(db)
         pack:push_i32(port)
         pack:push_bool(false)
-        return pack:pop_block(0, pack:get_size())
+        return pack:exportBuf()
     end,
 
     entity_update = function(self, table, entity_id, arr)
@@ -79,7 +86,7 @@ evpack = {
             end
         end
 
-        return pack:pop_block(0, pack:get_size())
+        return pack:exportBuf()
 
     end,
 
@@ -87,7 +94,7 @@ evpack = {
         local pack = Args.new()
         pack:push_i32(tag)
         pack:push_i32(milliseconds)
-        return pack:pop_block(0, pack:get_size())
+        return pack:exportBuf()
     end,
 
     node_regist = function(self, module_id, reg_event, ip, port)
@@ -96,7 +103,7 @@ evpack = {
         pack:push_i32(reg_event)
         pack:push_string(ip)
         pack:push_i32(port)
-        return pack:pop_block(0, pack:get_size())
+        return pack:exportBuf()
     end,
 
     node_create = function(self, node_id, node_type, module_id, ip, port, rootIp, rootPort, modules)
@@ -120,7 +127,7 @@ evpack = {
             pack:push_i32(mNode[3])
         end
 
-        return pack:pop_block(0, pack:get_size())
+        return pack:exportBuf()
 
     end,
 
@@ -129,21 +136,21 @@ evpack = {
         pack:push_string(ip)
         pack:push_i32(port)
         pack:push_i32(node_id)
-        return pack:pop_block(0, pack:get_size())
+        return pack:exportBuf()
     end,
 
     make_acceptor = function(self, ip, port)
         local pack = Args.new()
         pack:push_string(ip)
         pack:push_i32(port)
-        return pack:pop_block(0, pack:get_size())
+        return pack:exportBuf()
     end,
 
     make_connector = function(self, ip, port)
         local pack = Args.new()
         pack:push_string(ip)
         pack:push_i32(port)
-        return pack:pop_block(0, pack:get_size())
+        return pack:exportBuf()
     end,
 
     send = function(self, fd, msg_id, buf)
@@ -151,20 +158,20 @@ evpack = {
         pack:push_ui16(fd)
         pack:push_i32(msg_id)
         pack:push_string(buf)
-        return pack:pop_block(0, pack:get_size())
+        return pack:exportBuf()
     end,
 
     send2 = function(self, msg_id, buf)
         local pack = Args.new()
         pack:push_i32(msg_id)
         pack:push_string(buf)
-        return pack:pop_block(0, pack:get_size())
+        return pack:exportBuf()
     end,
 
     kick_connect = function(self, fd)
         local pack = Args.new()
         pack:push_ui16(fd)
-        return pack:pop_block(0, pack:get_size())
+        return pack:exportBuf()
     end
 }
 
