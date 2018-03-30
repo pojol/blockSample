@@ -41,7 +41,7 @@ evpack = {
 
     dbInsert = function(self, buf)
         local pack = Args.new()
-        pack:push_block(buf, #buf)
+        pack:push_string(buf)
         return pack:exportBuf()
     end,
 
@@ -61,33 +61,6 @@ evpack = {
         pack:push_i32(port)
         pack:push_bool(false)
         return pack:exportBuf()
-    end,
-
-    entity_update = function(self, table, entity_id, arr)
-        
-        local pack = Args.new()
-        pack:push_string(table)
-        pack:push_i32(entity_id)
-
-        for i = 1, #arr, 2 do
-
-            pack:push_string(arr[i])
-
-            if arr[i] == "id" then
-                pack:push_i32(arr[i + 1])
-            elseif arr[i] == "name" then
-                pack:push_string(arr[i + 1])
-            elseif arr[i] == "hp" then
-                pack:push_i32(arr[i + 1])
-            elseif arr[i] == "lv" then
-                pack:push_i32(arr[i + 1])
-            elseif arr[i] == "loginTime" then
-                pack:push_i32(arr[i + 1])
-            end
-        end
-
-        return pack:exportBuf()
-
     end,
 
     delay_milliseconds = function(self, tag, milliseconds)
