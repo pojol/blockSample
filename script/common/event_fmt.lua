@@ -52,14 +52,14 @@ evpack = {
         return pack:exportBuf()
     end,
 
-    mysql_connect = function(self, host, user, password, db, port)
+    mysql_connect = function(self, host, user, password, db, port, useCache)
         local pack = Args.new()
         pack:push_string(host)
         pack:push_string(user)
         pack:push_string(password)
         pack:push_string(db)
         pack:push_i32(port)
-        pack:push_bool(false)
+        pack:push_bool(useCache)
         return pack:exportBuf()
     end,
 

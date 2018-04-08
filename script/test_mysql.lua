@@ -119,7 +119,6 @@ function cacheTest()
 				DEBUG_LOG("mysql", "insert", entity.property)
 			end
 
-
 		elseif args[1] == eid.dbProxy.insert then
 			-- 打印 entity id
 		end
@@ -127,7 +126,7 @@ function cacheTest()
 	end)
 
 	-- 连接mysql
-	dispatch(dbEntityM_, eid.dbProxy.connect, evpack:mysql_connect(mysql_ip, mysql_usr, mysql_pwd, mysql_name, mysql_port))
+	dispatch(dbEntityM_, eid.dbProxy.connect, evpack:mysql_connect(mysql_ip, mysql_usr, mysql_pwd, mysql_name, mysql_port, true))
 
 	-- 建立entity table
 	_createEntity = string.format("create table if not exists Entity(%s%s) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;"

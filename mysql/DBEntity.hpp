@@ -92,6 +92,9 @@ protected:
 	void shut() override
 	{
 		mailboxPtr_->pull();
+
+		//! 清空redis
+		redisPtr_->flush_redis_handler();
 	}
 
 private:
@@ -118,7 +121,7 @@ private:
 				return;
 			}
 
-			redisPtr_ = std::make_shared<gsf::modules::RedisConnect>();
+			redisPtr_ = std::make_shared<gsf::modules::RedisConnect<test::Avatar>>();
 			redisPtr_->init();
 
 
@@ -148,14 +151,11 @@ private:
 				if (_succ) {
 					_targs->pop_i32();
 					_targs->pop_i32();
-					_targs->pop_i32();
+					auto _id = _targs->pop_i32();
 					auto _buf = _targs->pop_string();
 
-					test::Avatar _avatar;
-					_avatar.ParseFromArray(_buf.c_str(), args->get_size());
-
 					//...
-
+					redisPtr_->push("entity", std::to_string(_id), _buf);
 				}
 			}
 
@@ -176,12 +176,16 @@ private:
 		//test::Avatar _avatar;
 		//_avatar.ParseFromArray(_buf.c_str(), args->get_size());
 
-		if (useCache_) {
+		if (mysqlPtr_->insert("insert into Entity values(?, ?);", _buf.c_str(), args->get_size())) {
+			
+			mysqlPtr_->execSql(target, eid::dbProxy::insert, "select last_insert_id()", [&](gsf::ModuleID _target, gsf::ArgsPtr args) {
+				auto _callbackPtr = new CallbackInfo();
+				_callbackPtr->args_ = std::move(args);
+				_callbackPtr->target_ = _target;
+				queue_.push(_callbackPtr);
+			});
+		}
 
-		}
-		else {
-			mysqlPtr_->insert("insert into Entity values(?, ?);", _buf.c_str(), args->get_size());
-		}
 	}
 
 	/*!
@@ -227,19 +231,24 @@ private:
 
 		if (_tag == TimerType::tt_command) {
 
-			redisPtr_->execCommand();
+			redisPtr_->exec();
 			mailboxPtr_->dispatch(timerM_, eid::timer::delay_milliseconds, gsf::makeArgs(TimerType::tt_command, execDelay_));
 		}
 		else if (_tag == TimerType::tt_rewrite) {
 
-			redisPtr_->execRewrite();
+			auto _buf = redisPtr_->pop("entity");
+			if (_buf != "") {
+				//eUpdate(0, gsf::makeArgs(_org.id(), _buf));
+			}
+
+			redisPtr_->refresh();
 			mailboxPtr_->dispatch(timerM_, eid::timer::delay_milliseconds, gsf::makeArgs(TimerType::tt_rewrite, rewriteDelay_));
 		}
 	}
 
 private:
 
-	bool useCache_ = true;
+	bool useCache_ = false;
 
 	enum TimerType {
 		tt_rewrite,
@@ -251,7 +260,7 @@ private:
 
 	gsf::ModuleID timerM_ = gsf::ModuleNil;
 
-	gsf::modules::RedisPtr redisPtr_ = nullptr;
+	std::shared_ptr<gsf::modules::RedisConnect<test::Avatar>> redisPtr_ = nullptr;
 
 	struct CallbackInfo
 	{
