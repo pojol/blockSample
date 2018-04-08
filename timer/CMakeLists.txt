@@ -3,27 +3,27 @@ PROJECT(test_timer)
 #引用头文件目录
 if(WIN32)
 	INCLUDE_DIRECTORIES(
-		${GSF_PATH}/
-		${GSF_PATH}/modules
-		${GSF_PATH}/3rd/lua-5.3.4/src
-		${GSF_PATH}/3rd/sol2
-		${GSF_PATH}/3rd/fmt
+		${BLOCK_PATH}/
+		${BLOCK_PATH}/modules
+		${BLOCK_PATH}/3rd/lua-5.3.4/src
+		${BLOCK_PATH}/3rd/sol2
+		${BLOCK_PATH}/3rd/fmt
 	)
 endif()
 if(UNIX)
 	INCLUDE_DIRECTORIES(
-		${GSF_PATH}/
-		${GSF_PATH}/modules
-		${GSF_PATH}/lib/glog/include
-		${GSF_PATH}/lib/lua
-		${GSF_PATH}/3rd/sol2
-		${GSF_PATH}/lib/fmt/include
+		${BLOCK_PATH}/
+		${BLOCK_PATH}/modules
+		${BLOCK_PATH}/lib/glog/include
+		${BLOCK_PATH}/lib/lua
+		${BLOCK_PATH}/3rd/sol2
+		${BLOCK_PATH}/lib/fmt/include
 	)
 endif()
 if(APPLE)
 	INCLUDE_DIRECTORIES(
-		${GSF_PATH}/
-		${GSF_PATH}/modules
+		${BLOCK_PATH}/
+		${BLOCK_PATH}/modules
     )
 endif()
 
@@ -31,16 +31,16 @@ endif()
 #引用库目录
 if(WIN32)
 	LINK_DIRECTORIES(
-	${GSF_PATH}/lib/win/Debug
+	${BLOCK_PATH}/lib/win/Debug
 	)
 endif()
 if(UNIX)
 	find_package(Threads)
 	LINK_DIRECTORIES(
-		${GSF_PATH}/lib
-		${GSF_PATH}/lib/lua
-		${GSF_PATH}/lib/glog/lib
-		${GSF_PATH}/lib/fmt/lib
+		${BLOCK_PATH}/lib
+		${BLOCK_PATH}/lib/lua
+		${BLOCK_PATH}/lib/glog/lib
+		${BLOCK_PATH}/lib/fmt/lib
 	)
 endif()
 if(APPLE)

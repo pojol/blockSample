@@ -1,2 +1,2 @@
-protoc -I=C:/github/gsf_sample/depend/proto --cpp_out=C:/github/gsf_sample/depend/proto/c++ C:/github/gsf_sample/depend/proto/Avatar.proto
-protoc -I=C:/github/gsf_sample/depend/proto --descriptor_set_out C:/github/gsf_sample/depend/proto/lua/Avatar.pb C:/github/gsf_sample/depend/proto/Avatar.proto
+protoc -I=C:/github/blockSample/depend/proto --cpp_out=C:/github/blockSample/depend/proto/c++ C:/github/blockSample/depend/proto/Avatar.proto
+protoc -I=C:/github/blockSample/depend/proto --descriptor_set_out C:/github/blockSample/depend/proto/lua/Avatar.pb C:/github/blockSample/depend/proto/Avatar.proto

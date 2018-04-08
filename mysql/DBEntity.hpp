@@ -137,8 +137,29 @@ private:
 		auto _id = args->pop_i32();
 
 		mysqlPtr_->execSql(target, eid::dbProxy::load, "select * from Entity where id = '1';", [&](gsf::ModuleID _target, gsf::ArgsPtr args) {
-			auto _callbackPtr = new CallbackInfo();
 			
+			if (useCache_) {
+
+				auto _targs = gsf::ArgsPool::get_ref().get();
+				_targs->importBuf(args->exportBuf());
+
+				_targs->pop_i32();
+				auto _succ = _targs->pop_bool();
+				if (_succ) {
+					_targs->pop_i32();
+					_targs->pop_i32();
+					_targs->pop_i32();
+					auto _buf = _targs->pop_string();
+
+					test::Avatar _avatar;
+					_avatar.ParseFromArray(_buf.c_str(), args->get_size());
+
+					//...
+
+				}
+			}
+
+			auto _callbackPtr = new CallbackInfo();
 			_callbackPtr->args_ = std::move(args);
 			_callbackPtr->target_ = _target;
 			queue_.push(_callbackPtr);
@@ -218,7 +239,7 @@ private:
 
 private:
 
-	bool useCache_ = false;
+	bool useCache_ = true;
 
 	enum TimerType {
 		tt_rewrite,
