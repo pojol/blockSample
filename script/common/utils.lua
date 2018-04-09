@@ -95,8 +95,8 @@ end
 
 function listen(eventID, func)
 
-    function _callback(buf, len)
-        _args = evunpack(buf, len)
+    function _callback(buf)
+        _args = evunpack(buf)
         func(_args)
     end
 

@@ -149,8 +149,9 @@ evpack = {
 }
 
 
-function evunpack(buf, len)
-    unpack = Args.new(buf, len)
+function evunpack(buf)
+    unpack = Args.new()
+    unpack:importBuf(buf)
 
     _args = {}
     _idx = 1

@@ -76,6 +76,10 @@ protected:
 	{
 		mailboxPtr_->pull();
 
+		if (useCache_) {
+			redisPtr_->run();
+		}
+
 		while (!queue_.empty())
 		{
 			auto _callback = queue_.front();
@@ -127,7 +131,6 @@ private:
 
 			mailboxPtr_->listen(eid::timer::timer_arrive, std::bind(&DBEntityModule::onTimer, this, std::placeholders::_1, std::placeholders::_2));
 
-			mailboxPtr_->dispatch(timerM_, eid::timer::delay_milliseconds, gsf::makeArgs(TimerType::tt_command, execDelay_));
 			mailboxPtr_->dispatch(timerM_, eid::timer::delay_milliseconds, gsf::makeArgs(TimerType::tt_rewrite, rewriteDelay_));
 		}
 	}
@@ -139,10 +142,28 @@ private:
 	{
 		auto _id = args->pop_i32();
 
-		mysqlPtr_->execSql(target, eid::dbProxy::load, "select * from Entity where id = '1';", [&](gsf::ModuleID _target, gsf::ArgsPtr args) {
-			
-			if (useCache_) {
+		if (useCache_) {
 
+			//! 先尝试从缓存中读取
+			std::string _buf = redisPtr_->get("entity", _id);
+			if (_buf != "") {
+
+				std::cout << _buf.c_str() << std::endl;
+
+				auto _callbackPtr = new CallbackInfo();
+				_callbackPtr->args_ = gsf::makeArgs(int(eid::dbProxy::load), true, 1, 1, _id, _buf);
+				_callbackPtr->target_ = target;
+				queue_.push(_callbackPtr);
+
+				return;
+			}
+		}
+
+		std::string _sql = "select * from Entity where id = '" + std::to_string(_id) + "';";
+
+		mysqlPtr_->execSql(target, eid::dbProxy::load, _sql, [&](gsf::ModuleID _target, gsf::ArgsPtr args) {
+
+			if (useCache_) {
 				auto _targs = gsf::ArgsPool::get_ref().get();
 				_targs->importBuf(args->exportBuf());
 
@@ -155,7 +176,7 @@ private:
 					auto _buf = _targs->pop_string();
 
 					//...
-					redisPtr_->push("entity", std::to_string(_id), _buf);
+					redisPtr_->push("entity", _id, _buf);
 				}
 			}
 
@@ -171,12 +192,8 @@ private:
 	**/
 	void eInsert(gsf::ModuleID target, gsf::ArgsPtr args)
 	{
-		auto _buf = args->exportBuf();
-
-		//test::Avatar _avatar;
-		//_avatar.ParseFromArray(_buf.c_str(), args->get_size());
-
-		if (mysqlPtr_->insert("insert into Entity values(?, ?);", _buf.c_str(), args->get_size())) {
+		auto _buf = args->pop_string();
+		if (mysqlPtr_->insert("insert into Entity values(?, ?);", _buf.c_str(), _buf.length())) {
 			
 			mysqlPtr_->execSql(target, eid::dbProxy::insert, "select last_insert_id()", [&](gsf::ModuleID _target, gsf::ArgsPtr args) {
 				auto _callbackPtr = new CallbackInfo();
@@ -197,11 +214,16 @@ private:
 		auto _buf = args->pop_string();
 
 		if (useCache_) {
-
+			redisPtr_->push("entity", _id, _buf);
 		}
 		else {
-			mysqlPtr_->update("update Entity set dat = ? where id = " + std::to_string(_id) + ";", _buf.c_str(), _buf.length());
+			update(std::to_string(_id), _buf);
 		}
+	}
+
+	void update(const std::string &id, const std::string &buf)
+	{
+		mysqlPtr_->update("update Entity set dat = ? where id = '" + id + "';", buf.c_str(), buf.length());
 	}
 
 	/*!
@@ -229,19 +251,16 @@ private:
 	{
 		int32_t _tag = args->pop_i32();
 
-		if (_tag == TimerType::tt_command) {
+		if (_tag == TimerType::tt_rewrite) {
 
-			redisPtr_->exec();
-			mailboxPtr_->dispatch(timerM_, eid::timer::delay_milliseconds, gsf::makeArgs(TimerType::tt_command, execDelay_));
-		}
-		else if (_tag == TimerType::tt_rewrite) {
-
-			auto _buf = redisPtr_->pop("entity");
-			if (_buf != "") {
-				//eUpdate(0, gsf::makeArgs(_org.id(), _buf));
+			auto _vec = redisPtr_->getAll();
+			for each(auto kv in _vec)
+			{
+				if (kv.first != 0) {
+					update(std::to_string(kv.first), kv.second);
+				}
 			}
 
-			redisPtr_->refresh();
 			mailboxPtr_->dispatch(timerM_, eid::timer::delay_milliseconds, gsf::makeArgs(TimerType::tt_rewrite, rewriteDelay_));
 		}
 	}
@@ -255,8 +274,7 @@ private:
 		tt_command,
 	};
 
-	const int32_t rewriteDelay_ = 1000 * 60 * 10;
-	const int32_t execDelay_ = 1000;
+	const int32_t rewriteDelay_ = 1000 * 60 * 1;
 
 	gsf::ModuleID timerM_ = gsf::ModuleNil;
 

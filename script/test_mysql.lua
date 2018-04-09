@@ -49,7 +49,7 @@ local entity = {
 
 function noCacheTest()
 
-	dispatch(dbEntityM_, eid.dbProxy.connect, evpack:mysql_connect(mysql_ip, mysql_usr, mysql_pwd, mysql_name, mysql_port))
+	dispatch(dbEntityM_, eid.dbProxy.connect, evpack:mysql_connect(mysql_ip, mysql_usr, mysql_pwd, mysql_name, mysql_port, true))
 
 	_createEntity = string.format("create table if not exists Entity(%s%s) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;"
 		,"id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,"
@@ -64,17 +64,16 @@ function noCacheTest()
 	listen(eid.dbProxy.callback, function(args)
 		if args[1] == eid.dbProxy.execSql then
 			DEBUG_LOG("mysql", "query callback", args)
+		
 		elseif args[1] == eid.dbProxy.insert then
 			DEBUG_LOG("mysql", "insert callback", args)
-		elseif args[1] == eid.dbProxy.load then
 
+		
+		elseif args[1] == eid.dbProxy.load then
+			DEBUG_LOG("mysql", "load", "entity->", args)
+			
 			_avatar = protobuf_.decode("test.Avatar", args[6])
-			DEBUG_LOG("mysql", "load", "oper->", args[1]
-				, "succ->", args[2]
-				, "total->", args[3]
-				, "progress->", args[4]
-				, "id->", args[5]
-				, "entity->", _avatar)
+			DEBUG_LOG("mysql", "load", "entity->", _avatar)
 		end
 	end)
 	
@@ -86,7 +85,7 @@ function noCacheTest()
 	--dispatch(dbEntityM_, eid.dbProxy.insert, evpack:dbInsert(_buf))
 
 	-- load
-	dispatch(dbEntityM_, eid.dbProxy.load, evpack:dbLoad(1))
+	dispatch(dbEntityM_, eid.dbProxy.load, evpack:dbLoad(39))
 
 	-- update
 	--entity.property.name = "hello"
@@ -100,27 +99,32 @@ function cacheTest()
 	listen(eid.dbProxy.callback, function(args)
 		
 		if args[1] == eid.dbProxy.load then
-			
+
 			if args[2] == true then -- 打印这个entity, 并更新一下				
 				_avatar = protobuf_.decode("test.Avatar", args[6])
-				DEBUG_LOG("mysql", "load", "oper->", args[1]
-					, "succ->", args[2]
-					, "total->", args[3]
-					, "progress->", args[4]
-					, "id->", args[5]
-					, "entity->", _avatar)
+				DEBUG_LOG("mysql", "load", "entity->", _avatar)
 
-				
+				entity.property = _avatar
+				entity.property.id = args[5]
+				entity.property.name = "name"
+				-- update
+				_buf = protobuf_.encode("test.Avatar", entity.property)
+				dispatch(dbEntityM_, eid.dbProxy.update, evpack:dbUpdate(args[5], _buf))
+
 			else -- 如果空则insert一个entity
 				-- insert
 				_buf = protobuf_.encode("test.Avatar", entity.property)
 				dispatch(dbEntityM_, eid.dbProxy.insert, evpack:dbInsert(_buf))
-
-				DEBUG_LOG("mysql", "insert", entity.property)
 			end
 
 		elseif args[1] == eid.dbProxy.insert then
 			-- 打印 entity id
+			if args[2] == true then
+			
+				DEBUG_LOG("mysql", "insert", "id->", args[5])
+				-- 加载刚刚创建的那个entity
+				dispatch(dbEntityM_, eid.dbProxy.load, evpack:dbLoad(args[5]))
+			end
 		end
 	
 	end)
@@ -142,9 +146,9 @@ end
 
 module.init = function()
 
-	--noCacheTest()
+	noCacheTest()
 
-	cacheTest()
+	--cacheTest()
 
 end
 
