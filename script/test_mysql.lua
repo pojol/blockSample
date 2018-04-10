@@ -71,7 +71,7 @@ function noCacheTest()
 		
 		elseif args[1] == eid.dbProxy.load then
 			DEBUG_LOG("mysql", "load", "entity->", args)
-			
+
 			_avatar = protobuf_.decode("test.Avatar", args[6])
 			DEBUG_LOG("mysql", "load", "entity->", _avatar)
 		end
@@ -85,7 +85,7 @@ function noCacheTest()
 	--dispatch(dbEntityM_, eid.dbProxy.insert, evpack:dbInsert(_buf))
 
 	-- load
-	dispatch(dbEntityM_, eid.dbProxy.load, evpack:dbLoad(39))
+	dispatch(dbEntityM_, eid.dbProxy.load, evpack:dbLoad(44))
 
 	-- update
 	--entity.property.name = "hello"
@@ -148,7 +148,7 @@ module.init = function()
 
 	noCacheTest()
 
-	--cacheTest()
+	-- cacheTest()
 
 end
 

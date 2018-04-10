@@ -148,7 +148,7 @@ private:
 			std::string _buf = redisPtr_->get("entity", _id);
 			if (_buf != "") {
 
-				std::cout << _buf.c_str() << std::endl;
+				std::cout << "----redis cache " << _buf << std::endl;
 
 				auto _callbackPtr = new CallbackInfo();
 				_callbackPtr->args_ = gsf::makeArgs(int(eid::dbProxy::load), true, 1, 1, _id, _buf);
