@@ -8,7 +8,9 @@ if(WIN32)
 		${BLOCK_PATH}/3rd/lua-5.3.4/src
 		${BLOCK_PATH}/3rd/sol2
 		${BLOCK_PATH}/3rd/fmt
+		${BLOCK_PATH}/3rd/glog/src
 	)
+	Add_Definitions("-DGLOG_NO_ABBREVIATED_SEVERITIES")
 endif()
 if(UNIX)
 	INCLUDE_DIRECTORIES(

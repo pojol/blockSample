@@ -18,25 +18,22 @@
 #include <core/application.h>
 #include <core/dynamic_module_factory.h>
 
-#include <timer/timer.h>
-
-#include <log/log.h>
 #include <luaAdapter/luaAdapter.h>
 
 
 class TestCaseLuaModule
-	: public gsf::modules::LuaAdapterModule
+	: public block::modules::LuaAdapterModule
 {
 public:
 	TestCaseLuaModule()
-		: gsf::modules::LuaAdapterModule("TestCaseLuaModule")
+		: block::modules::LuaAdapterModule("TestCaseLuaModule")
 	{}
 
 	virtual ~TestCaseLuaModule() {}
 
 	void before_init()
 	{
-		dir_ = "C:/github/gsf_sample/script";
+		dir_ = "C:/github/blockSample/script";
 		name_ = "test_timer.lua";
 	}
 };
@@ -44,13 +41,10 @@ public:
 
 int main()
 {
-	gsf::Application app;
-	gsf::AppConfig cfg;
+	block::Application app;
+	block::AppConfig cfg;
 	//cfg.is_watch_pref = true;
 	app.initCfg(cfg);
-
-	APP.createModule(new gsf::modules::LogModule);
-	APP.createModule(new gsf::modules::TimerModule);
 
 	APP.createModule(new TestCaseLuaModule);
 

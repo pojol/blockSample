@@ -16,18 +16,16 @@
 
 #include <core/application.h>
 #include <luaAdapter/luaAdapter.h>
-#include <log/log.h>
-#include <timer/timer.h>
 
 
 class TestLuaModule
-	: public gsf::modules::LuaAdapterModule
+	: public block::modules::LuaAdapterModule
 {
 public:
 	TestLuaModule()
-		: gsf::modules::LuaAdapterModule("TestLuaModule")
+		: block::modules::LuaAdapterModule("TestLuaModule")
 	{
-		dir_ = "C:/github/gsf_sample/script";
+		dir_ = "C:/github/blockSample/script";
 		name_ = "hello_world.lua";
 	}
 
@@ -36,12 +34,9 @@ private:
 
 int main()
 {
-	gsf::Application app;
-	gsf::AppConfig cfg;
+	block::Application app;
+	block::AppConfig cfg;
 	app.initCfg(cfg);
-
-	APP.createModule(new gsf::modules::LogModule);
-	APP.createModule(new gsf::modules::TimerModule);
 
 	APP.createModule(new TestLuaModule);
 

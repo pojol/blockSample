@@ -13,14 +13,12 @@ module.before_init = function(dir)
 	table.insert(package_path, dir .. "/common/?.lua")
 	package.path = table.concat(package_path, ';')
 
-	require "utils"
+	--require "utils"
 
-	logM_ = APP:getModule("LogModule")
-	INFO_LOG("test", "log : " .. logM_)
 end
 
 module.init = function()
-	INFO_LOG("test", "hello, gsf!")
+	self:logInfo("hello, block!")
 end
 
 module.execute = function()
