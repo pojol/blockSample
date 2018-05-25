@@ -19,27 +19,27 @@
 #include <core/application.h>
 #include <core/dynamic_module_factory.h>
 
-#include <network/acceptor.h>
-#include <network/connector.h>
-#include <timer/timer.h>
+#include <network/tcpAcceptor.h>
+#include <network/tcpConnector.h>
 
-#include <log/log.h>
+#include <utils/logger.hpp>
+#include <utils/timer.hpp>
 
 #include <random>
 #include <luaAdapter/luaAdapter.h>
 
 
 class ClientModuleCtl
-	: public gsf::modules::LuaAdapterModule
+	: public block::modules::LuaAdapterModule
 {
 public:
 	ClientModuleCtl()
-		: gsf::modules::LuaAdapterModule("ClientModuleCtl")
+		: block::modules::LuaAdapterModule("ClientModuleCtl")
 	{}
 
 	void before_init() override
 	{
-		dir_ = "C:/github/gsf_sample/script";
+		dir_ = "C:/github/blockSample/script";
 		name_ = "echo/echo_client.lua";
 	}
 };
@@ -52,15 +52,13 @@ int main()
 	WSAStartup(0x0201, &wsa_data);
 #endif
 
-	gsf::Application app;
-	gsf::AppConfig cfg;
+	block::Application app;
+	block::AppConfig cfg;
 	cfg.name = "test_echo";
 	app.initCfg(cfg);
 
-	app.createModule(new gsf::modules::LogModule);
-	app.createModule(new gsf::network::ConnectorModule);
-	app.createModule(new gsf::network::AcceptorModule);
-	app.createModule(new gsf::modules::TimerModule);
+	app.createModule(new block::network::TcpConnectorModule);
+	app.createModule(new block::network::TcpAcceptorModule);
 
 	app.createModule(new ClientModuleCtl);
 

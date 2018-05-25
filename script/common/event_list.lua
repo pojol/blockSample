@@ -13,14 +13,16 @@ eid = {
 	},
 	
 	network = {
-		make_acceptor = 2001,
-		make_connector = 2002,
-		kick_connect = 2003,
-		send = 2004,
-		recv = 2005,
-		new_connect = 2006,
-		dis_connect = 2007,
-		fail_connect = 2008
+		tcp_make_acceptor = 2001,
+		ws_make_acceptor = 2002,
+		tcp_make_connector = 2003,
+		ws_make_connector = 2004,
+		kick_connect = 2005,
+		send = 2006,
+		recv = 2007,
+		new_connect = 2008,
+		dis_connect = 2009,
+		fail_connect = 2010
 	},
 
 	dbProxy = {

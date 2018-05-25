@@ -16,35 +16,30 @@ module.before_init = function(dir)
 
     require "utils"
 
-	logM_ = APP:getModule("LogModule")
-	INFO_LOG("server", "log : ", logM_)
-
 	acceptor_m_ = APP:getModule("AcceptorModule")
-	INFO_LOG("server", "acceptor module : ", acceptor_m_)
-
-	INFO_LOG("server", "module id : ", module_id)
+	self:logInfo("acceptor module " .. acceptor_m_)
 end
 
 module.init = function()
 
 	listen(eid.network.new_connect, function(args)
-		INFO_LOG("server", "new connect fd : ", args[1])
+		self:logInfo("new connect fd : " .. args[1])
 	end)
 
 	listen(eid.network.dis_connect, function(args)
-		INFO_LOG("server", "dis connect fd : ", args[1])
+		self:logInfo("dis connect fd : " .. args[1])
 	end)
 
 	listen(eid.network.recv, function(args)
 		_fd = args[1]
 		_msgid = args[2]
 
-		INFO_LOG("server", "recv : ", args[3])
+		self:logInfo("recv : " .. args[3])
 
-		dispatch(acceptor_m_, eid.network.send, evpack:send(_fd, 1002, "gsf!"))
+		dispatch(acceptor_m_, eid.network.send, evpack:send(_fd, 10002, "block!"))
 	end)
 
 	-- 创建接收器
-	dispatch(acceptor_m_, eid.network.make_acceptor, evpack:make_acceptor("127.0.0.1", 8001))
+	dispatch(acceptor_m_, eid.network.tcp_make_acceptor, evpack:make_acceptor("127.0.0.1", 8001))
 
 end

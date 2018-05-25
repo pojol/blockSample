@@ -90,7 +90,7 @@ function deep_copy(object)
 end
 
 function dispatch(target, eventID, buf)
-        event:ldispatch(target, eventID, buf)
+    self:ldispatch(target, eventID, buf)
 end
 
 function listen(eventID, func)
@@ -100,7 +100,7 @@ function listen(eventID, func)
         func(_args)
     end
 
-	event:llisten(eventID, _callback)
+	self:llisten(eventID, _callback)
 end
 
 function rpc(event_id, module_id, buf, callback)
@@ -111,89 +111,8 @@ function rpc(event_id, module_id, buf, callback)
     end
     
     if callback ~= nil then
-        event:lrpc(module_id, event_id, module_id, buf, _callback)
+        self:lrpc(module_id, event_id, module_id, buf, _callback)
     else
-        event:lrpc(module_id, event_id, module_id, buf, nil)
+        self:lrpc(module_id, event_id, module_id, buf, nil)
     end
-end
-
--- 在使用日志接口前先获取 LogModule
--- 调试日志 --
-function DEBUG_LOG(module, reason, ...)
-
-    logContent = "[module] " .. module .. " [reason] " .. reason .. '\n'
-    local _args = { ... }
-
-    for k, v in ipairs(_args) do
-        logContent = logContent .. dumpStr(v)
-    end
-
-    local args = Args.new()
-    args:push_ui16(0)
-    args:push_string(logContent)
-    event:ldispatch(logM_, eid.log.print, args:exportBuf())
-end
-
--- 诊断日志 --
-function INFO_LOG(module, reason, ...)
-    logContent = "[module] " .. module .. " [reason] " .. reason .. ' '
-    local _args = { ... }
-
-    for k, v in ipairs(_args) do
-        _v = v
-        if type(v) ~= "string" then
-            _v = tostring(v)
-        end 
-
-        logContent = logContent .. _v .. ' '
-    end
-
-    local args = Args.new()
-    args:push_ui16(1)
-    args:push_string(logContent)
-    event:ldispatch(logM_, eid.log.print, args:exportBuf())
-end
-
-function WARN_LOG(module, reason, ...)
-    logContent = "[module] " .. module .. " [reason] " .. reason .. ' '
-    local _args = { ... }
-
-    for k, v in ipairs(_args) do
-        _v = v
-        if type(v) ~= "string" then
-            _v = tostring(v)
-        end 
-
-        logContent = logContent .. _v .. ' '
-    end
-
-    local args = Args.new()
-    args:push_ui16(2)
-    args:push_string(logContent)
-    event:ldispatch(logM_, eid.log.print, args:exportBuf())
-end
-
-function ERR_LOG(module, reason, ...)
-    logContent = "[module] " .. module .. " [reason] " .. reason .. ' '
-    local _args = { ... }
-
-    for k, v in ipairs(_args) do
-        _v = v
-        if type(v) ~= "string" then
-            _v = tostring(v)
-        end 
-
-        logContent = logContent .. _v .. ' '
-    end
-
-    local args = Args.new()
-    args:push_ui16(3)
-    args:push_string(logContent)
-    event:ldispatch(logM_, eid.log.print, args:exportBuf())
-end
-
--- 统计日志 --
-
-function RECORD_LOG(behavior, player, time, ...)
-
 end
