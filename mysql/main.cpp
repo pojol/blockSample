@@ -18,20 +18,20 @@
 #include <core/application.h>
 #include <core/dynamic_module_factory.h>
 
-#include <timer/timer.h>
+#include <utils/timer.hpp>
+#include <utils/logger.hpp>
 
-#include <log/log.h>
 #include <luaAdapter/luaAdapter.h>
 
 #include "DBEntity.hpp"
 #include <thread>
 
 class TestCaseLuaModule
-	: public gsf::modules::LuaAdapterModule
+	: public block::modules::LuaAdapterModule
 {
 public:
 	TestCaseLuaModule()
-		: gsf::modules::LuaAdapterModule("TestCaseLuaModule")
+		: block::modules::LuaAdapterModule("TestCaseLuaModule")
 	{
 		dir_ = "c:/github/blockSample/script";
 		name_ = "test_mysql.lua";
@@ -44,11 +44,11 @@ private:
 };
 
 class GetCharModule
-	: public gsf::Module
+	: public block::Module
 {
 public:
 	GetCharModule()
-		: gsf::Module("GetCharModule")
+		: block::Module("GetCharModule")
 	{
 	}
 
@@ -60,7 +60,7 @@ public:
 
 			getline(std::cin, line_, '\n');
 			if (line_ == "reload") {
-				mailboxPtr_->dispatch(luaM_, eid::lua::reload, nullptr);
+				dispatch(luaM_, eid::lua::reload, nullptr);
 			}
 
 			Sleep(10);
@@ -76,19 +76,16 @@ public:
 	}
 
 private:
-	gsf::ModuleID luaM_ = gsf::ModuleNil;
+	block::ModuleID luaM_ = block::ModuleNil;
 };
 
 
 int main()
 {
-	gsf::Application app;
-	gsf::AppConfig cfg;
+	block::Application app;
+	block::AppConfig cfg;
 	//cfg.is_watch_pref = true;
 	app.initCfg(cfg);
-
-	APP.createModule(new gsf::modules::LogModule);
-	APP.createModule(new gsf::modules::TimerModule);
 
 	APP.createModule(new GetCharModule);
 	APP.createModule(new TestCaseLuaModule);

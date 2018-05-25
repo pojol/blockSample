@@ -21,9 +21,9 @@
 #include <core/application.h>
 #include <core/dynamic_module_factory.h>
 
-#include <timer/timer.h>
+#include <utils/timer.hpp>
+#include <utils/logger.hpp>
 
-#include <log/log.h>
 #include <luaAdapter/luaAdapter.h>
 
 #include <dbProxy/mysqlConnect.h>
@@ -34,12 +34,12 @@
 //! auto gen file
 
 class DBEntityModule
-	: public gsf::Module
+	: public block::Module
 {
 public:
 
 	DBEntityModule()
-		: gsf::Module("DBEntityModule")
+		: block::Module("DBEntityModule")
 	{
 
 	}
@@ -49,33 +49,30 @@ protected:
 	{
 		using namespace std::placeholders;
 
-		mailboxPtr_->listen(eid::dbProxy::connect
+		listen(eid::dbProxy::connect
 			, std::bind(&DBEntityModule::eInit, this, std::placeholders::_1, std::placeholders::_2));
 
-		mailboxPtr_->listen(eid::dbProxy::execSql
+		listen(eid::dbProxy::execSql
 			, std::bind(&DBEntityModule::eExecSql, this, std::placeholders::_1, std::placeholders::_2));
 
-		mailboxPtr_->listen(eid::dbProxy::load
+		listen(eid::dbProxy::load
 			, std::bind(&DBEntityModule::eLoad, this, std::placeholders::_1, std::placeholders::_2));
 
-		mailboxPtr_->listen(eid::dbProxy::insert
+		listen(eid::dbProxy::insert
 			, std::bind(&DBEntityModule::eInsert, this, std::placeholders::_1, std::placeholders::_2));
 
-		mailboxPtr_->listen(eid::dbProxy::update
+		listen(eid::dbProxy::update
 			, std::bind(&DBEntityModule::eUpdate, this, std::placeholders::_1, std::placeholders::_2));
 	
-		mysqlPtr_ = std::make_shared<gsf::modules::MysqlConnect>();
+		mysqlPtr_ = std::make_shared<block::modules::MysqlConnect>();
 	}
 
 	void init() override
 	{
-		mailboxPtr_->pull();
 	}
 
 	void execute() override
 	{
-		mailboxPtr_->pull();
-
 		if (useCache_) {
 			redisPtr_->run();
 		}
@@ -84,7 +81,7 @@ protected:
 		{
 			auto _callback = queue_.front();
 
-			mailboxPtr_->dispatch(_callback->target_, eid::dbProxy::callback, std::move(_callback->args_));
+			dispatch(_callback->target_, eid::dbProxy::callback, std::move(_callback->args_));
 
 			delete _callback;
 			_callback = nullptr;
@@ -95,15 +92,13 @@ protected:
 
 	void shut() override
 	{
-		mailboxPtr_->pull();
-
 		//! 清空redis
 		redisPtr_->flush_redis_handler();
 	}
 
 private:
 	
-	void eInit(gsf::ModuleID target, gsf::ArgsPtr args)
+	void eInit(block::ModuleID target, block::ArgsPtr args)
 	{
 		auto _host = args->pop_string();	//host
 		auto _user = args->pop_string(); //user
@@ -113,32 +108,29 @@ private:
 		auto _useCache = args->pop_bool();
 
 		if (!mysqlPtr_->init(_host, _port, _user, _password, _dbName)) {
-			APP.ERR_LOG("MysqlProxy", "init fail!");
+			ERROR_LOG("MysqlProxy init fail!");
 			return;
 		}
 
 		useCache_ = _useCache;
 		if (useCache_) {
 			timerM_ = APP.getModule("TimerModule");
-			if (timerM_ == gsf::ModuleNil) {
-				APP.ERR_LOG("DBProxy", "unRegist TimerModule!");
+			if (timerM_ == block::ModuleNil) {
+				ERROR_LOG("DBProxy unRegist TimerModule!");
 				return;
 			}
 
-			redisPtr_ = std::make_shared<gsf::modules::RedisConnect<test::Avatar>>();
+			redisPtr_ = std::make_shared<block::modules::RedisConnect<test::Avatar>>();
 			redisPtr_->init();
 
-
-			mailboxPtr_->listen(eid::timer::timer_arrive, std::bind(&DBEntityModule::onTimer, this, std::placeholders::_1, std::placeholders::_2));
-
-			mailboxPtr_->dispatch(timerM_, eid::timer::delay_milliseconds, gsf::makeArgs(TimerType::tt_rewrite, rewriteDelay_));
+			DELAY(block::utils::delay_milliseconds(rewriteDelay_), std::bind(&DBEntityModule::onTimer, this));
 		}
 	}
 
 	/*!
 	获取一个实例
 	**/
-	void eLoad(gsf::ModuleID target, gsf::ArgsPtr args)
+	void eLoad(block::ModuleID target, block::ArgsPtr args)
 	{
 		auto _id = args->pop_i32();
 
@@ -151,7 +143,7 @@ private:
 				std::cout << "----redis cache " << _buf << std::endl;
 
 				auto _callbackPtr = new CallbackInfo();
-				_callbackPtr->args_ = gsf::makeArgs(int(eid::dbProxy::load), true, 1, 1, _id, _buf);
+				_callbackPtr->args_ = block::makeArgs(int(eid::dbProxy::load), true, 1, 1, _id, _buf);
 				_callbackPtr->target_ = target;
 				queue_.push(_callbackPtr);
 
@@ -161,10 +153,10 @@ private:
 
 		std::string _sql = "select * from Entity where id = '" + std::to_string(_id) + "';";
 
-		mysqlPtr_->execSql(target, eid::dbProxy::load, _sql, [&](gsf::ModuleID _target, gsf::ArgsPtr args) {
+		mysqlPtr_->execSql(target, eid::dbProxy::load, _sql, [&](block::ModuleID _target, block::ArgsPtr args) {
 
 			if (useCache_) {
-				auto _targs = gsf::ArgsPool::get_ref().get();
+				auto _targs = block::ArgsPool::get_ref().get();
 				_targs->importBuf(args->exportBuf());
 
 				_targs->pop_i32();
@@ -190,25 +182,24 @@ private:
 	/*!
 	创建一个实例
 	**/
-	void eInsert(gsf::ModuleID target, gsf::ArgsPtr args)
+	void eInsert(block::ModuleID target, block::ArgsPtr args)
 	{
 		auto _buf = args->pop_string();
 		if (mysqlPtr_->insert("insert into Entity values(?, ?);", _buf.c_str(), _buf.length())) {
 			
-			mysqlPtr_->execSql(target, eid::dbProxy::insert, "select last_insert_id()", [&](gsf::ModuleID _target, gsf::ArgsPtr args) {
+			mysqlPtr_->execSql(target, eid::dbProxy::insert, "select last_insert_id()", [&](block::ModuleID _target, block::ArgsPtr args) {
 				auto _callbackPtr = new CallbackInfo();
 				_callbackPtr->args_ = std::move(args);
 				_callbackPtr->target_ = _target;
 				queue_.push(_callbackPtr);
 			});
 		}
-
 	}
 
 	/*!
 	更新一个实例
 	**/
-	void eUpdate(gsf::ModuleID target, gsf::ArgsPtr args)
+	void eUpdate(block::ModuleID target, block::ArgsPtr args)
 	{
 		auto _id = args->pop_i32();
 		auto _buf = args->pop_string();
@@ -229,13 +220,13 @@ private:
 	/*!
 	执行一条sql语句
 	**/
-	void eExecSql(gsf::ModuleID target, gsf::ArgsPtr args)
+	void eExecSql(block::ModuleID target, block::ArgsPtr args)
 	{
 		std::string queryStr = args->pop_string();
 
 		using namespace std::placeholders;
 
-		mysqlPtr_->execSql(target, eid::dbProxy::execSql, queryStr, [&](gsf::ModuleID _target, gsf::ArgsPtr args) {
+		mysqlPtr_->execSql(target, eid::dbProxy::execSql, queryStr, [&](block::ModuleID _target, block::ArgsPtr args) {
 			auto _callbackPtr = new CallbackInfo();
 			_callbackPtr->args_ = std::move(args);
 			_callbackPtr->target_ = _target;
@@ -247,22 +238,17 @@ private:
 	/*！
 	开启灾备&cache功能后调用
 	**/
-	void onTimer(gsf::ModuleID target, gsf::ArgsPtr args)
+	void onTimer()
 	{
-		int32_t _tag = args->pop_i32();
-
-		if (_tag == TimerType::tt_rewrite) {
-
-			auto _vec = redisPtr_->getAll();
-			for each(auto kv in _vec)
-			{
-				if (kv.first != 0) {
-					update(std::to_string(kv.first), kv.second);
-				}
+		auto _vec = redisPtr_->getAll();
+		for each(auto kv in _vec)
+		{
+			if (kv.first != 0) {
+				update(std::to_string(kv.first), kv.second);
 			}
-
-			mailboxPtr_->dispatch(timerM_, eid::timer::delay_milliseconds, gsf::makeArgs(TimerType::tt_rewrite, rewriteDelay_));
 		}
+
+		DELAY(block::utils::delay_milliseconds(rewriteDelay_), std::bind(&DBEntityModule::onTimer, this));
 	}
 
 private:
@@ -276,18 +262,18 @@ private:
 
 	const int32_t rewriteDelay_ = 1000 * 60 * 1;
 
-	gsf::ModuleID timerM_ = gsf::ModuleNil;
+	block::ModuleID timerM_ = block::ModuleNil;
 
-	std::shared_ptr<gsf::modules::RedisConnect<test::Avatar>> redisPtr_ = nullptr;
+	std::shared_ptr<block::modules::RedisConnect<test::Avatar>> redisPtr_ = nullptr;
 
 	struct CallbackInfo
 	{
-		gsf::ModuleID target_ = gsf::ModuleNil;
-		gsf::ArgsPtr args_ = nullptr;
+		block::ModuleID target_ = block::ModuleNil;
+		block::ArgsPtr args_ = nullptr;
 	};
 	typedef std::queue<CallbackInfo *> CallbackQueue;
 	
 	CallbackQueue queue_;
 
-	gsf::modules::MysqlPtr mysqlPtr_ = nullptr;
+	block::modules::MysqlPtr mysqlPtr_ = nullptr;
 };

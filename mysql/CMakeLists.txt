@@ -11,7 +11,10 @@ if(WIN32)
 		${BLOCK_PATH}/3rd/mysql_connect/include
 		${BLOCK_PATH}/3rd/redis/deps/hiredis
 		${BLOCK_PATH}/3rd/protobuf-3.2.0/src
+		${BLOCK_PATH}/3rd/glog/src
 	)
+
+	Add_Definitions("-DGLOG_NO_ABBREVIATED_SEVERITIES")
 endif()
 if(UNIX)
 	INCLUDE_DIRECTORIES(
