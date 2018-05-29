@@ -114,12 +114,6 @@ private:
 
 		useCache_ = _useCache;
 		if (useCache_) {
-			timerM_ = APP.getModule("TimerModule");
-			if (timerM_ == block::ModuleNil) {
-				ERROR_LOG("DBProxy unRegist TimerModule!");
-				return;
-			}
-
 			redisPtr_ = std::make_shared<block::modules::RedisConnect<test::Avatar>>();
 			redisPtr_->init();
 
