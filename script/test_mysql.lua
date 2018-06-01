@@ -51,25 +51,25 @@ function noCacheTest()
 
 	listen(eid.dbProxy.callback, function(args)
 		if args[1] == eid.dbProxy.execSql then
-			self:logInfo("[In] execSql res : " .. dumpStr(args))
+			self:logInfo("[Callback] execSql res : " .. dumpStr(args))
 
 			_buf = protobuf_.encode("test.Avatar", entity.property)
 			dispatch(dbEntityM_, eid.dbProxy.insert, evpack:dbInsert(_buf))
 
 		elseif args[1] == eid.dbProxy.insert then
-			self:logInfo("[In] insert res : " .. dumpStr(args))
+			self:logInfo("[Callback] insert res : " .. dumpStr(args))
 
 			entity.property.name = "hello"
 			_buf = protobuf_.encode("test.Avatar", entity.property)
-			dispatch(dbEntityM_, eid.dbProxy.update, evpack:dbUpdate(1, _buf))
+			dispatch(dbEntityM_, eid.dbProxy.update, evpack:dbUpdate(args[5], _buf))
 
 			dispatch(dbEntityM_, eid.dbProxy.load, evpack:dbLoad(args[5]))
 
 		elseif args[1] == eid.dbProxy.load then
-			self:logInfo("[In] load res : " .. dumpStr(args))
+			self:logInfo("[Callback] load res : " .. dumpStr(args))
 
 			_avatar = protobuf_.decode("test.Avatar", args[6])
-			self:logInfo("[In entity : ]" .. dumpStr(_avatar))
+			self:logInfo("[Callback] entity : " .. dumpStr(_avatar))
 		end
 	end)
 

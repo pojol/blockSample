@@ -7,18 +7,25 @@ module = {
 }
 
 logM_ = 0
+total_ = 0
 
 module.before_init = function(dir)
 	local package_path = {}
 	table.insert(package_path, dir .. "/common/?.lua")
 	package.path = table.concat(package_path, ';')
 
-	--require "utils"
+	require "utils"
+
+	listen(10001, function(args)
+	
+		total_ = total_ + 1
+		self:logInfo("[M]hw [Ev]10001 [In] " .. dumpStr(args))
+
+	end)
 
 end
 
 module.init = function()
-	self:logInfo("hello, block!")
 end
 
 module.execute = function()

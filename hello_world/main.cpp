@@ -32,13 +32,40 @@ public:
 private:
 };
 
+class PerformanceModule
+	: public block::Module
+{
+public:
+
+	PerformanceModule()
+		: block::Module("PerformanceModule") 
+	{
+	}
+
+	void execute() override 
+	{
+		auto _luaModule = APP.getModule("TestLuaModule");
+
+		for (int i = 0; i < 1; ++i)
+		{
+			dispatch(_luaModule, 10001, block::makeArgs(i, std::string("tick")));
+		}
+	}
+
+private:
+	
+};
+
+
 int main()
 {
 	block::Application app;
 	block::AppConfig cfg;
+	cfg.tick_count = 50;
 	app.initCfg(cfg);
 
 	APP.createModule(new TestLuaModule);
+	APP.createModule(new PerformanceModule);
 
 	app.run();
 
