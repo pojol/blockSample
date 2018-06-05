@@ -62,12 +62,13 @@ int main()
 	block::Application app;
 	block::AppConfig cfg;
 	cfg.tick_count = 50;
-	app.initCfg(cfg);
+	
+	APP.initCfg(cfg);
 
 	APP.createModule(new TestLuaModule);
 	APP.createModule(new PerformanceModule);
 
-	app.run();
+	APP.run();
 
 	return 0;
 }

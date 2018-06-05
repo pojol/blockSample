@@ -19,58 +19,103 @@ local at_eof = 20
 -- auto generated
 evpack = {
 
-    coordinat_select = function(self, module_name, module_fature)
-        print(module_name, module_fature)
-        local pack = Args.new()
-        pack:push_string(module_name)
-        pack:push_i32(module_fature)
-        return pack:exportBuf()
+    pack = function(self, event, args)
+        if event == eid.network.tcp_make_acceptor then
+            local _buf = Args.new()
+            _buf:push_string(args[1])
+            _buf:push_i32(args[2])
+            return _buf:exportBuf()
+        end
+
+        if event == eid.network.tcp_make_connector then
+            local _buf = Args.new()
+            pack:push_string(args[1])
+            pack:push_i32(args[2])
+            return pack:exportBuf()
+        end
+
+        if event == eid.network.kick_connect then
+            local pack = Args.new()
+            pack:push_ui16(args[1])
+            return pack:exportBuf()
+        end
+
+        if event == eid.network.send then
+            local pack = Args.new()
+            pack:push_ui16(args[1])
+            pack:push_i32(args[2])
+            pack:push_string(args[3])
+            return pack:exportBuf()
+        end        
+
+        if event == eid.dbProxy.connect then
+            local pack = Args.new()
+            pack:push_string(args[1])
+            pack:push_string(args[2])
+            pack:push_string(args[3])
+            pack:push_string(args[4])
+            pack:push_i32(args[5])
+            pack:push_bool(args[6])
+            return pack:exportBuf()
+        end
+
+        if event == eid.dbProxy.execSql then
+            local pack = Args.new()
+            pack:push_string(args[1])
+            return pack:exportBuf()
+        end
+
+        if event == eid.dbProxy.insert then
+            local pack = Args.new()
+            pack:push_string(args[1])
+            return pack:exportBuf()
+        end
+
+        if event == eid.dbProxy.load then
+            local pack = Args.new()
+            pack:push_i32(args[1])
+            return pack:exportBuf()
+        end
+
+        if event == eid.dbProxy.update then
+            local pack = Args.new()
+            pack:push_i32(args[1])
+            pack:push_string(args[2])
+            return pack:exportBuf()
+        end
+
+        if event == eid.distributed.coordinat_select then 
+            local pack = Args.new()
+            pack:push_string(args[1])
+            pack:push_i32(args[2])
+            return pack:exportBuf()
+        end
+
+        -- test
+        if event == eid.test.create_dynamic_acceptor then
+            local pack = Args.new()
+            pack:push_string(args[1])
+            return pack:exportBuf()
+        end
+
+        if event == eid.test.delete_room_module then
+            local pack = Args.new()
+            pack:push_string(args[1])
+            return pack:exportBuf()
+        end
+
+        if event == eid.test.dynamic_module_init_succ then
+            local pack = Args.new()
+            pack:push_string(args[1])
+            return pack:exportBuf()
+        end
+
+        return ""
     end,
 
-    dbQuery = function(self, sql)
-        local pack = Args.new()
-        pack:push_string(sql)
-        return pack:exportBuf()
-    end,
 
-    dbLoad = function(self, id)
-        local pack = Args.new()
-        pack:push_i32(id)
-        return pack:exportBuf()
-    end,
-
-    dbInsert = function(self, buf)
-        local pack = Args.new()
-        pack:push_string(buf)
-        return pack:exportBuf()
-    end,
-
-    dbUpdate = function(self, id, buf)
-        local pack = Args.new()
-        pack:push_i32(id)
-        pack:push_string(buf)
-        return pack:exportBuf()
-    end,
-
-    mysql_connect = function(self, host, user, password, db, port, useCache)
-        local pack = Args.new()
-        pack:push_string(host)
-        pack:push_string(user)
-        pack:push_string(password)
-        pack:push_string(db)
-        pack:push_i32(port)
-        pack:push_bool(useCache)
-        return pack:exportBuf()
-    end,
-
-    delay_milliseconds = function(self, tag, milliseconds)
-        local pack = Args.new()
-        pack:push_i32(tag)
-        pack:push_i32(milliseconds)
-        return pack:exportBuf()
-    end,
-
-    node_regist = function(self, module_id, reg_event, ip, port)
+--[[
+ node_regist = function(self, module_id, reg_event, ip, port)
         local pack = Args.new()
         pack:push_i32(module_id)
         pack:push_i32(reg_event)
@@ -111,41 +156,8 @@ evpack = {
         pack:push_i32(node_id)
         return pack:exportBuf()
     end,
+]]
 
-    make_acceptor = function(self, ip, port)
-        local pack = Args.new()
-        pack:push_string(ip)
-        pack:push_i32(port)
-        return pack:exportBuf()
-    end,
-
-    make_connector = function(self, ip, port)
-        local pack = Args.new()
-        pack:push_string(ip)
-        pack:push_i32(port)
-        return pack:exportBuf()
-    end,
-
-    send = function(self, fd, msg_id, buf)
-        local pack = Args.new()
-        pack:push_ui16(fd)
-        pack:push_i32(msg_id)
-        pack:push_string(buf)
-        return pack:exportBuf()
-    end,
-
-    send2 = function(self, msg_id, buf)
-        local pack = Args.new()
-        pack:push_i32(msg_id)
-        pack:push_string(buf)
-        return pack:exportBuf()
-    end,
-
-    kick_connect = function(self, fd)
-        local pack = Args.new()
-        pack:push_ui16(fd)
-        return pack:exportBuf()
-    end
 }
 
 function evunpack(buf)
@@ -159,16 +171,18 @@ function evunpack(buf)
 
         if _tag == at_uint16 then
             table.insert(_args, _idx, unpack:pop_ui16())
+        elseif _tag == at_int16 then 
+            table.insert(_args, _idx, unpack:pop_i16())
         elseif _tag == at_int32 then
             table.insert(_args, _idx, unpack:pop_i32())
-        elseif _tag == at_string then
-            table.insert(_args, _idx, unpack:pop_string())
         elseif _tag == at_uint32 then
             table.insert(_args, _idx, unpack:pop_ui32())
         elseif _tag == at_int64 then
             table.insert(_args, _idx, unpack:pop_i64())
         elseif _tag == at_uint64 then
             table.insert(_args, _idx, unpack:pop_ui64())
+        elseif _tag == at_string then
+            table.insert(_args, _idx, unpack:pop_string())
         elseif _tag == at_bool then
             table.insert(_args, _idx, unpack:pop_bool())
         end

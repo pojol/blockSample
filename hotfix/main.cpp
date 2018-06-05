@@ -16,21 +16,24 @@
 
 #include <core/application.h>
 #include <luaAdapter/luaAdapter.h>
-#include <dbProxy/mysqlProxy.h>
-#include <log/log.h>
-#include <timer/timer.h>
+#include <dbProxy/mysqlConnect.h>
+#include <dbProxy/redisConnect.h>
+
+#include <utils/timer.hpp>
+#include <utils/logger.hpp>
+
 #include <iostream>
 #include <thread>
 
 
 class TestLuaModule
-	: public gsf::modules::LuaAdapterModule
+	: public block::modules::LuaAdapterModule
 {
 public:
 	TestLuaModule()
-		: gsf::modules::LuaAdapterModule("TestLuaModule")
+		: block::modules::LuaAdapterModule("TestLuaModule")
 	{
-		dir_ = "C:/github/gsf_sample/script";
+		dir_ = "C:/github/blockSample/script";
 		name_ = "hotfix.lua";
 	}
 
@@ -38,11 +41,11 @@ private:
 };
 
 class GetCharModule
-	: public gsf::Module
+	: public block::Module
 {
 public:
 	GetCharModule()
-		: gsf::Module("GetCharModule")
+		: block::Module("GetCharModule")
 	{
 	}
 
@@ -54,7 +57,7 @@ public:
 
 			getline(std::cin, line_, '\n');
 			if (line_ == "reload") {
-				mailboxPtr_->dispatch(luaM_, eid::lua::reload, nullptr);
+				dispatch(luaM_, eid::lua::reload, nullptr);
 			}
 
 			Sleep(10);
@@ -70,23 +73,20 @@ public:
 	}
 
 private:
-	gsf::ModuleID luaM_ = gsf::ModuleNil;
+	block::ModuleID luaM_ = block::ModuleNil;
 };
 
 int main()
 {
-	gsf::Application app;
-	gsf::AppConfig cfg;
-	app.initCfg(cfg);
-
-	APP.createModule(new gsf::modules::LogModule);
-	APP.createModule(new gsf::modules::TimerModule);
-	APP.createModule(new gsf::modules::MysqlProxyModule);
+	block::Application app;
+	block::AppConfig cfg;
+	
+	APP.initCfg(cfg);
 
 	APP.createModule(new TestLuaModule);
 	APP.createModule(new GetCharModule);
 
-	app.run();
+	APP.run();
 
 	return 0;
 }

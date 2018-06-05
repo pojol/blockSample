@@ -1,18 +1,17 @@
-PROJECT(hotfix)
+﻿PROJECT(dynamic)
 
 #引用头文件目录
 if(WIN32)
 	INCLUDE_DIRECTORIES(
+		${BLOCK_PATH}/3rd/Libevent/include
+		${BLOCK_PATH}/3rd/protobuf-3.2.0/src
 		${BLOCK_PATH}/
 		${BLOCK_PATH}/modules
 		${BLOCK_PATH}/3rd/lua-5.3.4/src
 		${BLOCK_PATH}/3rd/sol2
 		${BLOCK_PATH}/3rd/fmt
-		${BLOCK_PATH}/3rd/mysql_connect/include
-		${BLOCK_PATH}/3rd/redis/deps/hiredis
 		${BLOCK_PATH}/3rd/glog/src
 	)
-
 	Add_Definitions("-DGLOG_NO_ABBREVIATED_SEVERITIES")
 endif()
 if(UNIX)
@@ -52,7 +51,7 @@ if(APPLE)
 endif()
 
 FILE(GLOB_RECURSE SRC "*.cpp" "*.h")
-ADD_EXECUTABLE(hotfix ${SRC})
+ADD_EXECUTABLE(dynamic ${SRC})
 
 if(MSVC)
     # Use the static C library for all build types
@@ -67,14 +66,14 @@ if(MSVC)
       endif()
     endforeach()
 
-        TARGET_LINK_LIBRARIES(hotfix core.lib glog.lib lua53.lib pbc.lib luaAdapter.lib fmt.lib libmysql.lib Win32_Interop.lib hiredis.lib dbProxy.lib)
+        TARGET_LINK_LIBRARIES(dynamic libevent.lib libevent_core.lib libevent_extras.lib network.lib core.lib ws2_32.lib timer.lib glog.lib log.lib lua53.lib pbc.lib luaAdapter.lib fmt.lib)
 elseif(UNIX)
 	if ("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 3.1)
-		target_link_libraries(hotfix ${CMAKE_THREAD_LIBS_INIT})
+		target_link_libraries(dynamic ${CMAKE_THREAD_LIBS_INIT})
 	else()
-		target_link_libraries(hotfix Threads::Threads)
+		target_link_libraries(dynamic Threads::Threads)
 	endif()
 
-    TARGET_LINK_LIBRARIES(hotfix liblog.a libglog.a libgsf_core.a liblua_proxy.a liblua.a libtimer.a libfmt.a -ldl)
+    TARGET_LINK_LIBRARIES(dynamic liblog.a libglog.a libgsf_core.a liblua_proxy.a liblua.a libtimer.a libfmt.a -ldl)
 elseif(APPLE)
 endif()
