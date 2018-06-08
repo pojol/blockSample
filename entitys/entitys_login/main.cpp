@@ -19,27 +19,38 @@
 #include <core/application.h>
 #include <core/dynamic_module_factory.h>
 
-#include <network/acceptor.h>
-#include <network/connector.h>
+#include <network\tcpAcceptor.h>
+#include <network\tcpConnector.h>
 
-#include <log/log.h>
+#include <distributed\node.h>
+
 #include <luaAdapter/luaAdapter.h>
-#include <distributed/node.h>
-#include <timer/timer.h>
 
 
-class LoginModuleCtl
-	: public gsf::modules::LuaAdapterModule
+class LoginNode
+	: public block::modules::LuaAdapterModule
 {
 public:
-	LoginModuleCtl()
-		: gsf::modules::LuaAdapterModule("LoginModuleCtl")
+	LoginNode()
+		: block::modules::LuaAdapterModule("LoginNode")
 	{
-		dir_ = "C:/github/gsf_sample/script";
-		name_ = "entitys/login.lua";
+		dir_ = "C:/github/blockSample/script";
+		name_ = "entitys/loginNode.lua";
 	}
 
 private:
+};
+
+class LoginModule
+	: public block::modules::LuaAdapterModule
+{
+public:
+	LoginModule()
+		: block::modules::LuaAdapterModule("LoginModule")
+	{
+		dir_ = "C:/github/blockSample/script";
+		name_ = "entitys/login.lua";
+	}
 };
 
 int main()
@@ -49,19 +60,19 @@ int main()
 	WSAStartup(0x0201, &wsa_data);
 #endif
 
-	gsf::Application app;
-	gsf::AppConfig cfg;
+	new block::Application;
+	block::AppConfig cfg;
 	cfg.name = "login";
-	app.initCfg(cfg);
+	
+	APP.initCfg(cfg);
 
-	app.createModule(new gsf::modules::LogModule);
-	app.createModule(new gsf::network::AcceptorModule);
-	app.createModule(new gsf::modules::TimerModule);
-	app.createModule(new gsf::modules::NodeModule);
+	APP.createModule(new block::network::TcpAcceptorModule);
+	APP.createModule(new block::modules::NodeModule);
 
-	app.createModule(new LoginModuleCtl);
+	APP.createModule(new LoginModule);
+	APP.createModule(new LoginNode);
 
-	app.run();
+	APP.run();
 
 	return 0;
 }

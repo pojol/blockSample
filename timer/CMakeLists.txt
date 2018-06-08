@@ -1,6 +1,6 @@
-PROJECT(test_timer)
+﻿PROJECT(test_timer)
 
-#引用头文件目录
+#寮曠敤澶存枃浠剁洰褰?
 if(WIN32)
 	INCLUDE_DIRECTORIES(
 		${BLOCK_PATH}/
@@ -30,7 +30,7 @@ if(APPLE)
 endif()
 
 
-#引用库目录
+#寮曠敤搴撶洰褰?
 if(WIN32)
 	LINK_DIRECTORIES(
 	${BLOCK_PATH}/lib/win/Debug

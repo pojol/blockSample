@@ -1,48 +1,50 @@
-PROJECT(entitys_login)
+﻿PROJECT(entitys_login)
 
-#引用头文件目录
+#寮曠敤澶存枃浠剁洰褰?
 if(WIN32)
 	INCLUDE_DIRECTORIES(
-		${GSF_PATH}/3rd/protobuf-3.2.0/src
-		${GSF_PATH}/3rd/Libevent/include
-		${GSF_PATH}/3rd/sol2
-		${GSF_PATH}/3rd/lua-5.3.4/src
-		${GSF_PATH}/
-		${GSF_PATH}/modules
-		${GSF_PATH}/3rd/fmt
+		${BLOCK_PATH}/3rd/Libevent/include
+		${BLOCK_PATH}/3rd/protobuf-3.2.0/src
+		${BLOCK_PATH}/
+		${BLOCK_PATH}/modules
+		${BLOCK_PATH}/3rd/lua-5.3.4/src
+		${BLOCK_PATH}/3rd/sol2
+		${BLOCK_PATH}/3rd/fmt
+		${BLOCK_PATH}/3rd/glog/src
 	)
+	Add_Definitions("-DGLOG_NO_ABBREVIATED_SEVERITIES")
 endif()
 if(UNIX)
 	INCLUDE_DIRECTORIES(
-			${GSF_PATH}/
-			${GSF_PATH}/modules
-			${GSF_PATH}/lib/libevent/include
-			${GSF_PATH}/3rd/lua53/lua-5.3.4/src
-			${GSF_PATH}/3rd/sol2
+			${BLOCK_PATH}/
+			${BLOCK_PATH}/modules
+			${BLOCK_PATH}/lib/libevent/include
+			${BLOCK_PATH}/3rd/lua53/lua-5.3.4/src
+			${BLOCK_PATH}/3rd/sol2
 		)
 endif()
 if(APPLE)
     INCLUDE_DIRECTORIES(
-            ${GSF_PATH}/3rd/libevent-2.0.22-stable/include
-            ${GSF_PATH}/
-			${GSF_PATH}/modules
+            ${BLOCK_PATH}/3rd/libevent-2.0.22-stable/include
+            ${BLOCK_PATH}/
+			${BLOCK_PATH}/modules
 	)
 endif()
 
-#引用库目录
+#寮曠敤搴撶洰褰?
 if(WIN32)
 	LINK_DIRECTORIES(
-			${GSF_PATH}/lib/win/Debug
+			${BLOCK_PATH}/lib/win/Debug
 	)
 endif()
 if(UNIX)
 	find_package(Threads)
 	LINK_DIRECTORIES(
-			${GSF_PATH}/lib
-			${GSF_PATH}/lib/libevent/lib
-			${GSF_PATH}/lib/glog/lib
-			${GSF_PATH}/lib/fmt/lib
-			${GSF_PATH}/lib/lua
+			${BLOCK_PATH}/lib
+			${BLOCK_PATH}/lib/libevent/lib
+			${BLOCK_PATH}/lib/glog/lib
+			${BLOCK_PATH}/lib/fmt/lib
+			${BLOCK_PATH}/lib/lua
 	)
 endif()
 if(APPLE)
@@ -64,7 +66,7 @@ if(MSVC)
       endif()
     endforeach()
 
-        TARGET_LINK_LIBRARIES(entitys_login libevent.lib libevent_core.lib libevent_extras.lib network.lib core.lib ws2_32.lib libprotobufd.lib glog.lib log.lib distributed.lib lua53.lib LuaAdapter.lib timer.lib fmt.lib)
+        TARGET_LINK_LIBRARIES(entitys_login libevent.lib libevent_core.lib libevent_extras.lib network.lib core.lib distributed.lib ws2_32.lib timer.lib glog.lib log.lib lua53.lib pbc.lib luaAdapter.lib fmt.lib)
 endif()
 if(UNIX)
 	if ("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 3.1)

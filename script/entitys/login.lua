@@ -5,6 +5,7 @@ module = {
 	shut = function() end,
 }
 
+
 module.before_init = function(dir)
 	local package_path = {}
 	table.insert(package_path, dir .. "/common/?.lua")
@@ -13,14 +14,13 @@ module.before_init = function(dir)
 
 	require "utils"
 	
+end
 
 module.init = function()
 
-end
+    listen(event.module_init_succ, function(args)
+        self:logInfo("[M]login [Ev]module_init_succ name:" .. args[1] .. " id:" .. args[2])
+    
+    end)
 
-module.execute = function()
-
-end
-
-module.shut = function()
 end

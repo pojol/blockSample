@@ -84,10 +84,30 @@ evpack = {
             return pack:exportBuf()
         end
 
-        if eventID == eid.distributed.coordinat_select then 
+        if eventID == event.coordinat_select then 
             local pack = Args.new()
             pack:push_string(args[1])
             pack:push_i32(args[2])
+            return pack:exportBuf()
+        end
+
+        if eventID == event.node_init then
+            local pack = Args.new()
+            pack:push_i32(args[1].node_id)
+            pack:push_string(args[1].node_type)
+            pack:push_string(args[1].node_ip)
+            pack:push_i32(args[1].node_port)
+            pack:push_string(args[1].root_ip)
+            pack:push_i32(args[1].root_port)
+
+            _count = #args[1].moduels
+            pack:push_i32(_count)
+            for i = 1, _count do
+                local _m = args[1].moduels[i]
+                pack:push_string(_m[1])
+                pack:push_i32(_m[2])
+            end
+
             return pack:exportBuf()
         end
 

@@ -28,4 +28,5 @@ event = {
 	db_update = 2405,
 	db_callback = 2406,
 
+	node_init = 2501,
 }
