@@ -19,28 +19,28 @@ local at_eof = 20
 -- auto generated
 evpack = {
 
-    pack = function(self, event, args)
-        if event == eid.network.tcp_make_acceptor then
-            local _buf = Args.new()
-            _buf:push_string(args[1])
-            _buf:push_i32(args[2])
-            return _buf:exportBuf()
-        end
-
-        if event == eid.network.tcp_make_connector then
-            local _buf = Args.new()
+    pack = function(self, eventID, args)
+        if eventID == event.tcp_make_acceptor then
+            local pack = Args.new()
             pack:push_string(args[1])
             pack:push_i32(args[2])
             return pack:exportBuf()
         end
 
-        if event == eid.network.kick_connect then
+        if eventID == event.tcp_make_connector then
+            local pack = Args.new()
+            pack:push_string(args[1])
+            pack:push_i32(args[2])
+            return pack:exportBuf()
+        end
+
+        if eventID == event.tcp_kick_connect then
             local pack = Args.new()
             pack:push_ui16(args[1])
             return pack:exportBuf()
         end
 
-        if event == eid.network.send then
+        if eventID == event.tcp_send then
             local pack = Args.new()
             pack:push_ui16(args[1])
             pack:push_i32(args[2])
@@ -48,7 +48,7 @@ evpack = {
             return pack:exportBuf()
         end        
 
-        if event == eid.dbProxy.connect then
+        if eventID == event.db_connect then
             local pack = Args.new()
             pack:push_string(args[1])
             pack:push_string(args[2])
@@ -59,32 +59,32 @@ evpack = {
             return pack:exportBuf()
         end
 
-        if event == eid.dbProxy.execSql then
+        if eventID == event.db_execSql then
             local pack = Args.new()
             pack:push_string(args[1])
             return pack:exportBuf()
         end
 
-        if event == eid.dbProxy.insert then
+        if eventID == event.db_insert then
             local pack = Args.new()
             pack:push_string(args[1])
             return pack:exportBuf()
         end
 
-        if event == eid.dbProxy.load then
+        if eventID == event.db_load then
             local pack = Args.new()
             pack:push_i32(args[1])
             return pack:exportBuf()
         end
 
-        if event == eid.dbProxy.update then
+        if eventID == event.db_update then
             local pack = Args.new()
             pack:push_i32(args[1])
             pack:push_string(args[2])
             return pack:exportBuf()
         end
 
-        if event == eid.distributed.coordinat_select then 
+        if eventID == eid.distributed.coordinat_select then 
             local pack = Args.new()
             pack:push_string(args[1])
             pack:push_i32(args[2])
@@ -92,19 +92,19 @@ evpack = {
         end
 
         -- test
-        if event == eid.test.create_dynamic_acceptor then
+        if eventID == eid.test.create_dynamic_acceptor then
             local pack = Args.new()
             pack:push_string(args[1])
             return pack:exportBuf()
         end
 
-        if event == eid.test.delete_room_module then
+        if eventID == eid.test.delete_room_module then
             local pack = Args.new()
             pack:push_string(args[1])
             return pack:exportBuf()
         end
 
-        if event == eid.test.dynamic_module_init_succ then
+        if eventID == eid.test.dynamic_module_init_succ then
             local pack = Args.new()
             pack:push_string(args[1])
             return pack:exportBuf()

@@ -26,6 +26,7 @@ module.before_init = function(dir)
 end
 
 module.init = function()
+	self:logInfo("[M]hw [F]init hello,block!")
 end
 
 module.execute = function()

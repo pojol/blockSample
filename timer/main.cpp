@@ -1,4 +1,4 @@
-#include <signal.h>
+﻿#include <signal.h>
 #include <fcntl.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -41,14 +41,15 @@ public:
 
 int main()
 {
-	block::Application app;
+	new block::Application;
+
 	block::AppConfig cfg;
 	//cfg.is_watch_pref = true;
-	app.initCfg(cfg);
+	APP.initCfg(cfg);
 
 	APP.createModule(new TestCaseLuaModule);
 
-	app.run();
+	APP.run();
 
 	return 0;
 }

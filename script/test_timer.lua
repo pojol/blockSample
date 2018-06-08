@@ -19,7 +19,7 @@ end
 
 module.init = function()
 
-	self:delay(5000, function() 
+	self:delay(1000, function() 
 		self:logInfo("timer arrived!")
 	end)
 

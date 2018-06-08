@@ -6,7 +6,6 @@ module = {
 }
 
 conn_m_ = 0
-logM_ = 0
 
 module.before_init = function(dir)
     local package_path = {}
@@ -15,40 +14,30 @@ module.before_init = function(dir)
 
     require "utils"
 
-    self:logInfo("[BEGIN] [M]echo_client [T]before_init")
-    self:logInfo("[In] dir:" .. dir)
-
-    conn_m_ = APP:getModule("ConnectorModule")
-    self:logDebug("connector module : " .. conn_m_)
-
-    self:logInfo("[END] [M]echo_client [T]before_init")
+    conn_m_ = APP:getModuleID("ConnectorModule")
+    self:logDebug("[M]echo_client connector module : " .. conn_m_)
 end
 
 module.init = function()
-    self:logInfo("[BEGIN] [M]echo_client [T]init")
 
-    listen(eid.network.new_connect, function(args)
+    listen(event.tcp_new_connect, function(args)
         self:logInfo("[BEGIN] [M]echo_client [Ev]new_connect")
         self:logInfo("[In] fd:" .. args[1])
 
-        dispatch(conn_m_, eid.network.send, evpack:send2(10001, "hello"))
+        dispatch(conn_m_, event.tcp_send, args[1], 10001, "hello")
 
         self:logInfo("[END] [M]echo_client [Ev]new_connect")
     end)
 
-    listen(eid.network.recv, function(args)
+    listen(event.tcp_recv, function(args)
         _fd = args[1]
 		_msgid = args[2]
 
-        self:logInfo("[BEGIN] [M]echo_client [Ev]recv")
-        self:logInfo("[In] fd:" .. _fd .. " msg:" .. _msgid)
+        self:logInfo("recv : " .. args[3])
 
-        dispatch(conn_m_, eid.network.send, evpack:send2(10001, "hello"))
-        self:logInfo("[END] [M]echo_client [Ev]recv")
+        dispatch(conn_m_, event.tcp_send, _fd, 10001, "hello")
     end)
 
     -- 创建连接器
-    dispatch(conn_m_, eid.network.tcp_make_connector, evpack:make_connector("127.0.0.1", 8001))
-
-    self:logInfo("[END] [M]echo_client [T]init")
+    dispatch(conn_m_, event.tcp_make_connector, "127.0.0.1", 8001)
 end

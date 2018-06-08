@@ -89,7 +89,10 @@ function deep_copy(object)
     return _copy(object)
 end
 
-function dispatch(target, eventID, buf)
+function dispatch(target, eventID, ...)
+    local args = { ... }
+    local buf = evpack:pack(eventID, args)
+
     self:ldispatch(target, eventID, buf)
 end
 

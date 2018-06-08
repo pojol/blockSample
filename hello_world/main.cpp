@@ -1,4 +1,4 @@
-#include <signal.h>
+﻿#include <signal.h>
 #include <fcntl.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -44,7 +44,7 @@ public:
 
 	void execute() override 
 	{
-		auto _luaModule = APP.getModule("TestLuaModule");
+		auto _luaModule = APP.getModuleID("TestLuaModule");
 
 		for (int i = 0; i < 1; ++i)
 		{
@@ -53,7 +53,6 @@ public:
 	}
 
 private:
-	
 };
 
 
@@ -61,12 +60,12 @@ int main()
 {
 	block::Application app;
 	block::AppConfig cfg;
+	cfg.appid = 1;
 	cfg.tick_count = 50;
 	
 	APP.initCfg(cfg);
 
 	APP.createModule(new TestLuaModule);
-	APP.createModule(new PerformanceModule);
 
 	APP.run();
 
