@@ -100,12 +100,12 @@ evpack = {
             pack:push_string(args[1].root_ip)
             pack:push_i32(args[1].root_port)
 
-            _count = #args[1].moduels
+            _count = #args[1].modules
             pack:push_i32(_count)
             for i = 1, _count do
-                local _m = args[1].moduels[i]
+                local _m = args[1].modules[i]
                 pack:push_string(_m[1])
-                pack:push_i32(_m[2])
+                pack:push_i64(APP:getModuleID(_m[1]))
             end
 
             return pack:exportBuf()

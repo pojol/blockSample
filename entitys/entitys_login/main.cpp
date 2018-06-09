@@ -34,7 +34,7 @@ public:
 	LoginNode()
 		: block::modules::LuaAdapterModule("LoginNode")
 	{
-		dir_ = "C:/github/blockSample/script";
+		dir_ = "C:/home/github/blockSample/script";
 		name_ = "entitys/loginNode.lua";
 	}
 
@@ -48,7 +48,7 @@ public:
 	LoginModule()
 		: block::modules::LuaAdapterModule("LoginModule")
 	{
-		dir_ = "C:/github/blockSample/script";
+		dir_ = "C:/home/github/blockSample/script";
 		name_ = "entitys/login.lua";
 	}
 };

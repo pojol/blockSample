@@ -1,7 +1,7 @@
 PROJECT(BLOCK_SAMPLE)
 
 if(WIN32)
-    SET(BLOCK_PATH C:/github/block CACHE INTERNAL "block path")
+    SET(BLOCK_PATH C:/home/github/block CACHE INTERNAL "block path")
 endif()
 if(UNIX)
     set(CMAKE_CXX_FLAGS "-std=c++14 ${CMAKE_CXX_FLAGS}")
