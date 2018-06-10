@@ -5,10 +5,7 @@ event = {
 	module_shut_succ = 102,
 
 	rpc_begin = 1001,
-	coordinat_regist = 1002,
-	coordinat_unregit = 1003,
-	coordinat_adjust_weight = 1004,
-	coordinat_select = 1005,
+	coordinat_adjust_weight = 1002,
 	rpc_end = 1999,
 
 	tcp_make_acceptor = 2001,
