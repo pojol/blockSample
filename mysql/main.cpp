@@ -145,7 +145,8 @@ public:
 
 			getline(std::cin, line_, '\n');
 			if (line_ == "reload") {
-				dispatch(luaM_, eid::lua::reload, nullptr);
+				dispatch(luaM_, block::event::script_reload, nullptr);
+			
 			}
 
 			Sleep(10);
@@ -154,7 +155,7 @@ public:
 
 	void init() override
 	{
-		luaM_ = APP.getModule("TestCaseLuaModule");
+		luaM_ = APP.getModuleID("TestCaseLuaModule");
 
 		std::thread t1(&GetCharModule::getChar, this);
 		t1.detach();

@@ -48,20 +48,20 @@ protected:
 	void before_init() override
 	{
 		using namespace std::placeholders;
-
-		listen(eid::dbProxy::connect
+		
+		listen(block::event::db_connect
 			, std::bind(&DBEntityModule::eInit, this, std::placeholders::_1, std::placeholders::_2));
 
-		listen(eid::dbProxy::execSql
+		listen(block::event::db_execSql
 			, std::bind(&DBEntityModule::eExecSql, this, std::placeholders::_1, std::placeholders::_2));
 
-		listen(eid::dbProxy::load
+		listen(block::event::db_load
 			, std::bind(&DBEntityModule::eLoad, this, std::placeholders::_1, std::placeholders::_2));
 
-		listen(eid::dbProxy::insert
+		listen(block::event::db_insert
 			, std::bind(&DBEntityModule::eInsert, this, std::placeholders::_1, std::placeholders::_2));
 
-		listen(eid::dbProxy::update
+		listen(block::event::db_update
 			, std::bind(&DBEntityModule::eUpdate, this, std::placeholders::_1, std::placeholders::_2));
 	
 		mysqlPtr_ = std::make_shared<block::modules::MysqlConnect>();
@@ -81,7 +81,7 @@ protected:
 		{
 			auto _callback = queue_.front();
 
-			dispatch(_callback->target_, eid::dbProxy::callback, std::move(_callback->args_));
+			dispatch(_callback->target_, block::event::db_callback, std::move(_callback->args_));
 
 			delete _callback;
 			_callback = nullptr;
@@ -117,7 +117,7 @@ private:
 			redisPtr_ = std::make_shared<block::modules::RedisConnect<test::Avatar>>();
 			redisPtr_->init();
 
-			DELAY(block::utils::delay_milliseconds(rewriteDelay_), std::bind(&DBEntityModule::onTimer, this));
+			TIMER.delay(block::utils::delay_milliseconds(rewriteDelay_), std::bind(&DBEntityModule::onTimer, this));
 		}
 	}
 
@@ -137,7 +137,7 @@ private:
 				std::cout << "----redis cache " << _buf << std::endl;
 
 				auto _callbackPtr = new CallbackInfo();
-				_callbackPtr->args_ = block::makeArgs(int(eid::dbProxy::load), true, 1, 1, _id, _buf);
+				_callbackPtr->args_ = block::makeArgs(int(block::event::db_load), true, 1, 1, _id, _buf);
 				_callbackPtr->target_ = target;
 				queue_.push(_callbackPtr);
 
@@ -147,7 +147,7 @@ private:
 
 		std::string _sql = "select * from Entity where id = '" + std::to_string(_id) + "';";
 
-		mysqlPtr_->execSql(target, eid::dbProxy::load, _sql, [&](block::ModuleID _target, block::ArgsPtr args) {
+		mysqlPtr_->execSql(target, block::event::db_load, _sql, [&](block::ModuleID _target, block::ArgsPtr args) {
 
 			if (useCache_) {
 				auto _targs = block::ArgsPool::get_ref().get();
@@ -181,7 +181,7 @@ private:
 		auto _buf = args->pop_string();
 		if (mysqlPtr_->insert("insert into Entity values(?, ?);", _buf.c_str(), _buf.length())) {
 			
-			mysqlPtr_->execSql(target, eid::dbProxy::insert, "select last_insert_id()", [&](block::ModuleID _target, block::ArgsPtr args) {
+			mysqlPtr_->execSql(target, block::event::db_insert, "select last_insert_id()", [&](block::ModuleID _target, block::ArgsPtr args) {
 				auto _callbackPtr = new CallbackInfo();
 				_callbackPtr->args_ = std::move(args);
 				_callbackPtr->target_ = _target;
@@ -220,7 +220,7 @@ private:
 
 		using namespace std::placeholders;
 
-		mysqlPtr_->execSql(target, eid::dbProxy::execSql, queryStr, [&](block::ModuleID _target, block::ArgsPtr args) {
+		mysqlPtr_->execSql(target, block::event::db_execSql, queryStr, [&](block::ModuleID _target, block::ArgsPtr args) {
 			auto _callbackPtr = new CallbackInfo();
 			_callbackPtr->args_ = std::move(args);
 			_callbackPtr->target_ = _target;
@@ -242,7 +242,7 @@ private:
 			}
 		}
 
-		DELAY(block::utils::delay_milliseconds(rewriteDelay_), std::bind(&DBEntityModule::onTimer, this));
+		TIMER.delay(block::utils::delay_milliseconds(rewriteDelay_), std::bind(&DBEntityModule::onTimer, this));
 	}
 
 private:
