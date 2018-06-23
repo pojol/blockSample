@@ -17,7 +17,7 @@ node_cfg = {
     root_port = 10001,
 
 	-- app 中需要被注册进root的module列表 (服务列表
-	modules = { {"LoginModule", module_id} }
+	modules = { }
 }
 
 module.before_init = function(dir)
@@ -30,13 +30,13 @@ module.before_init = function(dir)
 	
 	node_m_ = APP:getModuleID("NodeModule")
 	self:logInfo("[M]login node module : " .. node_m_)
-
-
-	dispatch(node_m_, event.node_init, node_cfg)
 end
 
 
 module.init = function()
+
+	table.insert(node_cfg.modules, {"LoginModule", APP.getModuleID("LoginModule")})
+	dispatch(node_m_, event.node_init, node_cfg)
 
 end
 
