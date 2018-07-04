@@ -25,5 +25,8 @@ event = {
 	db_update = 2405,
 	db_callback = 2406,
 
-	node_init = 2501,
+	rpc = 3001,
+	rpc_subscription = 3002,
+	rpc_auction_getpage_req = 3003,
+	rpc_auction_getpage_res = 3004,
 }
